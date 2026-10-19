@@ -14,7 +14,12 @@ base=/var/www/mumro.io/academy
 release=$base/releases/$release_id
 mkdir -p "$base/releases" "$base/backups"
 [[ $(realpath -m "$release") == "$base/releases/$release_id" ]] || exit 2
-[[ ! -e $release ]] || { printf 'Release already exists: %s\n' "$release" >&2; exit 2; }
+
+previous=$(readlink "$base/current" || true)
+if [[ -e $release && $previous != "$release" ]]; then
+    rm -rf "$release"
+fi
+[[ ! -e $release ]] || { printf 'Release is already active: %s\n' "$release" >&2; exit 2; }
 
 printf '%s  %s\n' \
   "$public_sha" "/tmp/$release_id-public.tar.gz" \
@@ -31,15 +36,15 @@ test -f "$release/public/sitemap.xml"
 test -f "$release/public/llms.txt"
 chmod -R a+rX "$release"
 
-config=/etc/nginx/sites-available/academy.mumro.io
-enabled=/etc/nginx/sites-enabled/academy.mumro.io
-backup=$base/backups/academy.mumro.io-$release_id.conf
+# Use mumro.io-academy so alphabetical sort in sites-enabled stays after app.mumro.io
+config=/etc/nginx/sites-available/mumro.io-academy
+enabled=/etc/nginx/sites-enabled/mumro.io-academy
+backup=$base/backups/mumro.io-academy-$release_id.conf
 config_existed=false
 if [[ -f $config ]]; then
     config_existed=true
     sudo -n cp -p "$config" "$backup"
 fi
-previous=$(readlink "$base/current" || true)
 
 rollback() {
     printf 'Rolling back academy.mumro.io activation...\n' >&2
@@ -87,9 +92,11 @@ sudo -n systemctl reload nginx
 
 expected_en=$(sha256sum "$release/public/index.html" | cut -d' ' -f1)
 expected_pl=$(sha256sum "$release/public/pl/index.html" | cut -d' ' -f1)
+actual_en=""
+actual_pl=""
 for attempt in {1..15}; do
-    actual_en=$(curl --insecure --compressed --fail --silent --show-error --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/?lang=en' | sha256sum | cut -d' ' -f1)
-    actual_pl=$(curl --insecure --compressed --fail --silent --show-error --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/pl/' | sha256sum | cut -d' ' -f1)
+    actual_en=$(curl --insecure --compressed --fail --silent --show-error --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/?lang=en' | sha256sum | cut -d' ' -f1 || true)
+    actual_pl=$(curl --insecure --compressed --fail --silent --show-error --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/pl/' | sha256sum | cut -d' ' -f1 || true)
     if [[ $actual_en == "$expected_en" && $actual_pl == "$expected_pl" ]]; then break; fi
     printf 'Waiting for Nginx workers, attempt %s: EN=%s PL=%s\n' "$attempt" "$actual_en" "$actual_pl"
     sleep 1
