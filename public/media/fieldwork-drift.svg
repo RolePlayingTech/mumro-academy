@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="680" viewBox="0 0 800 680">
+<defs><linearGradient id="ground" x2=".8" y2="1"><stop stop-color="#e7e9df"/><stop offset="1" stop-color="#cbd0c0"/></linearGradient><linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#56634b"/><stop offset=".5" stop-color="#394735"/><stop offset="1" stop-color="#263328"/></linearGradient><linearGradient id="end" x2="1" y2="0"><stop stop-color="#253227"/><stop offset="1" stop-color="#536047"/></linearGradient><filter id="shadow"><feGaussianBlur stdDeviation="16"/></filter><pattern id="weave" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 1h4M1 0v4" stroke="#c5d2b4" stroke-opacity=".07" stroke-width=".5"/></pattern></defs>
+<path fill="url(#ground)" d="M0 0h800v680H0z"/><path d="M40 545L755 189M108 626L793 284" fill="none" stroke="#b8c0af" stroke-width="1"/>
+<ellipse cx="415" cy="490" rx="236" ry="38" fill="#68705f" opacity=".26" filter="url(#shadow)"/>
+<g transform="rotate(-10 400 350)">
+<path d="M185 287q13-39 53-43l315-1q45 8 55 54l4 142q-6 50-45 59H241q-57-5-65-56z" fill="url(#fabric)" stroke="#27372b" stroke-width="3"/>
+<path d="M185 287q13-39 53-43l315-1q45 8 55 54l4 142q-6 50-45 59H241q-57-5-65-56z" fill="url(#weave)"/>
+<ellipse cx="582" cy="371" rx="39" ry="116" fill="url(#end)" stroke="#2a382b" stroke-width="3"/>
+<path d="M235 246l24-35h265l41 34-19 35H255z" fill="#657258" stroke="#34432f" stroke-width="3"/>
+<path d="M263 220h261M247 260h294" fill="none" stroke="#839173" stroke-width="2"/>
+<path d="M275 271v224M486 271v224" stroke="#1c251e" stroke-width="28"/>
+<path d="M265 272v219M476 272v219" stroke="#68705f" stroke-width="1" stroke-dasharray="3 4"/>
+<rect x="255" y="319" width="42" height="48" rx="4" fill="#161e19" stroke="#77816d" stroke-width="2"/><rect x="466" y="319" width="42" height="48" rx="4" fill="#161e19" stroke="#77816d" stroke-width="2"/>
+<path d="M260 340h32M471 340h32" stroke="#687365" stroke-width="3"/>
+<path d="M241 456q134 27 302 0M201 304q13 34 7 119" fill="none" stroke="#879179" stroke-width="1.3" stroke-dasharray="4 4"/>
+<rect x="329" y="356" width="107" height="48" rx="2" fill="#dcdcc5"/><text x="382" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1">FIELDWORK</text><text x="382" y="395" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" letter-spacing="2">DRIFT / 4L</text>
+<path d="M553 278l32-11 14 18-21 15" fill="none" stroke="#202c23" stroke-width="10"/>
+<path d="M180 407l-32 24 5 22 25-6" fill="none" stroke="#303b2d" stroke-width="9"/>
+</g><text x="55" y="65" font-family="Arial,sans-serif" font-size="12" fill="#56634c" letter-spacing="2">FIELDWORK / SHORT ESCAPES</text><text x="55" y="620" font-family="Arial,sans-serif" font-size="14" fill="#34452e" letter-spacing="3">DRIFT 4L</text><path d="M675 612h65m-14-9l14 9-14 9" fill="none" stroke="#4e6045" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ContactDialog from '../components/ContactDialog.astro';
+---
+<BaseLayout
+  locale="en"
+  title="404 — Page not found · Nie znaleziono strony | MUMRO Academy"
+  description="The requested MUMRO Academy page could not be found. Explore all 12 lessons in English or Polish."
+  noindex={true}
+>
+  <SiteHeader locale="en" routePath="/" />
+  <main id="main" class="container not-found">
+    <p class="eyebrow signal">404 · PAGE NOT FOUND / NIE ZNALEZIONO STRONY</p>
+    <h1>This route is outside the curriculum.</h1>
+    <p>
+      The page you requested does not exist. Choose your language edition below to browse all 4 tracks, 12 lessons, and playbooks.
+    </p>
+    <p lang="pl">
+      Szukana strona nie istnieje. Wybierz polską lub angielską edycję Akademii MUMRO poniżej.
+    </p>
+    <div class="actions">
+      <a class="button" href="/">MUMRO Academy (EN)<span aria-hidden="true">→</span></a>
+      <a class="button secondary" href="/pl/" lang="pl">Akademia MUMRO (PL)<span aria-hidden="true">→</span></a>
+    </div>
+  </main>
+  <SiteFooter locale="en" />
+  <ContactDialog locale="en" />
+</BaseLayout>
+<style>
+  .not-found {
+    padding-block: clamp(56px, 9vw, 120px);
+  }
+  h1 {
+    font: 400 clamp(44px, 6vw, 76px)/1.04 var(--display);
+    margin: 14px 0 18px;
+  }
+  p {
+    color: var(--muted);
+    max-width: 58ch;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 28px;
+  }
+</style>

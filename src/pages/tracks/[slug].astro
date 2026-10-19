@@ -1,0 +1,17 @@
+---
+import TrackPage from '../../components/TrackPage.astro';
+import { trackIds, type TrackId } from '../../lib/contracts';
+
+export function getStaticPaths() {
+  return trackIds.map((slug) => ({
+    params: { slug },
+    props: { trackId: slug },
+  }));
+}
+
+interface Props {
+  trackId: TrackId;
+}
+const { trackId } = Astro.props;
+---
+<TrackPage locale="en" trackId={trackId} />

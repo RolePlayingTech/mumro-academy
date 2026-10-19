@@ -1,0 +1,86 @@
+:root {
+  --paper: #f5f3ed;
+  --ink: #20231f;
+  --muted: #62675d;
+  --line: #d3d6c9;
+  --line-strong: #858c7c;
+  --signal: #e7471b;
+  --signal-text: #b63113;
+  --signal-soft: #f9e6df;
+  --wash: #ecebe2;
+  --white: #fffef9;
+  --sage: #e5e9de;
+  --sage-strong: #2c4a34;
+  --display: 'Instrument Serif', Georgia, serif;
+  --body: 'Inter', Arial, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, monospace;
+  --space: clamp(20px, 3.34vw, 64px);
+  --section-space: clamp(56px, 7vw, 112px);
+}
+* { box-sizing: border-box; }
+html { color-scheme: light; scroll-behavior: smooth; scroll-padding-top: 24px; }
+body { margin: 0; font: 400 16px/1.65 var(--body); background: var(--paper); color: var(--ink); }
+body, button, input, select { -webkit-font-smoothing: antialiased; }
+img, svg { max-width: 100%; }
+img { display: block; }
+a { color: inherit; text-underline-offset: .25em; }
+button, input, select { font: inherit; }
+button, summary, a { touch-action: manipulation; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--signal-text); outline-offset: 5px; }
+::selection { background: #f4cbb9; color: var(--ink); }
+[hidden] { display: none !important; }
+.dialog-open { overflow: hidden; }
+.container { width: calc(100% - var(--space) * 2); max-width: 1536px; margin-inline: auto; }
+.section { padding-block: var(--section-space); border-top: 1px solid var(--line); }
+.section-title { font: 400 clamp(40px, 4.8vw, 72px)/1.04 var(--display); letter-spacing: -.025em; margin: 18px 0 22px; text-wrap: balance; }
+.section-intro { font-size: 16px; max-width: 58ch; color: var(--muted); line-height: 1.65; }
+.eyebrow { font: 400 10px/1.6 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+.eyebrow.signal { color: var(--signal-text); }
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 48px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 13px 20px;
+  background: var(--ink);
+  color: var(--white);
+  font: 600 12px/1.5 var(--body);
+  text-decoration: none;
+  transition: background-color .18s, border-color .18s, color .18s;
+}
+.button:hover { background: #3b4336; border-color: #3b4336; }
+.button > span[aria-hidden] { font-size: 18px; line-height: 1; }
+.button.secondary { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+.button.secondary:hover { border-color: var(--ink); background: var(--white); }
+.button.signal { background: var(--signal); border-color: var(--signal); color: var(--white); }
+.button.signal:hover { background: var(--signal-text); border-color: var(--signal-text); }
+.text-link { display: inline-flex; gap: 10px; align-items: center; font-size: 12px; font-weight: 600; min-height: 44px; text-underline-offset: 6px; }
+.badge { display: inline-flex; align-items: center; gap: 7px; font: 400 10px/1.4 var(--mono); padding: 6px 10px; border: 1px solid var(--line); background: var(--white); text-transform: uppercase; letter-spacing: .06em; }
+.badge.signal { border-color: #e7471b55; background: var(--signal-soft); color: var(--signal-text); }
+.badge.sage { border-color: #858c7c66; background: var(--sage); color: var(--sage-strong); }
+.demo-note { font: 400 10px/1.5 var(--mono); color: var(--muted); }
+.preview-frame { background: var(--white); border: 1px solid var(--line); padding: clamp(20px, 3vw, 40px); min-width: 0; max-width: 100%; }
+article, section, main, div { min-width: 0; }
+.section-title, .preview-frame, h1, h2, h3, h4, h5, blockquote { overflow-wrap: anywhere; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+code, pre { font-family: var(--mono); }
+pre {
+  background: #181b17;
+  color: #f2f0e8;
+  padding: 20px 24px;
+  border: 1px solid var(--ink);
+  overflow-x: auto;
+  max-width: 100%;
+  font-size: 12.5px;
+  line-height: 1.65;
+  margin: 20px 0;
+}
+@media(max-width:350px) { :root { --space: 16px; } }
+@media(prefers-reduced-motion:reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

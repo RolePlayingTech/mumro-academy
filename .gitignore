@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+.cache/
+*.log
+*.tar.gz
+*.zip

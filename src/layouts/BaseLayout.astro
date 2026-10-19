@@ -1,0 +1,143 @@
+---
+import { alternateLocalePath, type Locale } from '../lib/contracts';
+import '../styles/fonts.css';
+import '../styles/global.css';
+import bodyLatin from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
+import bodyPolish from '../assets/fonts/inter-polish-400-normal.woff2?url';
+import displayLatin from '@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url';
+import displayPolish from '../assets/fonts/instrument-serif-polish-400-normal.woff2?url';
+import displayItalic from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
+import displayPolishItalic from '../assets/fonts/instrument-serif-polish-400-italic.woff2?url';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  routePath?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  extraSchema?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const {
+  locale,
+  title,
+  description,
+  routePath = Astro.url.pathname,
+  ogType = 'website',
+  noindex = false,
+  extraSchema,
+} = Astro.props;
+
+const hideFromSearch = noindex || import.meta.env.SITE_NOINDEX === 'true';
+const origin = Astro.site ?? new URL('https://academy.mumro.io');
+const enPath = alternateLocalePath('en', routePath);
+const plPath = alternateLocalePath('pl', routePath);
+const canonicalPath = locale === 'pl' ? plPath : enPath;
+const canonicalUrl = new URL(canonicalPath, origin);
+const enUrl = new URL(enPath, origin);
+const plUrl = new URL(plPath, origin);
+const shareImage = new URL(`/media/share-${locale}.png`, origin);
+const rssUrl = new URL(locale === 'pl' ? '/pl/rss.xml' : '/rss.xml', origin);
+
+const baseGraph: Array<Record<string, unknown>> = [
+  {
+    '@type': 'WebSite',
+    '@id': `${origin.href}#website`,
+    name: locale === 'pl' ? 'Akademia MUMRO' : 'MUMRO Academy',
+    alternateName: 'MUMRO Academy',
+    url: origin.href,
+    inLanguage: ['en', 'pl'],
+    description,
+    publisher: { '@id': 'https://mumro.io/#organization' },
+  },
+  {
+    '@type': 'EducationalOrganization',
+    '@id': 'https://mumro.io/#organization',
+    name: 'MUMRO by RolePlayingTech',
+    url: locale === 'pl' ? 'https://mumro.io/pl/' : 'https://mumro.io/',
+    sameAs: ['https://mumro.io/', 'https://roleplayingtech.com/'],
+  },
+];
+
+if (Array.isArray(extraSchema)) {
+  baseGraph.push(...extraSchema);
+} else if (extraSchema) {
+  baseGraph.push(extraSchema);
+}
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': baseGraph,
+};
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {locale === 'en' && !noindex && canonicalPath === '/' && (
+      <script is:inline>
+        (() => {
+          if (location.pathname !== '/') return;
+          const explicit = new URLSearchParams(location.search).get('lang');
+          let saved = '';
+          try {
+            saved = document.cookie.match(/(?:^|;\s*)mumro_lang=(en|pl)(?:;|$)/)?.[1] || '';
+          } catch {}
+          const language =
+            explicit === 'en' || explicit === 'pl'
+              ? explicit
+              : saved || (/^pl(?:-|$)/i.test(navigator.language) ? 'pl' : 'en');
+          if (language === 'pl') location.replace('/pl/' + location.search + location.hash);
+        })();
+      </script>
+    )}
+    <link rel="preload" href={bodyLatin} as="font" type="font/woff2" crossorigin />
+    {locale === 'pl' && <link rel="preload" href={bodyPolish} as="font" type="font/woff2" crossorigin />}
+    <link rel="preload" href={displayLatin} as="font" type="font/woff2" crossorigin />
+    {locale === 'pl' && <link rel="preload" href={displayPolish} as="font" type="font/woff2" crossorigin />}
+    <link rel="preload" href={displayItalic} as="font" type="font/woff2" crossorigin />
+    {locale === 'pl' && <link rel="preload" href={displayPolishItalic} as="font" type="font/woff2" crossorigin />}
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {hideFromSearch && <meta name="robots" content="noindex,nofollow" />}
+    {!noindex && (
+      <>
+        <link rel="canonical" href={canonicalUrl.href} />
+        <link rel="alternate" hreflang="en" href={enUrl.href} />
+        <link rel="alternate" hreflang="pl" href={plUrl.href} />
+        <link rel="alternate" hreflang="x-default" href={enUrl.href} />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={locale === 'pl' ? 'Akademia MUMRO — Kanał RSS (PL)' : 'MUMRO Academy — RSS Feed (EN)'}
+          href={rssUrl.href}
+        />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:site_name" content="MUMRO Academy" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl.href} />
+        <meta property="og:locale" content={locale === 'pl' ? 'pl_PL' : 'en_US'} />
+        <meta property="og:locale:alternate" content={locale === 'pl' ? 'en_US' : 'pl_PL'} />
+        <meta property="og:image" content={shareImage.href} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={title} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={shareImage.href} />
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')}
+        />
+      </>
+    )}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body id="top">
+    <slot />
+  </body>
+</html>

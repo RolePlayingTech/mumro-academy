@@ -1,0 +1,246 @@
+---
+import { shellContent } from '../content/shell';
+import { alternateLocalePath, localePath, type Locale } from '../lib/contracts';
+
+interface Props {
+  locale: Locale;
+  routePath?: string;
+}
+
+const { locale, routePath = Astro.url.pathname } = Astro.props;
+const c = shellContent[locale];
+const homeHref = localePath(locale);
+const enHref = `${alternateLocalePath('en', routePath)}?lang=en`;
+const plHref = `${alternateLocalePath('pl', routePath)}?lang=pl`;
+
+function resolveNavHref(item: { kind: string; target: string }): string {
+  if (item.kind === 'route') {
+    return localePath(locale, item.target);
+  }
+  return `${homeHref}${item.target}`;
+}
+---
+<a class="skip-link" href="#main">{c.skip}</a>
+<header class="site-header container">
+  <div class="brand-lockup">
+    <a class="wordmark" href={homeHref} aria-label="MUMRO Academy">
+      mumro<span class="dot" aria-hidden="true">●</span><span class="submark">academy</span>
+    </a>
+  </div>
+  <nav class="desktop-nav" aria-label={c.navLabel}>
+    {c.nav.map((item) => <a href={resolveNavHref(item)}>{item.label}</a>)}
+    <a class="platform-link" href={c.mainSiteUrl}>{c.mainSiteLabel}<span aria-hidden="true">↗</span></a>
+  </nav>
+  <nav class="language-nav" aria-label={c.languageLabel}>
+    <a href={enHref} lang="en" aria-label="EN — Read in English" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+    <span aria-hidden="true">/</span>
+    <a href={plHref} lang="pl" aria-label="PL — Czytaj po polsku" aria-current={locale === 'pl' ? 'page' : undefined}>PL</a>
+  </nav>
+  <a class="button header-cta" href="#contact" data-open-contact>
+    {c.ctaLabel}<span aria-hidden="true">↗</span>
+  </a>
+  <details class="mobile-menu" data-mobile-menu data-open-label={c.menuOpen} data-close-label={c.menuClose}>
+    <summary aria-label={c.menuOpen}><span class="menu-bars" aria-hidden="true"></span></summary>
+    <nav aria-label={c.navLabel}>
+      {c.nav.map((item) => (
+        <a href={resolveNavHref(item)}>
+          {item.label}
+          <span aria-hidden="true">→</span>
+        </a>
+      ))}
+      <a href={c.mainSiteUrl}>
+        {c.mainSiteLabel}
+        <span aria-hidden="true">↗</span>
+      </a>
+      <a href="#contact" data-open-contact>
+        {c.ctaLabel}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </nav>
+  </details>
+</header>
+<style>
+  .site-header {
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    border-bottom: 1px solid var(--line, #d3d6c9);
+    position: relative;
+    z-index: 20;
+  }
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+  }
+  .wordmark {
+    font-size: 34px;
+    letter-spacing: -2.6px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .wordmark .dot {
+    font-size: 11px;
+    color: var(--signal, #e7471b);
+    letter-spacing: 0;
+    transform: translateY(-14px);
+  }
+  .wordmark .submark {
+    font: 400 11px/1 var(--mono);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--signal-text, #b63113);
+    border: 1px solid var(--line-strong, #858c7c);
+    background: var(--white, #fffef9);
+    padding: 4px 7px;
+    margin-left: 6px;
+    transform: translateY(-4px);
+  }
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    margin-left: auto;
+  }
+  .desktop-nav a {
+    font-size: 13px;
+    text-decoration: none;
+    padding: 12px 0;
+  }
+  .desktop-nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+  .platform-link {
+    font: 400 11px/1 var(--mono);
+    color: var(--signal-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .language-nav {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 11px;
+  }
+  .language-nav a {
+    min-width: 28px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 3px;
+    text-decoration: none;
+    color: var(--muted, #62675d);
+  }
+  .language-nav [aria-current] {
+    font-weight: 700;
+    color: var(--ink, #20231f);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .header-cta {
+    font-size: 12px;
+  }
+  .mobile-menu {
+    display: none;
+  }
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 100;
+    background: var(--ink, #20231f);
+    color: var(--paper, #f5f3ed);
+    padding: 14px;
+  }
+  .skip-link:focus {
+    top: 8px;
+  }
+  @media (max-width: 1120px) {
+    .site-header {
+      gap: 18px;
+    }
+    .desktop-nav {
+      gap: 16px;
+    }
+    .header-cta {
+      padding-inline: 14px;
+    }
+  }
+  @media (max-width: 860px) {
+    .site-header {
+      height: auto;
+      min-height: 76px;
+      flex-wrap: wrap;
+      padding-block: 14px;
+      gap: 12px;
+    }
+    .wordmark {
+      font-size: 29px;
+    }
+    .desktop-nav,
+    .header-cta {
+      display: none;
+    }
+    .language-nav {
+      margin-left: auto;
+      gap: 0;
+    }
+    .language-nav a {
+      min-width: 40px;
+    }
+    .language-nav > span {
+      display: none;
+    }
+    .mobile-menu {
+      display: block;
+    }
+    .mobile-menu summary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      list-style: none;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .mobile-menu summary::-webkit-details-marker {
+      display: none;
+    }
+    .menu-bars {
+      width: 17px;
+      height: 8px;
+      border-block: 1px solid currentColor;
+    }
+    .mobile-menu[open] .menu-bars {
+      height: 0;
+      transform: rotate(-45deg);
+    }
+    .mobile-menu nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 10px 24px 20px;
+      background: var(--paper, #f5f3ed);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 24px #20231f0a;
+    }
+    .mobile-menu nav a {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      text-decoration: none;
+      font-size: 15px;
+    }
+  }
+</style>

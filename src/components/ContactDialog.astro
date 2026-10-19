@@ -1,0 +1,71 @@
+---
+import { shellContent } from '../content/shell';
+import type { SectionProps } from '../lib/contracts';
+
+interface Props extends SectionProps {}
+const c = shellContent[Astro.props.locale].dialog;
+---
+<dialog data-contact-dialog aria-labelledby="contact-dialog-title" aria-describedby="contact-dialog-description">
+  <div class="dialog-top">
+    <span class="eyebrow">MUMRO ACADEMY / RolePlayingTech</span>
+    <button type="button" data-close-contact aria-label={c.close}>×</button>
+  </div>
+  <h2 id="contact-dialog-title">{c.title}</h2>
+  <p id="contact-dialog-description">{c.intro}</p>
+  <a class="button" href="https://roleplayingtech.com">
+    {c.action}<span aria-hidden="true">↗</span>
+  </a>
+  <p class="dialog-note">{c.note}</p>
+</dialog>
+<script>
+  import { initShell } from '../scripts/shell';
+  initShell();
+</script>
+<style>
+  dialog {
+    color: var(--ink, #20231f);
+    background: var(--paper, #f5f3ed);
+    border: 1px solid var(--line, #d3d6c9);
+    width: min(600px, calc(100% - 32px));
+    max-height: calc(100dvh - 48px);
+    padding: clamp(24px, 5vw, 48px);
+    box-shadow: 0 30px 90px #0003;
+  }
+  dialog::backdrop {
+    background: #161a16a6;
+    backdrop-filter: blur(4px);
+  }
+  .dialog-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .dialog-top button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: inherit;
+    font-size: 28px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  h2 {
+    font: 400 clamp(36px, 5.5vw, 60px)/1.04 var(--display);
+    letter-spacing: -.025em;
+    margin: 28px 0 16px;
+  }
+  p {
+    color: var(--muted, #62675d);
+    line-height: 1.6;
+  }
+  .button {
+    margin-top: 20px;
+    white-space: normal;
+  }
+  .dialog-note {
+    font-size: 12px;
+    margin-top: 20px;
+  }
+</style>

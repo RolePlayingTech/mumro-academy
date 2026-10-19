@@ -1,0 +1,17 @@
+---
+import LessonPage from '../../components/LessonPage.astro';
+import { lessonSlugs, type LessonSlug } from '../../lib/contracts';
+
+export function getStaticPaths() {
+  return lessonSlugs.map((slug) => ({
+    params: { slug },
+    props: { lessonSlug: slug },
+  }));
+}
+
+interface Props {
+  lessonSlug: LessonSlug;
+}
+const { lessonSlug } = Astro.props;
+---
+<LessonPage locale="en" slug={lessonSlug} />

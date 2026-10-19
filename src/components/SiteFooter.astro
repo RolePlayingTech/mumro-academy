@@ -1,0 +1,152 @@
+---
+import { shellContent } from '../content/shell';
+import { tracksContent } from '../content/tracks';
+import { localePath, trackIds, type SectionProps } from '../lib/contracts';
+
+interface Props extends SectionProps {}
+const { locale } = Astro.props;
+const c = shellContent[locale];
+const tracks = tracksContent[locale];
+const rssHref = locale === 'pl' ? '/pl/rss.xml' : '/rss.xml';
+---
+<footer class="container site-footer" id="contact">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="footer-logo" href={localePath(locale)}>
+        mumro<span class="dot" aria-hidden="true">●</span><span class="sub">academy</span>
+      </a>
+      <p class="footer-line">{c.footer.line}</p>
+      <div class="footer-actions">
+        <a class="button" href={c.mainSiteUrl}>
+          {c.mumroBanner.primaryLabel}<span aria-hidden="true">↗</span>
+        </a>
+        <a class="button secondary" href="https://roleplayingtech.com" data-open-contact>
+          {c.ctaLabel}<span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <span class="eyebrow">{locale === 'pl' ? 'Ścieżki edukacyjne' : 'Learning Tracks'}</span>
+      <ul>
+        {trackIds.map((id) => (
+          <li>
+            <a href={localePath(locale, `tracks/${id}`)}>
+              {tracks[id].number}: {tracks[id].title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="footer-col">
+      <span class="eyebrow">{c.footer.linksTitle}</span>
+      <ul>
+        <li><a href={localePath(locale, 'playbooks')}>{locale === 'pl' ? 'Playbooki i Szablony' : 'Playbooks & Blueprints'}</a></li>
+        <li><a href={localePath(locale, 'glossary')}>{locale === 'pl' ? 'Słownik pojęć (A–Z)' : 'Glossary (A–Z)'}</a></li>
+        <li><a href={c.mainSiteUrl}>{locale === 'pl' ? 'Platforma MUMRO (mumro.io)' : 'MUMRO Platform (mumro.io)'} ↗</a></li>
+        <li><a href="https://roleplayingtech.com">RolePlayingTech ↗</a></li>
+        <li><a href={rssHref}>RSS Feed ({locale.toUpperCase()})</a></li>
+        <li><a href="/llms.txt">llms.txt</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-fine">
+    <span>{c.footer.demoNote}</span>
+    <div class="footer-meta-right">
+      <a href="#top">{c.footer.backToTop} ↑</a>
+      <span>© {new Date().getUTCFullYear()} MUMRO · RolePlayingTech</span>
+    </div>
+  </div>
+</footer>
+<style>
+  .site-footer {
+    padding-block: 56px 40px;
+    border-top: 1px solid var(--line-strong);
+    margin-top: 64px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr 0.75fr;
+    gap: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .footer-logo {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -2.8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .footer-logo .dot {
+    font-size: 10px;
+    color: var(--signal);
+    letter-spacing: 0;
+    transform: translateY(-15px);
+  }
+  .footer-logo .sub {
+    font: 400 10px/1 var(--mono);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--signal-text);
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    padding: 4px 7px;
+    margin-left: 6px;
+    transform: translateY(-4px);
+  }
+  .footer-line {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 46ch;
+    margin: 14px 0 22px;
+  }
+  .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    display: grid;
+    gap: 10px;
+  }
+  .footer-col a {
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .footer-col a:hover {
+    text-decoration: underline;
+    color: var(--signal-text);
+  }
+  .footer-fine {
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    align-items: center;
+    font: 400 11px/1.6 var(--mono);
+    color: var(--muted);
+    padding-top: 24px;
+  }
+  .footer-meta-right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .footer-fine {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+</style>

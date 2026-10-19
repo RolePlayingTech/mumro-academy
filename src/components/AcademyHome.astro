@@ -1,0 +1,713 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from './SiteHeader.astro';
+import SiteFooter from './SiteFooter.astro';
+import ContactDialog from './ContactDialog.astro';
+import { shellContent } from '../content/shell';
+import { tracksContent } from '../content/tracks';
+import { getLessons, getLessonBySlug, getLessonsByTrack } from '../content/lessons';
+import { localePath, trackIds, type LessonSlug, type SectionProps } from '../lib/contracts';
+
+interface Props extends SectionProps {}
+const { locale } = Astro.props;
+const c = shellContent[locale];
+const tracks = tracksContent[locale];
+const lessons = getLessons(locale);
+const origin = Astro.site ?? new URL('https://academy.mumro.io');
+
+const homeSchema = [
+  {
+    '@type': 'ItemList',
+    name: c.catalog.title,
+    numberOfItems: lessons.length,
+    itemListElement: lessons.map((lesson, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: lesson.title,
+      url: new URL(localePath(locale, `lessons/${lesson.slug}`), origin).href,
+    })),
+  },
+  {
+    '@type': 'FAQPage',
+    mainEntity: c.faq.items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  },
+];
+---
+<BaseLayout
+  locale={locale}
+  title={c.metadata.title}
+  description={c.metadata.description}
+  routePath={localePath(locale)}
+  extraSchema={homeSchema}
+>
+  <SiteHeader locale={locale} routePath={localePath(locale)} />
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero container">
+      <div class="hero-top">
+        <div>
+          <p class="eyebrow signal">{c.hero.eyebrow}</p>
+          <h1>{c.hero.title}</h1>
+        </div>
+        <div class="hero-copy">
+          <p class="hero-lead">{c.hero.lead}</p>
+          <div class="hero-actions">
+            <a class="button" href="#lessons">
+              {c.hero.primaryCta}<span aria-hidden="true">↓</span>
+            </a>
+            <a class="button secondary" href={c.hero.secondaryHref}>
+              {c.hero.secondaryCta}<span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid" role="list">
+        {c.hero.stats.map((stat) => (
+          <div class="stat-card" role="listitem">
+            <span class="stat-value">{stat.value}</span>
+            <strong>{stat.label}</strong>
+            <small>{stat.detail}</small>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- INTERACTIVE 5-STAGE LOOP EXPLORER -->
+    <section class="section container" id="system-loop">
+      <p class="eyebrow signal">{c.loopExplorer.eyebrow}</p>
+      <h2 class="section-title">{c.loopExplorer.title}</h2>
+      <p class="section-intro">{c.loopExplorer.intro}</p>
+
+      <div class="loop-tabs" role="group" aria-label={c.loopExplorer.eyebrow}>
+        {c.loopExplorer.stages.map((stage, index) => (
+          <button
+            type="button"
+            class={`loop-tab ${index === 0 ? 'is-active' : ''}`}
+            data-stage-trigger={stage.id}
+            aria-pressed={index === 0 ? 'true' : 'false'}
+          >
+            <span class="tab-num">{stage.number}</span>
+            <span class="tab-name">{stage.name}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="loop-panels">
+        {c.loopExplorer.stages.map((stage, index) => (
+          <article
+            class="preview-frame loop-panel"
+            data-stage-panel={stage.id}
+            hidden={index !== 0 ? true : undefined}
+          >
+            <div class="loop-panel-head">
+              <span class="badge signal">STAGE {stage.number}</span>
+              <h3>{stage.name}</h3>
+            </div>
+            <div class="loop-columns">
+              <div class="loop-box anti">
+                <span class="eyebrow">{stage.failureTitle}</span>
+                <p>{stage.failure}</p>
+              </div>
+              <div class="loop-box principle">
+                <span class="eyebrow signal">{stage.principleTitle}</span>
+                <p>{stage.principle}</p>
+              </div>
+              <div class="loop-box mumro">
+                <span class="eyebrow">{locale === 'pl' ? 'W systemie MUMRO' : 'Connected in MUMRO'}</span>
+                <p>{stage.mumroRole}</p>
+              </div>
+            </div>
+            <div class="loop-lessons">
+              <span class="eyebrow">{locale === 'pl' ? 'Powiązane lekcje:' : 'Related Academy lessons:'}</span>
+              <div class="loop-lesson-links">
+                {stage.relatedSlugs.map((slug) => {
+                  const lesson = getLessonBySlug(locale, slug as LessonSlug);
+                  return (
+                    <a class="text-link" href={localePath(locale, `lessons/${lesson.slug}`)}>
+                      {lesson.number}: {lesson.title} <span aria-hidden="true">→</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4 LEARNING TRACKS -->
+    <section class="section container" id="tracks">
+      <p class="eyebrow signal">{locale === 'pl' ? 'CZTERY ŚCIEŻKI PROGRAMOWE' : 'FOUR LEARNING TRACKS'}</p>
+      <h2 class="section-title">
+        {locale === 'pl'
+          ? 'Od fundamentów strategii po autonomię agentów MCP.'
+          : 'From strategy foundations to governed MCP agents.'}
+      </h2>
+      <div class="tracks-grid">
+        {trackIds.map((id) => {
+          const track = tracks[id];
+          const trackLessons = getLessonsByTrack(locale, id);
+          return (
+            <article class="preview-frame track-card">
+              <div class="track-card-top">
+                <span class="badge signal">{track.number}</span>
+                <span class="demo-note">{track.audience}</span>
+              </div>
+              <h3>
+                <a href={localePath(locale, `tracks/${track.id}`)}>{track.title}</a>
+              </h3>
+              <p class="track-sub">{track.subtitle}</p>
+              <p class="track-summary">{track.summary}</p>
+              <div class="track-outcomes">
+                <span class="eyebrow">{locale === 'pl' ? 'W tej ścieżce (3 lekcje):' : 'Lessons in this track (3):'}</span>
+                <ol>
+                  {trackLessons.map((lesson) => (
+                    <li>
+                      <a href={localePath(locale, `lessons/${lesson.slug}`)}>
+                        <strong>{lesson.number}</strong> — {lesson.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div class="track-card-foot">
+                <a class="button secondary" href={localePath(locale, `tracks/${track.id}`)}>
+                  {locale === 'pl' ? 'Otwórz ścieżkę' : 'Explore track'}
+                  <span aria-hidden="true">→</span>
+                </a>
+                <span class="demo-note">{track.mumroCapability}</span>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- INTERACTIVE 12-LESSON CATALOG -->
+    <section class="section container" id="lessons">
+      <p class="eyebrow signal">{c.catalog.eyebrow}</p>
+      <h2 class="section-title">{c.catalog.title}</h2>
+      <p class="section-intro">{c.catalog.intro}</p>
+
+      <div class="catalog-controls">
+        <div class="filter-pills" role="group" aria-label={c.catalog.eyebrow}>
+          <button type="button" class="filter-pill is-active" data-track-filter="all" aria-pressed="true">
+            {c.catalog.allTracks}
+          </button>
+          {trackIds.map((id) => (
+            <button type="button" class="filter-pill" data-track-filter={id} aria-pressed="false">
+              {tracks[id].number}: {tracks[id].title}
+            </button>
+          ))}
+        </div>
+        <div class="search-box">
+          <label for="lesson-search-input" class="sr-only">{c.catalog.searchPlaceholder}</label>
+          <input
+            id="lesson-search-input"
+            type="search"
+            data-lesson-search
+            placeholder={c.catalog.searchPlaceholder}
+          />
+        </div>
+      </div>
+
+      <div class="lessons-grid">
+        {lessons.map((lesson) => {
+          const track = tracks[lesson.trackId];
+          const searchString = `${lesson.number} ${lesson.title} ${lesson.subtitle} ${lesson.keywords.join(' ')} ${track.title}`;
+          return (
+            <article
+              class="preview-frame lesson-card"
+              data-lesson-card
+              data-lesson-track={lesson.trackId}
+              data-lesson-search-text={searchString}
+            >
+              <div class="lesson-card-meta">
+                <span class="badge signal">{lesson.number}</span>
+                <span class="badge">{track.number}</span>
+                <span class="badge sage">{lesson.difficultyLabel}</span>
+                <span class="demo-note">
+                  {lesson.readingTimeMinutes} {c.catalog.readingTimeSuffix}
+                </span>
+              </div>
+              <h3>
+                <a href={localePath(locale, `lessons/${lesson.slug}`)}>{lesson.title}</a>
+              </h3>
+              <p class="lesson-subtitle">{lesson.subtitle}</p>
+              <ul class="lesson-takeaways">
+                {lesson.keyTakeaways.slice(0, 2).map((point) => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+              <div class="lesson-card-foot">
+                <a class="text-link" href={localePath(locale, `lessons/${lesson.slug}`)}>
+                  {c.catalog.readLesson} <span aria-hidden="true">→</span>
+                </a>
+                <span class="demo-note">{lesson.caseStudy.brand}</span>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div class="preview-frame empty-state" data-lessons-empty hidden>
+        <p>{c.catalog.noResults}</p>
+        <button type="button" class="button secondary" data-lessons-reset>
+          {c.catalog.resetFilter}
+        </button>
+      </div>
+    </section>
+
+    <!-- MUMRO PRODUCT SHOWCASE BANNER -->
+    <section class="section container">
+      <div class="mumro-showcase">
+        <div>
+          <p class="eyebrow signal">{c.mumroBanner.eyebrow}</p>
+          <h2 class="showcase-title">{c.mumroBanner.title}</h2>
+          <p class="showcase-body">{c.mumroBanner.body}</p>
+        </div>
+        <div class="showcase-cta">
+          <a class="button signal" href={c.mumroBanner.primaryHref}>
+            {c.mumroBanner.primaryLabel}<span aria-hidden="true">↗</span>
+          </a>
+          <a class="button secondary" href="#contact" data-open-contact>
+            {c.mumroBanner.secondaryLabel}<span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section container" id="faq">
+      <p class="eyebrow signal">{c.faq.eyebrow}</p>
+      <h2 class="section-title">{c.faq.title}</h2>
+      <div class="faq-list">
+        {c.faq.items.map((item, idx) => (
+          <details class="faq-item" open={idx === 0 ? true : undefined}>
+            <summary>
+              <span>{item.q}</span>
+              <span class="faq-plus" aria-hidden="true">+</span>
+            </summary>
+            <p>{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+  <SiteFooter locale={locale} />
+  <ContactDialog locale={locale} />
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(44px, 6vw, 88px);
+  }
+  .hero-top {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(28px, 4vw, 64px);
+    align-items: end;
+  }
+  h1 {
+    font: 400 clamp(44px, 5.6vw, 84px)/1.01 var(--display);
+    letter-spacing: -.03em;
+    margin: 14px 0 0;
+    text-wrap: balance;
+  }
+  .hero-lead {
+    font-size: 16px;
+    line-height: 1.68;
+    color: var(--muted);
+    margin: 0 0 28px;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: clamp(36px, 5vw, 64px);
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stat-value {
+    font: 400 clamp(32px, 3.2vw, 48px)/1 var(--display);
+    color: var(--signal-text);
+  }
+  .stat-card strong {
+    font-size: 14px;
+  }
+  .stat-card small {
+    font: 400 11px/1.5 var(--mono);
+    color: var(--muted);
+  }
+
+  /* Loop Explorer */
+  .loop-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 32px 0 20px;
+  }
+  .loop-tab {
+    text-align: left;
+    padding: 16px 18px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color .15s, background-color .15s;
+  }
+  .loop-tab:hover {
+    border-color: var(--ink);
+  }
+  .loop-tab.is-active {
+    background: var(--ink);
+    color: var(--white);
+    border-color: var(--ink);
+  }
+  .tab-num {
+    font: 400 10px/1 var(--mono);
+    color: var(--signal-text);
+  }
+  .loop-tab.is-active .tab-num {
+    color: #ff8e6e;
+  }
+  .tab-name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .loop-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .loop-panel-head h3 {
+    font: 400 clamp(28px, 3vw, 40px)/1.1 var(--display);
+    margin: 0;
+  }
+  .loop-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .loop-box {
+    padding: 20px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .loop-box.principle {
+    background: var(--white);
+    border-color: var(--line-strong);
+  }
+  .loop-box.mumro {
+    background: var(--sage);
+    border-color: #858c7c66;
+  }
+  .loop-box p {
+    margin: 10px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .loop-lessons {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 28px;
+  }
+  .loop-lesson-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+  }
+
+  /* Tracks Grid */
+  .tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .track-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .track-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .track-card h3 {
+    font: 400 clamp(28px, 2.8vw, 38px)/1.08 var(--display);
+    margin: 4px 0 0;
+  }
+  .track-card h3 a {
+    text-decoration: none;
+  }
+  .track-card h3 a:hover {
+    text-decoration: underline;
+  }
+  .track-sub {
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+  }
+  .track-summary {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+  }
+  .track-outcomes {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 16px 18px;
+    margin-top: 6px;
+  }
+  .track-outcomes ol {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .track-outcomes a {
+    text-decoration: none;
+  }
+  .track-outcomes a:hover {
+    text-decoration: underline;
+    color: var(--signal-text);
+  }
+  .track-card-foot {
+    margin-top: auto;
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Catalog Controls & Lessons Grid */
+  .catalog-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 28px 0 24px;
+  }
+  .filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filter-pill {
+    padding: 10px 14px;
+    font: 400 11px/1.2 var(--mono);
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    color: var(--ink);
+  }
+  .filter-pill.is-active {
+    background: var(--ink);
+    color: var(--white);
+    border-color: var(--ink);
+  }
+  .search-box {
+    flex: 1;
+    min-width: 260px;
+    max-width: 380px;
+  }
+  .search-box input {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid var(--line-strong);
+    background: var(--white);
+    font-size: 13px;
+  }
+  .lessons-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .lesson-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+  }
+  .lesson-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .lesson-card h3 {
+    font: 400 26px/1.12 var(--display);
+    margin: 4px 0 0;
+  }
+  .lesson-card h3 a {
+    text-decoration: none;
+  }
+  .lesson-card h3 a:hover {
+    text-decoration: underline;
+    color: var(--signal-text);
+  }
+  .lesson-subtitle {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .lesson-takeaways {
+    margin: 4px 0 0;
+    padding-left: 16px;
+    font-size: 12.5px;
+    color: var(--ink);
+    display: grid;
+    gap: 6px;
+  }
+  .lesson-card-foot {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .empty-state {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* MUMRO Showcase Banner */
+  .mumro-showcase {
+    background: var(--ink);
+    color: var(--white);
+    padding: clamp(28px, 4.5vw, 56px);
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .mumro-showcase .eyebrow.signal {
+    color: #ff8e6e;
+  }
+  .showcase-title {
+    font: 400 clamp(34px, 4vw, 56px)/1.05 var(--display);
+    margin: 12px 0 16px;
+  }
+  .showcase-body {
+    color: #d3d6c9;
+    font-size: 15px;
+    margin: 0;
+    max-width: 62ch;
+  }
+  .showcase-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .mumro-showcase .button.secondary {
+    color: var(--white);
+    border-color: #858c7c;
+  }
+  .mumro-showcase .button.secondary:hover {
+    background: #2f352e;
+  }
+
+  /* FAQ */
+  .faq-list {
+    margin-top: 28px;
+    border-top: 1px solid var(--line-strong);
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--line-strong);
+    padding-block: 6px;
+  }
+  .faq-item summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 4px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-plus {
+    font: 28px/1 var(--display);
+    color: var(--signal-text);
+  }
+  .faq-item[open] .faq-plus {
+    transform: rotate(45deg);
+  }
+  .faq-item p {
+    margin: 0 0 20px;
+    color: var(--muted);
+    max-width: 72ch;
+    padding-inline: 4px;
+  }
+
+  @media (max-width: 1100px) {
+    .hero-top,
+    .mumro-showcase {
+      grid-template-columns: 1fr;
+    }
+    .stats-grid,
+    .tracks-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .loop-tabs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .loop-columns,
+    .lessons-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 680px) {
+    .stats-grid,
+    .tracks-grid,
+    .loop-tabs,
+    .loop-columns,
+    .lessons-grid {
+      grid-template-columns: 1fr;
+    }
+    .search-box {
+      max-width: none;
+      width: 100%;
+    }
+  }
+</style>

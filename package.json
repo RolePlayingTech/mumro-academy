@@ -1,0 +1,38 @@
+{
+  "name": "mumro-academy",
+  "version": "1.0.0",
+  "private": false,
+  "description": "MUMRO Academy (academy.mumro.io) — Bilingual (EN/PL) educational platform, playbooks, and engineering guides for living brand systems, multi-channel content operations, technical SEO, and Model Context Protocol (MCP) AI agents.",
+  "homepage": "https://academy.mumro.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RolePlayingTech/mumro-academy.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=22.14.0",
+    "npm": ">=10.9.2"
+  },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1 --port 4325",
+    "check": "astro check",
+    "build": "astro build && node scripts/verify-build.mjs",
+    "preview": "astro preview --host 127.0.0.1 --port 4326",
+    "test": "playwright test",
+    "generate:share": "node scripts/generate-share-images.mjs"
+  },
+  "dependencies": {
+    "@fontsource/instrument-serif": "5.3.0",
+    "@fontsource/inter": "5.3.0",
+    "astro": "7.3.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.5",
+    "axe-core": "4.14.0",
+    "typescript": "6.0.3"
+  }
+}
