@@ -19,5 +19,11 @@ sudo -n install -m 644 "$base/current/source/deploy/academy.mumro.io.nginx.conf"
 sudo -n nginx -t
 sudo -n systemctl reload nginx
 
-curl --fail --silent --show-error --output /dev/null --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/?lang=en'
-printf 'Dedicated TLS certificate for academy.mumro.io is active and verified.\n'
+for attempt in {1..15}; do
+    if curl --fail --silent --show-error --output /dev/null --resolve academy.mumro.io:443:127.0.0.1 'https://academy.mumro.io/?lang=en'; then
+        printf 'Dedicated TLS certificate for academy.mumro.io is active and verified.\n'
+        exit 0
+    fi
+    sleep 1
+done
+exit 1
