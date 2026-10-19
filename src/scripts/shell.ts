@@ -152,6 +152,50 @@ export function initShell(): void {
     checkboxes.forEach((cb) => cb.addEventListener('change', updateScore));
   }
 
+  // Interactive LessonLab controllers (Voice layers, 5-Slide Carousel, Cohort windows, MCP steps)
+  const voiceButtons = document.querySelectorAll<HTMLButtonElement>('[data-voice-layer]');
+  if (voiceButtons.length) {
+    voiceButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const layer = btn.dataset.voiceLayer || 'all';
+        voiceButtons.forEach((b) => {
+          const active = b.dataset.voiceLayer === layer;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        document.querySelectorAll<HTMLElement>('[data-layer-item]').forEach((p) => {
+          p.classList.toggle('is-highlighted', layer !== 'all' && p.dataset.layerItem === layer);
+        });
+        document.querySelectorAll<HTMLElement>('[data-explain]').forEach((exp) => {
+          exp.hidden = exp.dataset.explain !== layer;
+        });
+      });
+    });
+  }
+
+  const bindTabGroup = (triggerAttr: string, panelAttr: string) => {
+    const triggers = document.querySelectorAll<HTMLButtonElement>(`[${triggerAttr}]`);
+    const panels = document.querySelectorAll<HTMLElement>(`[${panelAttr}]`);
+    if (!triggers.length || !panels.length) return;
+    triggers.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute(triggerAttr);
+        triggers.forEach((b) => {
+          const active = b.getAttribute(triggerAttr) === val;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        panels.forEach((p) => {
+          p.hidden = p.getAttribute(panelAttr) !== val;
+        });
+      });
+    });
+  };
+
+  bindTabGroup('data-slide-trigger', 'data-slide-panel');
+  bindTabGroup('data-cohort-trigger', 'data-cohort-panel');
+  bindTabGroup('data-mcp-step', 'data-mcp-panel');
+
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;
   document.addEventListener('click', (event) => {

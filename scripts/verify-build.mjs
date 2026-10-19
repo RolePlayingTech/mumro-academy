@@ -76,6 +76,10 @@ assert.ok(robots.includes('Sitemap: https://academy.mumro.io/sitemap.xml'));
 const llms = await readFile(new URL('llms.txt', distRoot), 'utf8');
 assert.ok(llms.includes('# MUMRO Academy (academy.mumro.io)'));
 
+const llmsFull = await readFile(new URL('llms-full.txt', distRoot), 'utf8');
+assert.ok(llmsFull.includes('# MUMRO Academy — Complete Bilingual Knowledge Base (`llms-full.txt`)'));
+assert.ok(llmsFull.length > 20000, 'llms-full.txt must contain the full bilingual curriculum');
+
 const rssEn = await readFile(new URL('rss.xml', distRoot), 'utf8');
 const rssPl = await readFile(new URL('pl/rss.xml', distRoot), 'utf8');
 assert.ok(rssEn.includes('<rss version="2.0"'));

@@ -77,30 +77,34 @@ This repository is engineered with the exact visual and technical standards of *
   - Self-referencing `<link rel="canonical">` and reciprocal `<link rel="alternate" hreflang="en|pl|x-default">` on every route.
   - Rich JSON-LD `@graph` (`WebSite`, `EducationalOrganization`, `Course`, `TechArticle`, `LearningResource`, `BreadcrumbList`, `DefinedTermSet`, `FAQPage`).
   - Generated 1200×630 Open Graph / Twitter share cards (`/media/share-en.png`, `/media/share-pl.png`).
-  - XML Sitemap (`/sitemap.xml`) with `xhtml:link` alternates, `/robots.txt`, bilingual RSS 2.0 feeds (`/rss.xml`, `/pl/rss.xml`), and `/llms.txt` for AI search indexers.
+  - XML Sitemap (`/sitemap.xml`) with `xhtml:link` alternates, `/robots.txt`, bilingual RSS 2.0 feeds (`/rss.xml`, `/pl/rss.xml`), `/llms.txt`, and `/llms-full.txt` (complete plain-text curriculum for AI indexers & coding agents).
+  - **Interactive System Labs (`LessonLab.astro`)**: Embedded interactive simulators on every track and lesson page for inspecting Brand Voice & Source Provenance layers, 5-slide carousels, 7/30/90-day cohort windows, and two-phase MCP `Prepare → Confirm` gates.
 
 ## Repository Structure
 
 ```text
 mumro-academy/
+├── deploy/
+│   └── academy.mumro.io.nginx.conf  # Nginx config with EN/PL negotiation & caching
 ├── public/
 │   ├── favicon.svg
-│   └── media/                 # Generated 1200x630 EN/PL Open Graph share cards & SVGs
+│   └── media/                       # Generated 1200x630 EN/PL Open Graph share cards & SVGs
 ├── scripts/
 │   ├── generate-share-images.mjs
+│   ├── package-release.mjs          # Deterministic release archive & SHA256 manifest builder
 │   ├── share-fonts.css
-│   └── verify-build.mjs       # Automated check of all 38 routes, SEO tags, JSON-LD & feeds
+│   └── verify-build.mjs             # Automated check of all 38 routes, SEO tags, JSON-LD & feeds
 ├── src/
-│   ├── assets/fonts/          # OFL Latin + Polish woff2 font subsets
-│   ├── components/            # AcademyHome, TrackPage, LessonPage, PlaybooksPage, GlossaryPage, Header/Footer
-│   ├── content/               # Bilingual EN/PL tracks, 12 lessons, playbooks, glossary & shell copy
+│   ├── assets/fonts/                # OFL Latin + Polish woff2 font subsets
+│   ├── components/                  # AcademyHome, TrackPage, LessonPage, LessonLab, PlaybooksPage, GlossaryPage
+│   ├── content/                     # Bilingual EN/PL tracks, 12 lessons, playbooks, glossary & shell copy
 │   ├── layouts/BaseLayout.astro
-│   ├── lib/contracts.ts       # Locale types, URL helpers & assertLocaleParity
-│   ├── pages/                 # Static EN & PL routes + sitemap.xml, robots.txt, llms.txt, rss.xml
-│   ├── scripts/shell.ts       # Progressive enhancement: filters, loop explorer, copy, checklist, dialog
-│   └── styles/                # fonts.css & global.css (MUMRO design tokens)
+│   ├── lib/contracts.ts             # Locale types, URL helpers & assertLocaleParity
+│   ├── pages/                       # Static EN & PL routes + sitemap.xml, robots.txt, llms.txt, llms-full.txt, rss.xml
+│   ├── scripts/shell.ts             # Progressive enhancement: filters, labs, loop explorer, copy, checklist, dialog
+│   └── styles/                      # fonts.css & global.css (MUMRO design tokens)
 └── tests/
-    └── academy.spec.ts        # Playwright E2E, bilingual parity & responsive tests
+    └── academy.spec.ts              # Playwright E2E, bilingual parity, interactive labs & responsive tests
 ```
 
 ## Local Development & Verification

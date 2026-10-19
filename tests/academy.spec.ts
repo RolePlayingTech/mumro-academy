@@ -45,6 +45,10 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await firstCheck.check();
     await expect(scoreBadge).toContainText('1 / 4');
 
+    // Interactive MCP lab steps
+    await page.locator('[data-mcp-step="prepare"]').click();
+    await expect(page.locator('[data-mcp-panel="prepare"]')).toBeVisible();
+
     // Language switcher points to exact Polish lesson
     const plSwitch = page.locator('.language-nav a[lang="pl"]');
     await expect(plSwitch).toHaveAttribute('href', '/pl/lessons/two-phase-commit-for-ai-agents/?lang=pl');

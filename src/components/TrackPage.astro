@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import ContactDialog from './ContactDialog.astro';
+import LessonLab from './LessonLab.astro';
 import { tracksContent } from '../content/tracks';
 import { getLessonsByTrack } from '../content/lessons';
 import { localePath, trackIds, type Locale, type TrackId } from '../lib/contracts';
@@ -104,6 +105,8 @@ const courseSchema = [
         </div>
       </div>
     </section>
+
+    <LessonLab locale={locale} trackId={trackId} />
 
     <section class="section">
       <p class="eyebrow signal">{locale === 'pl' ? 'PROGRAM ŚCIEŻKI' : 'TRACK SYLLABUS'}</p>

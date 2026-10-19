@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import ContactDialog from './ContactDialog.astro';
+import LessonLab from './LessonLab.astro';
 import { tracksContent } from '../content/tracks';
 import { getAdjacentLessons, getLessonBySlug } from '../content/lessons';
 import { localePath, type LessonSlug, type Locale } from '../lib/contracts';
@@ -236,6 +237,9 @@ const articleSchema = [
               </table>
             </div>
           </section>
+
+          <!-- Interactive System Lab -->
+          <LessonLab locale={locale} trackId={lesson.trackId} />
 
           <!-- Workspace Case Study -->
           <section class="content-block preview-frame case-study-box" id="case-study">
