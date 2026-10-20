@@ -16,9 +16,12 @@
 - **Locale Symmetry:** Every change in `src/content/*.ts` must maintain 1:1 structural parity between `en` and `pl`.
 
 ## 4. Progressive Disclosure Map (Load Just-In-Time)
-- Interactive Harness Architect → `.agents/skills/harness-architect/SKILL.md`
-- Token saving & subagent isolation → `.agents/skills/context-hygiene/SKILL.md`
-- Default-FAIL verification & evaluator loop → `.agents/skills/verification-loop/SKILL.md`
+- Master Dual-Mode Harness Router → `.agents/skills/harness-architect/SKILL.md`
+- Path A: Greenfield Product & Stack Advisor → `.agents/skills/greenfield-advisor/SKILL.md`
+- Path B: Brownfield Silent Repo Reconnaissance → `.agents/skills/brownfield-onboarder/SKILL.md`
+- Testing Depth vs. Context Token Advisor → `.agents/skills/testing-tradeoffs/SKILL.md`
+- Context Hygiene & 7 Crisis Playbooks → `.agents/skills/context-hygiene/SKILL.md`
+- Default-FAIL Evaluator & 3-Strike Circuit Breaker → `.agents/skills/verification-loop/SKILL.md`
 
 ## 5. Hard Guardrails (Red Lines — Require Human Confirmation)
 - NEVER bypass `assertLocaleParity`, `scripts/verify-build.mjs`, or Playwright E2E assertions.

@@ -828,39 +828,56 @@ const en: LessonData[] = [
       },
       {
         id: 'deterministic-sensors-and-code-quality',
-        levelBadge: 'LEVEL 2 → 3 · CODE QUALITY & SELF-HEALING',
-        heading: '4. How the Harness Directly Drives Code Quality: Probabilistic Brain + Deterministic Sensors',
+        levelBadge: 'LEVEL 2 → 3 · TESTING VS. CONTEXT TRADE-OFFS',
+        heading: '4. The Testing vs. Context Token Trade-Off Matrix & 3-Strike Circuit Breaker',
         paragraphs: [
-          'Why does the exact same LLM write sloppy, broken code for one developer and clean, production-ready architecture for another? In OpenAI’s landmark report ("Harness Engineering: Leveraging Codex in an Agent-First World", where a team built a 1-million-line product with zero manually typed code), the secret was pairing a probabilistic model with deterministic repository sensors.',
-          'An LLM predicts tokens probabilistically—it can always make a subtle typo in an import or forget a locale key. A strong harness makes mistakes impossible to ignore by enforcing three engineering rules: (1) Repository Legibility—strict TypeScript contracts, predictable folder structures, and explicit invariant assertions (like `assertLocaleParity` in this Academy repo); (2) Fast Automated Feedback Loops—commands that run in seconds and output exact file/line errors; and (3) Negative Constraints—explicitly telling the agent that bypassing a sensor (deleting a test or using `any`) is a hard violation.',
+          'Why does the exact same LLM write sloppy, broken code for one developer and clean, production-ready architecture for another? In OpenAI’s landmark report ("Harness Engineering: Leveraging Codex in an Agent-First World"), the secret was pairing a probabilistic model with deterministic repository sensors. However, there is a critical engineering trade-off: running full E2E test suites inside the main chat after every tiny edit floods your context window with thousands of lines of terminal output, burning tokens and accelerating Context Rot—while running too few tests lets silent bugs slip into production.',
+          'To solve this dilemma, `agent-harness-kit` v2.0 introduces 4 selectable Testing-vs-Context Profiles (`testing-tradeoffs` skill): (1) `fast-prototype` (~300–600 tokens/turn: fast syntax/typecheck only, ideal for weekend PoCs), (2) `smart-tiered` (~800–1,500 tokens/turn: the Golden Ratio default—runs `tsc` + 1 targeted unit test per edit, reserving full E2E for final task completion), (3) `isolated-verifier` (~500 tokens in main chat: delegates heavy Playwright/Docker suites to a disposable subagent that returns a `<200-word` pass/fail digest), and (4) `mission-critical` (~3,000–8,000 tokens/turn: full unit + E2E + security audit for payments, auth, and DB migrations). Every profile is paired with a 3-Strike Repair Circuit Breaker: if the same test fails 3 times in a row, the agent must stop blind guessing, log its hypotheses in `HANDOFF.md`, and ask the human developer.',
         ],
+        callout: {
+          label: 'THE 3-STRIKE REPAIR CIRCUIT BREAKER',
+          text: 'Never let an agent loop 15 times on a failing test—that burns 50,000 tokens and corrupts your working tree. After 3 consecutive failed repair attempts, the harness trips the circuit breaker, writes findings to HANDOFF.md, and escalates to you.',
+        },
+        codeBlock: {
+          caption: 'The 4 Testing Depth vs. Context Token Profiles (`skills/testing-tradeoffs/SKILL.md`)',
+          language: 'text',
+          code: `┌─────────────────────┬────────────────────────────────────┬──────────────────────┬───────────────────────┐
+│ Profile (--profile) │ Inner Loop (Every Edit)            │ Est. Token Tax/Turn  │ Best For              │
+├─────────────────────┼────────────────────────────────────┼──────────────────────┼───────────────────────┤
+│ fast-prototype      │ Fast typecheck / syntax only       │ ~300–600 tokens      │ Hackathons, early PoC │
+│ smart-tiered ★      │ Typecheck + 1 targeted unit test   │ ~800–1,500 tokens    │ 90% of daily projects │
+│ isolated-verifier   │ Heavy E2E delegated to Subagent    │ ~500 tok (main chat) │ Noisy Playwright/E2E  │
+│ mission-critical    │ Full lint + unit + E2E + security  │ ~3,000–8,000 tokens  │ Auth, billing, DBs    │
+└─────────────────────┴────────────────────────────────────┴──────────────────────┴───────────────────────┘`,
+        },
       },
       {
         id: 'advanced-multi-agent-harnesses-and-open-source-kit',
-        levelBadge: 'LEVEL 3 · ADVANCED HARNESS ARCHITECTURE',
-        heading: '5. Advanced Patterns (Anthropic Initializer + Evaluator) & Our Open-Source `agent-harness-kit`',
+        levelBadge: 'LEVEL 3 · DUAL-MODE WIZARD (GREENFIELD & BROWNFIELD)',
+        heading: '5. Dual-Mode Hand-Holding Wizard (Greenfield vs. Brownfield) & `agent-harness-kit` v2.0',
         paragraphs: [
-          'When tasks span many hours or days, even a clean single-session harness hits limits. In "Effective harnesses for long-running agents", Anthropic introduced two multi-agent patterns that define state-of-the-art harness engineering:',
-          'Pattern A: Initializer Agent + Incremental Worker Loop. Instead of asking one agent to build an entire app in one go (which leads to "early victory" where the agent claims it finished after scaffolding 20%), an Initializer Agent runs first to set up `init.sh`, verification scripts, and a machine-readable `feature_list.json` where every feature starts as `"status": "failing"`. Then, fresh Coding Agent sessions wake up one by one—each picking a single failing feature, implementing it, passing deterministic tests, flipping its status, committing to Git, and exiting cleanly.',
-          'Pattern B: Generator vs. Fresh-Context Evaluator (Default-FAIL Contract). An agent that just spent 20 minutes writing code suffers from confirmation bias—it assumes its own implementation works. Advanced harnesses spawn a separate, read-only Evaluator Subagent in a brand-new context window. The evaluator receives only the specification and the `git diff`, grading every requirement under a strict Default-FAIL rule (every criterion fails until proven by a test).',
-          'To make setting up all of these practices effortless in your own software projects, we published an open-source toolkit on GitHub: `RolePlayingTech/agent-harness-kit`. When you start any new project, you install the kit with one command and tell your agent to run the `harness-architect` skill. Your agent inspects your repo, asks you 5 short architectural questions, and automatically generates a custom `<60-line` `AGENTS.md`, `CLAUDE.md`, modular `context-hygiene` and `verification-loop` skills, plus a `verify-harness.mjs` Context Budget Linter.',
+          'A truly useful harness builder cannot treat a blank folder and a 100,000-line legacy repository the same way. That is why our open-source `RolePlayingTech/agent-harness-kit` v2.0 guides you "by the hand" across two distinct operational paths (`harness-architect`):',
+          'Path A — Greenfield Project & Stack Advisor (`greenfield-advisor`, for empty repos): When you start from just an app idea, no code or linter exists yet. The agent first helps you define your MVP core loop and explicit Non-Goals, compares 2–3 technology stacks with honest pros/cons, hosting costs, and AI-legibility ratings, helps you pick a Testing-vs-Context profile, and generates a complete project blueprint (`docs/PROJECT_BRIEF.md`, `docs/ARCHITECTURE.md`, ADR, `docs/ROADMAP.md`, `HANDOFF.md`, and a Default-FAIL `feature_list.json` initialized with honest `"pending"` statuses).',
+          'Path B — Brownfield Silent Repo Reconnaissance (`brownfield-onboarder`, for existing repos): When run on an existing project, the agent NEVER asks lazy questions like "what framework do you use?" that are already answered in `package.json` or `pyproject.toml`. Instead, it silently scans your workspace first (`agent-harness inspect .`), reports grounded findings with exact file paths, preserves your existing `AGENTS.md`/`CLAUDE.md` non-destructively, and discusses only unknowns: fragile legacy zones, noisy tests, and your preferred testing-vs-context trade-off.',
         ],
         callout: {
-          label: 'OPEN-SOURCE TOOLKIT · AGENT-HARNESS-KIT',
-          text: 'Bootstrap a complete, stack-tailored AI harness in any new or existing repository via https://github.com/RolePlayingTech/agent-harness-kit — works natively with Google Antigravity, Claude Code, OpenAI Codex, and Cursor.',
+          label: 'OPEN-SOURCE TOOLKIT · AGENT-HARNESS-KIT V2.0',
+          text: 'Run `npx github:RolePlayingTech/agent-harness-kit inspect .` and `init .` in any new or existing repository — works with Claude Code, Google Antigravity, Cursor, GitHub Copilot, Windsurf, and OpenAI Codex.',
         },
         codeBlock: {
-          caption: 'Bootstrap Your Project Harness in 30 Seconds with RolePlayingTech/agent-harness-kit',
+          caption: 'Dual-Mode CLI & Conversational Setup with RolePlayingTech/agent-harness-kit v2.0',
           language: 'bash',
-          code: `# 1. Install the universal skills (.agents/skills & .claude/skills) + Context Budget Linter
-git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit \\
-  && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+          code: `# 1. Silently inspect any empty (Greenfield) or existing (Brownfield) repository:
+npx github:RolePlayingTech/agent-harness-kit inspect .
 
-# 2. Prompt your AI agent (Antigravity, Claude Code, Cursor, or Codex):
-# "Use the harness-architect skill to inspect this project, interview me, and generate our AI harness."
+# 2. Preview the recommended interview path & Testing-vs-Context trade-off matrix:
+npx github:RolePlayingTech/agent-harness-kit plan .
 
-# 3. Verify anytime that your AGENTS.md / CLAUDE.md stays within the <80-line token budget:
-node scripts/verify-harness.mjs`,
+# 3. Non-destructively install the 6 skills + generate harness & blueprint files:
+npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
+
+# 4. Run strict deterministic verification (checks YAML schema, line caps & broken paths):
+npx github:RolePlayingTech/agent-harness-kit verify . --strict`,
         },
       },
     ],
@@ -1737,39 +1754,56 @@ const pl: LessonData[] = [
       },
       {
         id: 'deterministic-sensors-and-code-quality',
-        levelBadge: 'POZIOM 2 → 3 · JAKOŚĆ KODU I SAMONAPRAWA',
-        heading: '4. Jak Uprząż bezpośrednio podnosi jakość kodu: Probabilistyczny Mózg + Deterministyczne Czujniki',
+        levelBadge: 'POZIOM 2 → 3 · KOMPROMIS TESTY KONTRA KONTEKST',
+        heading: '4. Matryca Kompromisów: Głębokość Testów kontra Zużycie Tokenów i Bezpiecznik 3 Prób',
         paragraphs: [
-          'Dlaczego dokładnie ten sam model AI u jednego programisty generuje kod-spaghetti pełen błędów, a u innego tworzy czystą architekturę produkcyjną? W głośnym raporcie OpenAI („Harness Engineering: Leveraging Codex in an Agent-First World”, opisującym budowę systemu o milionie linii kodu w 100% przez agentów Codex bez ręcznego pisania kodu przez ludzi) kluczem okazało się połączenie probabilistycznego modelu z deterministycznymi czujnikami w repozytorium.',
-          'Model LLM przewiduje kolejne słowa z pewnym prawdopodobieństwem — zawsze może pomylić nazwę importu albo zapomnieć o jednym polu w tłumaczeniu. Silny harness sprawia, że błędy nie mogą przejść niezauważone, dzięki trzem filarom: (1) Czytelności repozytorium dla AI (Repo Legibility) — ścisłym typom TypeScript, przewidywalnej strukturze katalogów i jawnym walidatorom kontraktów (jak funkcja `assertLocaleParity` w kodzie tej Akademii); (2) Szybkim pętlom zwrotnym — testom i skryptom weryfikacyjnym działającym w kilka sekund i zwracającym dokładny numer linii błędu; oraz (3) Twardym zakazom negatywnym — blokującym obchodzenie testów na skróty.',
+          'Dlaczego dokładnie ten sam model AI u jednego programisty generuje kod-spaghetti pełen błędów, a u innego tworzy czystą architekturę produkcyjną? W głośnym raporcie OpenAI („Harness Engineering: Leveraging Codex in an Agent-First World”) kluczem było połączenie probabilistycznego modelu z deterministycznymi czujnikami w repozytorium. Pojawia się tu jednak kluczowy dylemat inżynieryjny: jeśli każesz agentowi uruchamiać pełne testy E2E w głównym oknie czatu po każdej drobnej edycji, tysiące linii logów z terminala błyskawicznie zapchają okno kontekstowe i przepalą tokeny — z kolei brak testów oznacza ciche psucie aplikacji.',
+          'Aby rozwiązać ten problem, `agent-harness-kit` v2.0 wprowadza 4 gotowe profile Testy kontra Kontekst (skill `testing-tradeoffs`): (1) `fast-prototype` (~300–600 tokenów/turę: tylko szybkie sprawdzanie typów/składni, idealne na weekendowe PoC), (2) `smart-tiered` (~800–1 500 tokenów/turę: domyślny Złoty Środek — uruchamia `tsc` + 1 celowany test jednostkowy po edycji, a pełne E2E dopiero na koniec zadania), (3) `isolated-verifier` (~500 tokenów w głównym czacie: deleguje ciężkie testy Playwright/Docker do osobnego subagenta, który zwraca tylko `<200 słów` podsumowania) oraz (4) `mission-critical` (~3 000–8 000 tokenów/turę: pełny lint + unit + E2E + audyt bezpieczeństwa dla płatności, logowania i migracji bazy). Każdy profil zawiera też Bezpiecznik 3 Prób Naprawy (`3-Strike Circuit Breaker`): jeśli ten sam test nie przechodzi 3 razy z rzędu, agent ma zakaz dalszego zgadywania w pętli — zapisuje hipotezy w `HANDOFF.md` i prosi Cię o decyzję.',
         ],
+        callout: {
+          label: 'BEZPIECZNIK 3 PRÓB NAPRAWY (3-STRIKE CIRCUIT BREAKER)',
+          text: 'Nigdy nie pozwalaj agentowi kręcić się w kółko przez 15 prób wokół jednego czerwonego testu — to pali 50 000 tokenów i psuje kod. Po 3 nieudanych próbach uprząż zatrzymuje pętlę, zapisuje stan w HANDOFF.md i oddaje głos człowiekowi.',
+        },
+        codeBlock: {
+          caption: 'Cztery profile Głębokość Testów kontra Zużycie Kontekstu (`skills/testing-tradeoffs/SKILL.md`)',
+          language: 'text',
+          code: `┌─────────────────────┬────────────────────────────────────┬──────────────────────┬───────────────────────┐
+│ Profil (--profile)  │ Pętla wewnętrzna (po edycji)       │ Koszt tokenów / turę │ Kiedy wybrać?         │
+├─────────────────────┼────────────────────────────────────┼──────────────────────┼───────────────────────┤
+│ fast-prototype      │ Tylko szybki typecheck / składnia  │ ~300–600 tokenów     │ Hackathon, szybki PoC │
+│ smart-tiered ★      │ Typecheck + 1 celowany test pliku  │ ~800–1 500 tokenów   │ 90% codziennej pracy  │
+│ isolated-verifier   │ Ciężkie E2E w osobnym Subagencie   │ ~500 tok (czat gł.)  │ Głośne logi E2E       │
+│ mission-critical    │ Pełny lint + unit + E2E + security │ ~3 000–8 000 tokenów │ Płatności, auth, bazy │
+└─────────────────────┴────────────────────────────────────┴──────────────────────┴───────────────────────┘`,
+        },
       },
       {
         id: 'advanced-multi-agent-harnesses-and-open-source-kit',
-        levelBadge: 'POZIOM 3 · ZAAWANSOWANY HARNESS ENGINEERING',
-        heading: '5. Wzorce zaawansowane (Anthropic Initializer + Evaluator) i nasz pakiet Open-Source `agent-harness-kit`',
+        levelBadge: 'POZIOM 3 · DWUTRYBOWY KREATOR (GREENFIELD I BROWNFIELD)',
+        heading: '5. Kreator „Za Rączkę” w Dwóch Trybach (Nowy Projekt vs. Istniejące Repo) i `agent-harness-kit` v2.0',
         paragraphs: [
-          'Gdy zadanie trwa wiele godzin lub dni, nawet najczystsza pojedyncza sesja napotyka ograniczenia. W publikacji „Effective harnesses for long-running agents” inżynierowie Anthropic przedstawili dwa wieloagentowe wzorce architektoniczne, które rozwiązują problem amnezji między sesjami:',
-          'Wzorzec A: Initializer Agent + Incremental Worker Loop. Zamiast prosić jednego agenta o zbudowanie całej aplikacji w jednym ciągu (co kończy się tzw. „early victory” — przedwczesnym ogłoszeniem sukcesu, gdy połowa funkcji to puste zaślepki), jako pierwszy uruchamia się Agent Inicjujący (`Initializer`). Tworzy on skrypt startowy środowiska oraz plik `feature_list.json`, w którym każde wymaganie ma na starcie status `"failing"`. Następnie w kolejnych, czystych sesjach budzą się Agenci Kodujący — każdy bierze dokładnie jedno zadanie z listy, pisze kod, przechodzi deterministyczne testy, zmienia status na `"passed"`, robi commit w Gicie i kończy zmianę.',
-          'Wzorzec B: Generator vs. Fresh-Context Evaluator (Kontrakt Default-FAIL). Agent, który przez 20 minut pisał kod, ulega efektowi potwierdzenia — „widzi” w kodzie to, co chciał napisać, a nie to, co faktycznie napisał. Zaawansowana uprząż powołuje osobnego Agenta-Recenzenta (`Evaluator`) w zupełnie czystym oknie kontekstowym, z uprawnieniami tylko do odczytu i uruchamiania testów. Ewaluator dostaje wyłącznie specyfikację oraz `git diff` i ocenia każdy punkt według rygorystycznej zasady Default-FAIL (każde kryterium jest niezaliczone, dopóki test nie udowodni inaczej).',
-          'Abyś nie musiał budować takiej uprzęży ręcznie od zera w każdym nowym projekcie, przygotowaliśmy otwarte repozytorium na GitHubie: `RolePlayingTech/agent-harness-kit`. Wystarczy pobrać pakiet jedną komendą na starcie projektu i poprosić swojego agenta o uruchomienie skilla `harness-architect`. Agent sam przeskanuje Twój projekt, zada Ci 5 krótkich pytań architektonicznych i wygeneruje skrojony na miarę plik `AGENTS.md` (<60 linii), `CLAUDE.md`, modułowe skille `context-hygiene` oraz `verification-loop`, a także skrypt `verify-harness.mjs` pilnujący budżetu tokenów.',
+          'Prawdziwie użyteczny kreator uprzęży nie może traktować pustego folderu tak samo jak działającego od dwóch lat projektu. Dlatego nasz otwarty pakiet `RolePlayingTech/agent-harness-kit` v2.0 prowadzi programistę za rączkę dwiema odrębnymi ścieżkami (`harness-architect`):',
+          'Ścieżka A — Nowy Projekt od Zera (`greenfield-advisor`, na pustym repozytorium): Gdy startujesz od samego pomysłu na aplikację, żaden kod ani linter jeszcze nie istnieje. Agent pomaga Ci najpierw określić główną pętlę wartości MVP oraz listę Non-Goals (czego świadomie nie budujemy w v1), porównuje 2–3 stosy technologiczne (koszt hostingu, szybkość startu, czytelność typów dla AI), dobiera profil Testy kontra Kontekst i generuje kompletny blueprint projektu (`docs/PROJECT_BRIEF.md`, `docs/ARCHITECTURE.md`, ADR, `docs/ROADMAP.md`, `HANDOFF.md` oraz rejestr `feature_list.json` z uczciwym statusem `"pending"` na starcie).',
+          'Ścieżka B — Istniejący Projekt (`brownfield-onboarder`, na działającym repozytorium): Gdy uruchamiasz skilla w istniejącym projekcie, agent NIGDY nie zadaje leniwych pytań w stylu „jakiego frameworka używasz?”, skoro odpowiedź leży w `package.json` lub `pyproject.toml`. Najpierw wykonuje cichy skan repozytorium (`agent-harness inspect .`), prezentuje wykryte technologie, skrypty i ryzyka, bezpiecznie zachowuje Twoje dotychczasowe pliki `AGENTS.md`/`CLAUDE.md` bez ich nadpisywania i podejmuje z Tobą dyskusję wyłącznie o tym, czego nie widać w kodzie: wrażliwych folderach legacy, wolnych testach i wyborze profilu oszczędzania tokenów.',
         ],
         callout: {
-          label: 'PAKIET OPEN-SOURCE · AGENT-HARNESS-KIT',
-          text: 'Wygeneruj kompletną, dopasowaną do Twojego stacku uprząż AI w 30 sekund z repozytorium https://github.com/RolePlayingTech/agent-harness-kit — działa natywnie w Google Antigravity, Claude Code, OpenAI Codex oraz Cursor.',
+          label: 'PAKIET OPEN-SOURCE · AGENT-HARNESS-KIT V2.0',
+          text: 'Uruchom `npx github:RolePlayingTech/agent-harness-kit inspect .` oraz `init .` w dowolnym nowym lub istniejącym repozytorium — działa z Claude Code, Google Antigravity, Cursor, GitHub Copilot, Windsurf oraz OpenAI Codex.',
         },
         codeBlock: {
-          caption: 'Szybki start: Zbuduj własny Harness w 30 sekund z pakietem RolePlayingTech/agent-harness-kit',
+          caption: 'Dwutrybowy start CLI i rozmowa „za rączkę” z pakietem RolePlayingTech/agent-harness-kit v2.0',
           language: 'bash',
-          code: `# 1. Zainstaluj uniwersalne skille (.agents/skills i .claude/skills) + Linter Budżetu Kontekstu
-git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit \\
-  && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+          code: `# 1. Cichy skan dowolnego pustego (Greenfield) lub istniejącego (Brownfield) repozytorium:
+npx github:RolePlayingTech/agent-harness-kit inspect .
 
-# 2. Wydaj polecenie swojemu agentowi AI (Antigravity, Claude Code, Cursor lub Codex):
-# "Użyj skilla harness-architect — przeanalizuj ten projekt, zadaj mi pytania i przygotuj nasz harness."
+# 2. Podgląd rekomendowanej ścieżki rozmowy i matrycy kompromisów Testy vs Kontekst:
+npx github:RolePlayingTech/agent-harness-kit plan .
 
-# 3. W dowolnej chwili sprawdź, czy AGENTS.md / CLAUDE.md mieści się w budżecie <80 linii:
-node scripts/verify-harness.mjs`,
+# 3. Bezpieczna instalacja 6 skilli + wygenerowanie uprzęży i blueprintu (bez nadpisywania Twoich plików):
+npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
+
+# 4. Twarda weryfikacja deterministyczna (sprawdza schemat YAML, limit 80 linii i ścieżki plików):
+npx github:RolePlayingTech/agent-harness-kit verify . --strict`,
         },
       },
     ],

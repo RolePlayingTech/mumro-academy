@@ -1,43 +1,54 @@
 ---
 name: verification-loop
 description: >-
-  Deterministic Self-Healing Loop & Fresh-Context Evaluator Protocol (Default-FAIL contract).
-  Activate before declaring any coding, refactoring, or content generation task complete.
+  Deterministic Acceptance Gates, Bounded Repair Loops (3-Strike Circuit Breaker),
+  Fresh-Context Evaluator & Human Approval Gates (Prepare -> Confirm). Activate
+  before marking any task complete or executing risky operations.
 ---
 
-# Deterministic Verification & Evaluator Loop (`verification-loop`)
+# Deterministic Verification & Safety Loop (`verification-loop`)
 
-Based on Anthropic's *Effective harnesses for long-running agents* and OpenAI's *Harness Engineering*, an AI agent must never grade its own homework using subjective confidence.
-
----
-
-## 1. The Default-FAIL Contract
-
-Every acceptance criterion starts in a **`FAIL`** state. A criterion only transitions to **`PASS`** when backed by deterministic execution evidence:
-
-1. **Static & Type Sensor:** Compiler / typechecker exits with `0` (`tsc --noEmit`, `pyright`, `cargo check`).
-2. **Style & Contract Sensor:** Linter and schema/parity checks exit with `0`.
-3. **Behavioral Sensor:** Automated unit/integration/E2E tests covering the changed code exit with `0`.
-4. **Harness Budget Sensor:** `node scripts/verify-harness.mjs` exits with `0`.
+> **Important Distinction:** Markdown instructions guide agent behavior, while CLI scripts (`node scripts/verify-harness.mjs`, CI pipelines, OS permissions) provide hard enforcement. Never claim a task is `verified` based on subjective confidence.
 
 ---
 
-## 2. The Self-Healing Loop (Reason → Act → Observe → Fix)
+## 1. Honest Task States & Evidence Contract
 
-If any sensor returns a non-zero exit code:
-1. **Read the exact error output** (file, line number, assertion failure).
-2. **Fix the root cause**—never silence the sensor (do not delete assertions, add `@ts-ignore`, or skip tests).
-3. **Re-run the sensor** until all checks pass cleanly.
+Every task in `feature_list.json` (or your active plan) must use one of five explicit states:
+
+* **`pending`** — Not yet started (all tasks in templates and new roadmaps MUST start here).
+* **`in_progress`** — Currently being implemented.
+* **`blocked`** — Waiting on human decision, missing credentials, or external dependency.
+* **`failed`** — Verification command returned a non-zero exit code.
+* **`verified`** — All required deterministic sensors returned exit code `0` **and** `verificationEvidence` (command run + exit code + summary) is recorded.
+
+> **Never conflate "no test exists" with `verified`.** If no automated test exists for a requirement, either write a test or report the verification state honestly as `SKIPPED_NO_TEST` / `manual_review_required`.
 
 ---
 
-## 3. Fresh-Context Evaluator Pattern (For Complex Features)
+## 2. The Bounded Self-Healing Loop (3-Strike Circuit Breaker)
 
-When completing a major feature or multi-file change, avoid "generator bias" (where the agent that wrote the code overlooks its own edge cases):
+When running verification commands (`typecheck`, `lint`, `test`, `build`, `verify-harness.mjs`):
 
-1. Spawn a **Fresh-Context Evaluator Subagent** (read-only / test-runner role).
-2. Pass the evaluator ONLY:
-   * The original user requirements / specification.
-   * The `git diff` of the changes.
-   * Instructions to verify every requirement under the **Default-FAIL** contract.
-3. Address all findings reported by the evaluator before presenting the final result to the user.
+1. **Attempt 1:** Read the exact compiler/test failure (`file:line`), fix the root cause, and re-run the failing check.
+2. **Attempt 2:** If it fails again, stop making incremental guesses. Re-read the surrounding contract/types and test assumptions.
+3. **Attempt 3 (Circuit Breaker Limit):** If the check still fails after 3 attempts (or the configured `maxRepairAttempts`), **STOP IMMEDIATELY**. Do not enter an infinite token-burning loop. Revert broken experimental edits, summarize the exact error and what was tried, and ask the user for a decision.
+
+---
+
+## 3. Fresh-Context Evaluator Pass (When Supported)
+
+For major features or multi-file refactors:
+* If your environment supports subagents (e.g., Antigravity `invoke_subagent` or Claude Code subagents), spawn a read-only **Evaluator Subagent** in a clean context window. Give it only the user requirements and `git diff` to check for missed edge cases.
+* If your environment does **not** support subagents, perform an explicit self-audit against the acceptance checklist in `docs/PROJECT_BRIEF.md` or `feature_list.json` and show the command outputs to the user.
+
+---
+
+## 4. Four-Tier Security & Human Approval Model (`Prepare -> Confirm`)
+
+Classify every action into one of four security tiers:
+
+1. **Tier 1 — Read-Only (Always Safe):** Inspecting files, running `agent-harness inspect/audit/verify`, searching code.
+2. **Tier 2 — Local Non-Destructive Writes:** Creating new files, editing feature code on a working branch, running `--dry-run`.
+3. **Tier 3 — Risky Local Actions (Pause & Preview):** Overwriting existing customized configuration (`--force`), deleting files/tests, upgrading major dependencies.
+4. **Tier 4 — Remote / Destructive / Production Actions (Mandatory `Prepare -> Confirm`):** Pushing to `main`, running destructive DB migrations, deploying to production servers (e.g., SSH/Hetzner), publishing live content, or accessing secrets. Always show the exact command, target, and impact preview and wait for explicit human confirmation.
