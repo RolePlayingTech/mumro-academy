@@ -16,6 +16,7 @@ const expectedSlugs = [
   'mcp-for-marketing-and-content-systems',
   'two-phase-commit-for-ai-agents',
   'autonomy-levels-and-guardrails',
+  'ai-agent-harness-engineering',
 ];
 
 const expectedTracks = [

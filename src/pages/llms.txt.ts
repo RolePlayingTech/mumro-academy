@@ -25,7 +25,7 @@ export const GET: APIRoute = () => {
       (id) => `- [${enTracks[id].number}: ${enTracks[id].title}](https://academy.mumro.io/tracks/${id}/): ${enTracks[id].subtitle}`
     ),
     '',
-    '## All 12 Lessons (EN)',
+    '## All 13 Lessons (EN)',
     ...enLessons.map(
       (l) => `- [${l.number}: ${l.title}](https://academy.mumro.io/lessons/${l.slug}/): ${l.metaDescription}`
     ),
@@ -35,16 +35,17 @@ export const GET: APIRoute = () => {
       (id) => `- [${plTracks[id].number}: ${plTracks[id].title}](https://academy.mumro.io/pl/tracks/${id}/): ${plTracks[id].subtitle}`
     ),
     '',
-    '## Wszystkie 12 lekcji (PL)',
+    '## Wszystkie 13 lekcji (PL)',
     ...plLessons.map(
       (l) => `- [${l.number}: ${l.title}](https://academy.mumro.io/pl/lessons/${l.slug}/): ${l.metaDescription}`
     ),
     '',
-    '## Playbooks & Glossary',
+    '## Playbooks, Glossary & Open-Source Harness Kit',
     '- [Playbooks & Blueprints (EN)](https://academy.mumro.io/playbooks/)',
     '- [Playbooki i Szablony (PL)](https://academy.mumro.io/pl/playbooks/)',
     '- [Glossary of Connected Brand Operations (EN)](https://academy.mumro.io/glossary/)',
     '- [Słownik Systemów Marki i Agentów AI (PL)](https://academy.mumro.io/pl/glossary/)',
+    '- [AI Agent Harness Kit (Open-Source on GitHub)](https://github.com/RolePlayingTech/agent-harness-kit)',
     '',
   ];
 

@@ -180,6 +180,45 @@ channel_adaptations:
   }
 }`,
     },
+    {
+      id: 'agent-harness-kit-blueprint',
+      number: 'PLAYBOOK 05',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'ai-agent-harness-engineering',
+      title: 'Lean AI Agent Harness Blueprint (`AGENTS.md` + Progressive Disclosure + `agent-harness-kit`)',
+      subtitle: 'Copy-ready <50-line AGENTS.md routing map, subagent context isolation rules, and one-command installer from RolePlayingTech/agent-harness-kit.',
+      whenToUse: 'At the very start of any new software repository or when refactoring a bloated CLAUDE.md / AGENTS.md setup to stop context rot.',
+      mumroBenefit: 'Pairs seamlessly with MUMRO’s MCP tools and skills (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`) so coding and marketing agents operate with clean context and deterministic gates.',
+      templateFormat: 'Markdown Blueprint + CLI Bootstrap',
+      templateCode: `# 1. One-Liner Bootstrap (RolePlayingTech/agent-harness-kit)
+# git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+
+# 2. Root AGENTS.md (<50 lines — Progressive Disclosure Routing Map)
+## Project Identity & Stack
+- **System:** [1-sentence summary of your system]
+- **Stack:** TypeScript, Node.js 22, Astro / Next.js, Playwright
+- **Key Paths:** \`src/\` (code), \`tests/\` (automated tests), \`scripts/\` (verification gates)
+
+## Deterministic Verification Loop (Mandatory Before Completing Any Task)
+1. **Typecheck & Contracts:** \`npx tsc --noEmit\`
+2. **Build & Schema Audit:** \`npm run build && npm run verify\`
+3. **E2E / Unit Tests:** \`npx playwright test\`
+4. **Harness Budget Linter:** \`node scripts/verify-harness.mjs\`
+
+## Context Hygiene & Subagent Rules
+- **60% Context Ceiling:** Treat context window as working RAM; never dump whole large files.
+- **Scout Subagents:** Delegate >4-file exploration to an isolated \`research\` subagent; return a <250-word synthesis with exact file/line references.
+- **One Feature = One Session:** Persist multi-session state in \`feature_list.json\`; run \`/compact\` between tasks.
+
+## Progressive Disclosure Map (Load Just-In-Time)
+- Interactive Harness Architect → \`.agents/skills/harness-architect/SKILL.md\`
+- Token saving & subagent isolation → \`.agents/skills/context-hygiene/SKILL.md\`
+- Default-FAIL verification & evaluator → \`.agents/skills/verification-loop/SKILL.md\`
+
+## Hard Guardrails (Red Lines — Require Human Confirmation)
+- NEVER push directly to \`main\` or execute live external mutations without a \`Prepare -> Confirm\` handshake.
+- NEVER delete failing test assertions or add \`@ts-ignore\` to force a passing build.`,
+    },
   ] satisfies PlaybookItem[],
 };
 
@@ -349,6 +388,45 @@ channel_adaptations:
     "viewer": ["calendar_read", "analytics_read"]
   }
 }`,
+    },
+    {
+      id: 'agent-harness-kit-blueprint',
+      number: 'PLAYBOOK 05',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'ai-agent-harness-engineering',
+      title: 'Szablon Szczupłego AI Harnessu (`AGENTS.md` + Progressive Disclosure + `agent-harness-kit`)',
+      subtitle: 'Gotowa mapa AGENTS.md poniżej 50 linii, reguły izolacji kontekstu przez subagentów oraz instalator one-liner z repozytorium RolePlayingTech/agent-harness-kit.',
+      whenToUse: 'Jako pierwszy krok przy zakładaniu nowego projektu programistycznego lub przy odchudzaniu przeładowanego pliku CLAUDE.md / AGENTS.md.',
+      mumroBenefit: 'Współpracuje natywnie z narzędziami MCP i skillami MUMRO (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`), zapewniając czysty kontekst i deterministyczne bramki.',
+      templateFormat: 'Szablon Markdown + Instalator CLI',
+      templateCode: `# 1. Szybka instalacja pakietu Open-Source (RolePlayingTech/agent-harness-kit)
+# git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+
+# 2. Główny plik AGENTS.md (<50 linii — Mapa Progressive Disclosure)
+## Tożsamość Projektu i Stack
+- **System:** [1-zdaniowy opis Twojego systemu]
+- **Stack:** TypeScript, Node.js 22, Astro / Next.js, Playwright
+- **Kluczowe ścieżki:** \`src/\` (kod), \`tests/\` (testy automatyczne), \`scripts/\` (bramki weryfikacji)
+
+## Deterministyczna Pętla Weryfikacji (Obowiązkowa przed zakończeniem zadania)
+1. **Typy i kontrakty:** \`npx tsc --noEmit\`
+2. **Build i audyt schematów:** \`npm run build && npm run verify\`
+3. **Testy E2E / Unit:** \`npx playwright test\`
+4. **Linter budżetu kontekstu:** \`node scripts/verify-harness.mjs\`
+
+## Higiena Kontekstu i Reguły Subagentów
+- **Pułap 60% kontekstu:** Traktuj okno kontekstowe jak pamięć RAM; nie wklejaj całych dużych plików.
+- **Subagenci-Zwiadowcy:** Eksplorację >4 plików deleguj do subagenta \`research\`; żądaj syntezy <250 słów z dokładnymi ścieżkami i liniami.
+- **Jedno Zadanie = Jedna Sesja:** Stan wielosesyjny zapisuj w \`feature_list.json\`; używaj \`/compact\` między zadaniami.
+
+## Mapa Progressive Disclosure (Ładuj tylko w razie potrzeby)
+- Interaktywny Architekt Uprzęży → \`.agents/skills/harness-architect/SKILL.md\`
+- Oszczędzanie tokenów i izolacja subagentów → \`.agents/skills/context-hygiene/SKILL.md\`
+- Pętla weryfikacji Default-FAIL i ewaluator → \`.agents/skills/verification-loop/SKILL.md\`
+
+## Twarde Bezpieczniki (Czerwone Linie — Wymagają Zgody Człowieka)
+- NIGDY nie wysyłaj zmian bezpośrednio na \`main\` ani nie wykonuj mutacji na żywo bez bramki \`Prepare -> Confirm\`.
+- NIGDY nie usuwaj asercji w testach i nie dodawaj \`@ts-ignore\`, aby sztucznie wymusić zielony build.`,
     },
   ] satisfies PlaybookItem[],
 };

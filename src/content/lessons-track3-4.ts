@@ -709,6 +709,205 @@ const en: LessonData[] = [
       ],
     },
   },
+  {
+    slug: 'ai-agent-harness-engineering',
+    number: 'LESSON 13',
+    trackId: 'agents-mcp-governance',
+    difficulty: 'Foundations',
+    difficultyLabel: 'Foundations → Architecture',
+    readingTimeMinutes: 16,
+    title: 'AI Agent Harness Engineering: What It Is, How It Works & How to Master Context and Code Quality',
+    subtitle: 'A complete visual guide—from beginner analogies to advanced multi-agent patterns from Anthropic and OpenAI—on building, managing, and optimizing your AI harness (`Agent = Model + Harness`).',
+    metaDescription: 'Learn AI Agent Harness Engineering from scratch to production: the Agent = Model + Harness equation, context window hygiene, progressive disclosure (AGENTS.md, CLAUDE.md, SKILL.md), subagent isolation, deterministic test loops, and our open-source agent-harness-kit.',
+    keywords: ['AI agent harness', 'harness engineering', 'context management AI coding', 'AGENTS.md CLAUDE.md SKILL.md', 'subagent context isolation', 'Anthropic OpenAI harness engineering', 'agent-harness-kit'],
+    keyTakeaways: [
+      'An AI Agent is not just a language model: `Agent = Model (Brain) + Harness (Eyes, Hands, Memory, Sensors & Brakes)`. Upgrading the harness yields a larger quality leap than swapping models.',
+      'Treat the context window as working RAM (a desk), not a hard drive: once context fills past 55–60%, "Context Rot" and "Lost in the Middle" degrade code quality and multiply token costs.',
+      'Keep root instruction files (`AGENTS.md`, `CLAUDE.md`) under 60 lines as a routing map (Progressive Disclosure), offload heavy exploration to isolated Subagents, and enforce a Default-FAIL verification loop.',
+      'You can bootstrap a complete, stack-tailored harness in 30 seconds using our open-source `RolePlayingTech/agent-harness-kit` repository and its interactive `harness-architect` skill.',
+    ],
+    problemStatement: {
+      heading: 'The "Brain in a Jar" Trap & Context Window Bankruptcy',
+      body: 'Most people start working with AI by pasting code or text into a chat window, or by dumping a 1,500-line instruction file into an IDE agent and running a single marathon chat for three hours. After 40 minutes, the AI starts forgetting project rules, inventing non-existent functions, breaking working features, and burning through token budgets. The model did not suddenly become dumb—its harness was either missing or choked with context pollution.',
+      antiPattern: 'Raw chat copy-pasting OR a bloated 1,500-line CLAUDE.md/AGENTS.md + one endless chat session (>70% context full) + zero automated test verification.',
+      connectedPattern: 'Lean Map (<60-line AGENTS.md) + On-Demand Skills (SKILL.md) + Scout Subagents (Isolated Context) + Deterministic Test Loop + Fresh-Context Evaluator.',
+    },
+    sections: [
+      {
+        id: 'what-is-an-ai-harness-plain-english',
+        levelBadge: 'LEVEL 1 · FOUNDATIONS (PLAIN ENGLISH)',
+        heading: '1. What Is an AI Harness? The "Brain in a Locked Room" vs. "Equipped Engineer" Analogy',
+        paragraphs: [
+          'In English, a "harness" means climbing gear, a horse harness, or the cockpit, safety cage, steering, and brakes that turn a raw V12 engine into a drivable Formula 1 car. In AI engineering—formalized by researchers at Anthropic, OpenAI, and Thoughtworks (Martin Fowler)—it is captured by one fundamental equation: `Agent = Model + Harness`.',
+          'Imagine hiring a world-class programmer (the LLM Model—such as Claude, GPT, or Gemini), locking them inside a windowless, soundproof room without a computer, and sliding paper notes under the door. That is how a normal browser chat works. You slide a note with a code snippet; the model guesses an answer from memory and slides a note back. It cannot open your other files, cannot run the compiler to see if its idea actually works, and forgets you exist the moment you walk away.',
+          'An AI Harness is the complete workshop, exoskeleton, and rulebook you build around that brain. It gives the model five concrete layers: (1) Instructions on the wall (`AGENTS.md` / `CLAUDE.md`), (2) Eyes and Hands (tools to read files, run terminal commands, and call MCP servers), (3) A Working Desk (managed context window + disk notes), (4) Automatic Quality Sensors (compilers, linters, and test runners that catch mistakes immediately), and (5) Safety Brakes (`Prepare → Confirm` permission gates). When the model writes code inside a harness, the harness automatically runs the tests and feeds any compiler error right back to the model so it fixes its own bug before you ever look at the screen.',
+        ],
+        callout: {
+          label: 'GOLDEN RULE OF HARNESS ENGINEERING',
+          text: 'The Model is the rented engine; the Harness is the steering, brakes, and workshop you own. A well-engineered harness around a standard model consistently beats a frontier model running in a chaotic environment.',
+        },
+        codeBlock: {
+          caption: 'Anatomy of `Agent = Model + Harness` (Closed-Loop ReAct Execution)',
+          language: 'text',
+          code: `┌─────────────────────────────────────────────────────────────────────────┐
+│                       AI AGENT HARNESS (YOUR ENVIRONMENT)               │
+│                                                                         │
+│  [1. CONSTITUTION]   AGENTS.md / CLAUDE.md (<60 lines map & red lines)  │
+│  [2. ON-DEMAND DOCS] .agents/skills/*/SKILL.md (Loaded Just-In-Time)    │
+│                                   │                                     │
+│                                   ▼                                     │
+│        ┌───────────────►  🧠 LLM MODEL (BRAIN)  ───────────────┐        │
+│        │                 (Reason & Choose Tool)                │        │
+│        │                                                       ▼        │
+│  [4. SENSORS & OBSERVE]                               [3. HANDS & TOOLS]│
+│  • Typecheck (tsc)                                    • Read/Edit Files │
+│  • Test Runner (Playwright/Vitest)                    • Terminal / Git  │
+│  • Context Linter (verify-harness.mjs)                • Scoped MCP APIs │
+│        ▲                                                       │        │
+│        └─────────────────  Auto-Feedback Loop  ◄───────────────┘        │
+│                                   │                                     │
+│                                   ▼                                     │
+│  [5. SAFETY BRAKE]   Prepare → Confirm Gate / Human Review Sign-Off     │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        },
+      },
+      {
+        id: 'context-window-physics-and-pollution',
+        levelBadge: 'LEVEL 1 → 2 · CONTEXT WINDOW PHYSICS',
+        heading: '2. Why AI "Gets Dumb" After an Hour: The Context Window Is a Desk (RAM), Not a Filing Cabinet',
+        paragraphs: [
+          'Every AI model has a "Context Window" (for example, 200,000 tokens). Beginners often think: "Great, it fits a whole book—I will dump my entire codebase into one chat and work in that single thread all week!" In practice, this is the #1 cause of hallucinations, broken code, and skyrocketing API bills.',
+          'Think of the context window as the surface of your physical working desk (RAM), and your hard drive or repository as the filing cabinet. If you dump 80 folders, old terminal error logs, and three hours of dead-end arguments onto your desk, two physical problems occur: (1) Context Rot & "Lost in the Middle"—the model’s attention mechanism gets diluted by noise, causing it to silently ignore rules from your `AGENTS.md`; and (2) Compounding Token Tax—LLMs are stateless, meaning on every single new message in a thread, the harness must re-send and re-process the entire desk from scratch. Past 55–60% context capacity, both reasoning precision and speed drop sharply.',
+        ],
+        callout: {
+          label: 'THE 60% CONTEXT CEILING',
+          text: 'Never wait for the context bar to hit 95%. In professional harness engineering, 55–60% utilization is the red line where you either delegate to a subagent, compact state, or start a fresh session.',
+        },
+      },
+      {
+        id: 'four-levers-of-context-optimization',
+        levelBadge: 'LEVEL 2 · CONTEXT SAVING & SUBAGENTS',
+        heading: '3. Four Levers to Save 80% of Context & Maximize Precision (Progressive Disclosure & Subagents)',
+        paragraphs: [
+          'How do elite engineers keep their main agent context at a crisp 15–25% utilization even when building million-line systems? They use four structural harness mechanisms:',
+          'Lever 1: Map, Not Encyclopedia (`AGENTS.md` / `CLAUDE.md` under 60 lines). Because your root instruction file is injected into every turn, stuffing 1,500 lines of style guides into it is a permanent tax. Keep `AGENTS.md` under 60 lines: state the stack, the exact build/test commands, hard red lines, and pointers to deeper files.',
+          'Lever 2: Progressive Disclosure via On-Demand Skills (`SKILL.md`). Store specialized runbooks—like database migrations, E2E testing, or brand voice rules—inside `.agents/skills/<skill-name>/SKILL.md` (or `.claude/skills/`). At session start, the harness loads only the 2-line `name` and `description` from the YAML header (~30 tokens). The full 150-line skill is pulled onto the desk only when the current task actually needs it.',
+          'Lever 3: Subagents as "Scouts with Disposable Scratchpads" (Context Isolation). If your agent needs to search 30 files to understand how authentication works, never let the main agent read all 30 files directly—that instantly dumps 60,000 tokens of raw code onto your main desk. Instead, the harness spawns a read-only `research` Subagent. The subagent opens its own isolated, temporary desk, reads the 30 files, and returns ONLY a 200-word summary with exact file paths and line numbers (`src/auth.ts#L40-L85`). The subagent’s scratchpad is discarded, saving ~95% of your main context window!',
+          'Lever 4: Filesystem-as-Memory & Clean Session Handoffs (`1 Task = 1 Session`). Instead of keeping a 12-step project plan inside chat history, write it to `TODO.md` or `feature_list.json` on disk. When one feature is done and tested, commit to Git and run `/compact` or open a clean session.',
+        ],
+        codeBlock: {
+          caption: 'Production-Grade Lean AGENTS.md (<50 lines) Using Progressive Disclosure & Subagents',
+          language: 'markdown',
+          code: `# AGENTS.md — Workspace Harness & Operational Map
+
+## 1. Project Identity & Stack
+- **System:** Bilingual educational platform & interactive studio
+- **Stack:** TypeScript, Astro 5, Playwright E2E, Node.js 22
+- **Key Paths:** \`src/content/\` (bilingual data), \`src/components/\` (UI), \`tests/\` (E2E)
+
+## 2. Deterministic Verification Loop (Mandatory Before Task Completion)
+1. **Build & Schema Parity:** \`npm run build\`
+2. **HTML & SEO Contract Audit:** \`npm run verify\`
+3. **Playwright E2E Suite:** \`npx playwright test\`
+4. **Harness Context Budget Check:** \`node scripts/verify-harness.mjs\`
+
+## 3. Context Hygiene & Subagent Rules
+- **60% Context Ceiling:** Keep main thread lean; read targeted line ranges instead of whole files.
+- **Subagent Delegation:** Spawn a \`research\` subagent whenever exploring >4 files; require a <250-word synthesis with exact file/line references.
+- **Session Discipline:** One feature per session; persist multi-step state in \`feature_list.json\`.
+
+## 4. Progressive Disclosure Map (Load Just-In-Time)
+- Context saving & subagent patterns → \`.agents/skills/context-hygiene/SKILL.md\`
+- Default-FAIL verification & evaluator loop → \`.agents/skills/verification-loop/SKILL.md\`
+- Interactive harness bootstrapper → \`.agents/skills/harness-architect/SKILL.md\`
+
+## 5. Hard Guardrails (Red Lines — Require Human Confirmation)
+- NEVER push to \`main\` or mutate external APIs without explicit human approval.
+- NEVER delete failing assertions or add \`@ts-ignore\` to force a green build.`,
+        },
+      },
+      {
+        id: 'deterministic-sensors-and-code-quality',
+        levelBadge: 'LEVEL 2 → 3 · CODE QUALITY & SELF-HEALING',
+        heading: '4. How the Harness Directly Drives Code Quality: Probabilistic Brain + Deterministic Sensors',
+        paragraphs: [
+          'Why does the exact same LLM write sloppy, broken code for one developer and clean, production-ready architecture for another? In OpenAI’s landmark report ("Harness Engineering: Leveraging Codex in an Agent-First World", where a team built a 1-million-line product with zero manually typed code), the secret was pairing a probabilistic model with deterministic repository sensors.',
+          'An LLM predicts tokens probabilistically—it can always make a subtle typo in an import or forget a locale key. A strong harness makes mistakes impossible to ignore by enforcing three engineering rules: (1) Repository Legibility—strict TypeScript contracts, predictable folder structures, and explicit invariant assertions (like `assertLocaleParity` in this Academy repo); (2) Fast Automated Feedback Loops—commands that run in seconds and output exact file/line errors; and (3) Negative Constraints—explicitly telling the agent that bypassing a sensor (deleting a test or using `any`) is a hard violation.',
+        ],
+      },
+      {
+        id: 'advanced-multi-agent-harnesses-and-open-source-kit',
+        levelBadge: 'LEVEL 3 · ADVANCED HARNESS ARCHITECTURE',
+        heading: '5. Advanced Patterns (Anthropic Initializer + Evaluator) & Our Open-Source `agent-harness-kit`',
+        paragraphs: [
+          'When tasks span many hours or days, even a clean single-session harness hits limits. In "Effective harnesses for long-running agents", Anthropic introduced two multi-agent patterns that define state-of-the-art harness engineering:',
+          'Pattern A: Initializer Agent + Incremental Worker Loop. Instead of asking one agent to build an entire app in one go (which leads to "early victory" where the agent claims it finished after scaffolding 20%), an Initializer Agent runs first to set up `init.sh`, verification scripts, and a machine-readable `feature_list.json` where every feature starts as `"status": "failing"`. Then, fresh Coding Agent sessions wake up one by one—each picking a single failing feature, implementing it, passing deterministic tests, flipping its status, committing to Git, and exiting cleanly.',
+          'Pattern B: Generator vs. Fresh-Context Evaluator (Default-FAIL Contract). An agent that just spent 20 minutes writing code suffers from confirmation bias—it assumes its own implementation works. Advanced harnesses spawn a separate, read-only Evaluator Subagent in a brand-new context window. The evaluator receives only the specification and the `git diff`, grading every requirement under a strict Default-FAIL rule (every criterion fails until proven by a test).',
+          'To make setting up all of these practices effortless in your own software projects, we published an open-source toolkit on GitHub: `RolePlayingTech/agent-harness-kit`. When you start any new project, you install the kit with one command and tell your agent to run the `harness-architect` skill. Your agent inspects your repo, asks you 5 short architectural questions, and automatically generates a custom `<60-line` `AGENTS.md`, `CLAUDE.md`, modular `context-hygiene` and `verification-loop` skills, plus a `verify-harness.mjs` Context Budget Linter.',
+        ],
+        callout: {
+          label: 'OPEN-SOURCE TOOLKIT · AGENT-HARNESS-KIT',
+          text: 'Bootstrap a complete, stack-tailored AI harness in any new or existing repository via https://github.com/RolePlayingTech/agent-harness-kit — works natively with Google Antigravity, Claude Code, OpenAI Codex, and Cursor.',
+        },
+        codeBlock: {
+          caption: 'Bootstrap Your Project Harness in 30 Seconds with RolePlayingTech/agent-harness-kit',
+          language: 'bash',
+          code: `# 1. Install the universal skills (.agents/skills & .claude/skills) + Context Budget Linter
+git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit \\
+  && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+
+# 2. Prompt your AI agent (Antigravity, Claude Code, Cursor, or Codex):
+# "Use the harness-architect skill to inspect this project, interview me, and generate our AI harness."
+
+# 3. Verify anytime that your AGENTS.md / CLAUDE.md stays within the <80-line token budget:
+node scripts/verify-harness.mjs`,
+        },
+      },
+    ],
+    comparisonTable: {
+      caption: 'Evolution of AI Workflows: Raw Chat vs. Bloated Agent vs. Engineered Harness',
+      headers: ['Dimension', 'Raw Chat / Unmanaged Agent', 'Engineered AI Harness (`Model + Harness`)'],
+      rows: [
+        ['Root instructions (`AGENTS.md`)', 'Either missing OR a bloated 1,500-line encyclopedia burning tokens on every turn', 'Lean <60-line routing map + on-demand `SKILL.md` modules (Progressive Disclosure)'],
+        ['Codebase exploration', 'Main agent reads 30 full files into primary chat, causing Context Rot (>70% full)', 'Isolated Scout Subagent explores in a disposable window and returns a 200-word summary'],
+        ['Quality verification', 'Human manually copies code, finds syntax errors, and pastes stack traces back', 'Deterministic sensors (types, linter, tests) run automatically inside the self-healing loop'],
+        ['Long-running reliability', 'Single marathon thread forgets rules and declares premature "early victory"', 'Multi-session `feature_list.json` ledger + Fresh-Context Evaluator with Default-FAIL contract'],
+        ['Safety & mutations', 'Unbounded execution or accidental live side effects', 'Hard red lines in harness + two-phase `Prepare → Confirm` token gates'],
+      ],
+    },
+    caseStudy: {
+      brand: 'Open-Source `agent-harness-kit` & MUMRO Workspace Engine',
+      scenarioTitle: 'Bootstrapping a Codebase Harness in 30 Seconds & Running the Same Pattern for Brand Content',
+      context: 'Whether an agent is writing TypeScript in your IDE or orchestrating a multi-channel marketing campaign in MUMRO, the architectural problem is identical: an un-harnessed LLM hallucinates facts, burns context, and risks unsafe mutations.',
+      executionSteps: [
+        'In software repos: Developer runs `install-harness-kit.mjs` from `RolePlayingTech/agent-harness-kit` and invokes `harness-architect`. The agent conducts a 5-question interview and scaffolds a 45-line `AGENTS.md`, on-demand skills, and `verify-harness.mjs` (~390 always-on tokens instead of 12,000).',
+        'During coding: The primary agent delegates multi-file searches to a `research` subagent (keeping main context at 18%) and runs `npm run verify` + Playwright tests before finishing.',
+        'In MUMRO brand operations: MUMRO acts as the production Harness for content agents—exposing Progressive Disclosure context via MCP (`get_workspace_context`), isolated draft scratchpads (`create_publication_draft`), Brand Voice negative boundaries, and deterministic `prepare_*` → `confirm_*` safety brakes.',
+      ],
+      resultNote: '80%+ reduction in wasted context tokens, zero silent regressions, and complete human control across both code and content.',
+    },
+    mumroIntegration: {
+      eyebrow: 'HOW MUMRO IMPLEMENTS THIS',
+      title: 'MUMRO is a complete production Harness for Brand, Content & Marketing Agents.',
+      summary: 'Just as Claude Code or Antigravity wraps a coding model in file tools, linters, and `AGENTS.md`, MUMRO wraps AI agents in a deterministic Brand Operating Harness—combining on-demand workspace context, Brand Voice guardrails, safe draft workspaces, and two-phase confirmation gates.',
+      capabilities: [
+        'On-demand context delivery (`get_workspace_context`, `get_content_strategy`, cohort analytics) instead of pasting giant PDFs into chat (`AG01`).',
+        'Safe workspace scratchpads (`create_publication_draft`, `create_article_draft`) separated from live publishing via `prepare_*` → `confirm_*` gates (`AG02`, `AG03`).',
+        'Hard operational guardrails: 3 graduated autonomy modes, quiet hours (`22:00–07:00`), monthly credit caps, and an instant kill switch (`AG05`–`AG08`).',
+      ],
+      anchorHref: 'https://mumro.io/#agents',
+      anchorLabel: 'See how MUMRO harnesses AI agents on mumro.io',
+    },
+    checklist: {
+      title: 'Lesson 13 Self-Audit Checklist (Harness & Context Readiness)',
+      items: [
+        'Our root `AGENTS.md` / `CLAUDE.md` is a compact routing map under 65 lines (~450 tokens), verified by `node scripts/verify-harness.mjs`.',
+        'Detailed workflows and domain rules live in on-demand `SKILL.md` files (Progressive Disclosure) rather than bloating every prompt.',
+        'We delegate multi-file codebase research and log analysis to isolated subagents so our main context window stays below 55–60%.',
+        'Every agent task must pass deterministic sensors (typecheck, linter, automated tests) under a Default-FAIL contract before completion.',
+      ],
+    },
+  },
 ];
 
 const pl: LessonData[] = [
@@ -1416,6 +1615,205 @@ const pl: LessonData[] = [
         'Godziny ciszy oraz miesięczny limit kredytów generowania AI są skonfigurowane i aktywne.',
         'Każda obsługiwana marka działa w osobnym, odizolowanym workspace z własnymi kanałami i głosem.',
         'Członkowie zespołu mają przypisane właściwe role (Owner, Admin, Member, Viewer) i wiedzą, jak zatrzymać automatyzację.',
+      ],
+    },
+  },
+  {
+    slug: 'ai-agent-harness-engineering',
+    number: 'LEKCJA 13',
+    trackId: 'agents-mcp-governance',
+    difficulty: 'Foundations',
+    difficultyLabel: 'Od podstaw → Architektura',
+    readingTimeMinutes: 16,
+    title: 'Czym jest AI Harness (Uprząż Agenta): Jak działa, jak oszczędzać kontekst i podnieść jakość kodu',
+    subtitle: 'Kompletny, wizualny przewodnik od łopatologicznych podstaw dla początkujących po zaawansowany Harness Engineering z badań Anthropic i OpenAI (`Agent = Model + Harness`).',
+    metaDescription: 'Dowiedz się, czym jest AI Harness (uprząż agenta AI), jak działa równanie Agent = Model + Harness, jak zarządzać oknem kontekstowym i oszczędzać do 85% tokenów dzięki AGENTS.md, SKILL.md i subagentom oraz jak użyć naszego pakietu open-source agent-harness-kit.',
+    keywords: ['czym jest AI harness', 'harness engineering po polsku', 'zarządzanie kontekstem AI', 'AGENTS.md CLAUDE.md SKILL.md', 'subagenci oszczędzanie kontekstu', 'Anthropic OpenAI harness', 'agent-harness-kit'],
+    keyTakeaways: [
+      'Agent AI to nie sam model językowy: `Agent = Model (Mózg) + Harness (Oczy, Ręce, Pamięć, Czujniki jakości i Hamulce)`. Dobra uprząż daje dziś większy skok jakości kodu niż zmiana modelu na nowszy.',
+      'Traktuj okno kontekstowe jak blat biurka (pamięć RAM), a nie szafę na dokumenty: po przekroczeniu 55–60% zapełnienia pojawia się „gnicie kontekstu” (Context Rot), AI gubi zasady, a koszty tokenów rosną lawinowo.',
+      'Utrzymuj główne pliki instrukcji (`AGENTS.md`, `CLAUDE.md`) poniżej 60 linii jako mapę (Progressive Disclosure), wysyłaj Subagentów-Zwiadowców do przeszukiwania plików i wymuszaj pętlę testów (Default-FAIL).',
+      'Możesz wygenerować gotowy, skrojony pod Twój projekt harness w 30 sekund za pomocą naszego otwartego repozytorium `RolePlayingTech/agent-harness-kit` i interaktywnego skilla `harness-architect`.',
+    ],
+    problemStatement: {
+      heading: 'Pułapka „Mózgu w słoiku” i bankructwo okna kontekstowego',
+      body: 'Większość osób zaczyna pracę z AI od kopiowania kawałków kodu do okna czatu albo od wrzucenia 1500-liniowego pliku instrukcji do agenta w IDE i prowadzenia jednej tasiemcowej rozmowy przez trzy godziny. Po 40 minutach AI zaczyna zapominać o regułach projektu, zmyśla nieistniejące funkcje, psuje działające moduły i przepala budżet tokenów. Model nie stracił nagle inteligencji — zabrakło mu dobrze zaprojektowanej uprzęży (harnessu) albo jego biurko robocze zostało zasypane śmieciami kontekstowymi.',
+      antiPattern: 'Ręczne kopiuj-wklej w czacie LUB przeładowany plik CLAUDE.md/AGENTS.md (1500 linii) + jedna wielogodzinna sesja (>70% kontekstu) + brak automatycznych testów.',
+      connectedPattern: 'Zwięzła mapa (<60 linii w AGENTS.md) + Skille ładowane na żądanie (SKILL.md) + Subagenci-Zwiadowcy (izolowany kontekst) + Deterministyczna pętla testów + Ewaluator z czystym kontekstem.',
+    },
+    sections: [
+      {
+        id: 'what-is-an-ai-harness-plain-english',
+        levelBadge: 'POZIOM 1 · PODSTAWY (ŁOPATOLOGICZNIE)',
+        heading: '1. Czym właściwie jest AI Harness? Metafora „Mózgu w zamkniętym pokoju” vs. „Inżyniera z warsztatem”',
+        paragraphs: [
+          'Angielskie słowo „harness” oznacza uprząż (np. wspinaczkową albo zaprzęgową) lub kompletny kokpit, układ kierowniczy, klatkę bezpieczeństwa i hamulce, które zamieniają surowy silnik V12 na palecie w sterowny bolid Formuły 1. W inżynierii AI — zgodnie z oficjalnymi publikacjami Anthropic, OpenAI oraz Thoughtworks (Martina Fowlera) — opisuje to jedno fundamentalne równanie: `Agent = Model + Harness`.',
+          'Wyobraź sobie genialnego programistę (to Twój Model LLM — np. Claude, GPT czy Gemini), którego zamykasz w pokoju bez okien, bez komputera i bez dostępu do Twojego projektu. Jedynym kontaktem ze światem jest szpara pod drzwiami. Tak właśnie działa zwykły czat w przeglądarce: wsuwasz pod drzwiami kartkę z wycinkiem kodu i pytaniem „Czemu nie działa?”, a model z pamięci zgaduje odpowiedź na kartce. Nie widzi sąsiednich plików, nie może uruchomić kompilatora ani testów, żeby sprawdzić, czy jego pomysł ma sens, a gdy wychodzisz z pokoju — traci pamięć.',
+          'AI Harness (Uprząż Agenta) to cały warsztat, egzoszkielet i regulamin, który budujesz wokół tego mózgu. Składa się z 5 konkretnych warstw: (1) Konstytucji na ścianie (`AGENTS.md` / `CLAUDE.md`), (2) Oczu i Rąk (narzędzi do czytania plików, terminala i serwerów MCP), (3) Blatu Roboczego (zarządzanego okna kontekstowego i notatek na dysku), (4) Automatycznych Czujników Jakości (kompilatora, lintera i testów, które natychmiast wyłapują błędy) oraz (5) Hamulców Bezpieczeństwa (bramek `Prepare → Confirm`). Gdy model w uprzęży napisze kod, uprząż sama uruchamia testy i w razie błędu od razu zwraca komunikat kompilatora z powrotem do modelu — dzięki czemu agent sam naprawia swój błąd, zanim w ogóle spojrzysz na ekran.',
+        ],
+        callout: {
+          label: 'ZŁOTA ZASADA HARNESS ENGINEERINGU',
+          text: 'Model to wynajmowany silnik; Harness to układ kierowniczy, hamulce i warsztat, które posiadasz na własność. Dobrze skonfigurowana uprząż wokół standardowego modelu regularnie pokonuje najnowszy model działający w chaosie.',
+        },
+        codeBlock: {
+          caption: 'Anatomia równania `Agent = Model + Harness` (Zamknięta pętla wykonania ReAct)',
+          language: 'text',
+          code: `┌─────────────────────────────────────────────────────────────────────────┐
+│                    AI AGENT HARNESS (TWOJA UPRZĄŻ)                      │
+│                                                                         │
+│  [1. KONSTYTUCJA]     AGENTS.md / CLAUDE.md (Mapa <60 linii i zakazy)   │
+│  [2. WIEDZA NA ŻĄDANIE] .agents/skills/*/SKILL.md (Ładowane w locie)    │
+│                                   │                                     │
+│                                   ▼                                     │
+│        ┌───────────────►  🧠 MODEL LLM (MÓZG)  ────────────────┐        │
+│        │                (Planuje i wybiera ruch)               │        │
+│        │                                                       ▼        │
+│  [4. CZUJNIKI JAKOŚCI]                                [3. RĘCE I OCZY]  │
+│  • Kompilator / Typy (tsc)                            • System plików   │
+│  • Testy (Playwright / Vitest)                        • Terminal / Git  │
+│  • Linter Kontekstu (verify-harness.mjs)              • Narzędzia MCP   │
+│        ▲                                                       │        │
+│        └────────────────  Pętla Samonaprawy  ◄─────────────────┘        │
+│                                   │                                     │
+│                                   ▼                                     │
+│  [5. HAMULEC BEZPIECZEŃSTWA] Bramka Prepare → Confirm / Zgoda Człowieka │
+└─────────────────────────────────────────────────────────────────────────┘`,
+        },
+      },
+      {
+        id: 'context-window-physics-and-pollution',
+        levelBadge: 'POZIOM 1 → 2 · FIZYKA OKNA KONTEKSTOWEGO',
+        heading: '2. Dlaczego AI „głupieje” po godzinie rozmowy? Okno kontekstowe to Blat Biurka (RAM), a nie szafa na akta',
+        paragraphs: [
+          'Każdy model AI posiada tzw. okno kontekstowe (np. 200 000 tokenów). Początkujący często zakładają: „Skoro mieści się tam cała książka, wrzucę tam całe repozytorium i będę pisał w jednym oknie czatu przez cały tydzień!”. W praktyce jest to główna przyczyna halucynacji, psucia działającego kodu i gigantycznych rachunków za tokeny.',
+          'Wyobraź sobie, że okno kontekstowe to blat Twojego biurka roboczego (pamięć RAM), natomiast dysk twardy i pliki projektu to szafa na dokumenty. Jeśli wysypiesz na blat biurka 80 teczek z plikami, tysiące linii logów z terminala i zapis dwugodzinnej kłótni z AI o stary błąd, uderzą w Ciebie dwa zjawiska fizyczne: (1) Gnicie kontekstu (Context Rot) i efekt „Lost in the Middle” — uwaga modelu rozprasza się w szumie informacyjnym, przez co agent przestaje przestrzegać zasad z `AGENTS.md`; oraz (2) Składany podatek tokenowy — modele są bezstanowe, więc przy każdym kolejnym pytaniu w tym samym wątku uprząż musi wysłać i przeczytać całe zaśmiecone biurko od nowa. Powyżej 55–60% zapełnienia okna jakość kodu i szybkość odpowiedzi spadają drastycznie.',
+        ],
+        callout: {
+          label: 'PUŁAP 60% ZAPEŁNIENIA KONTEKSTU',
+          text: 'Nigdy nie czekaj, aż pasek kontekstu dojdzie do 95%. W profesjonalnej pracy z AI próg 55–60% to czerwona lampka, przy której delegujesz badanie do subagenta, robisz kompakcję (/compact) lub otwierasz czystą sesję.',
+        },
+      },
+      {
+        id: 'four-levers-of-context-optimization',
+        levelBadge: 'POZIOM 2 · OSZCZĘDZANIE KONTEKSTU I SUBAGENCI',
+        heading: '3. Cztery dźwignie oszczędzania do 80% kontekstu: Mapa `AGENTS.md`, Progressive Disclosure i Subagenci',
+        paragraphs: [
+          'Jak najlepsi inżynierowie utrzymują główne okno kontekstowe na poziomie zaledwie 15–25% zajętości, nawet gdy budują ogromne systemy? Stosują cztery mechanizmy wbudowane w uprząż:',
+          'Dźwignia 1: Mapa zamiast Encyklopedii (`AGENTS.md` / `CLAUDE.md` poniżej 60 linii). Ponieważ główny plik instrukcji jest wstrzykiwany do każdej tury rozmowy, wpisywanie tam 1500 linii dokumentacji to stały podatek płacony przy każdym zdaniu. Trzymaj `AGENTS.md` poniżej 60 linii: zapisz tam tylko stack, dokładne komendy budowania i testów, twarde zakazy (Red Lines) oraz drogowskazy do głębszych plików.',
+          'Dźwignia 2: Progressive Disclosure (Stopniowe odkrywanie wiedzy przez `SKILL.md`). Szczegółowe procedury — np. jak pisać testy E2E, jak robić migracje bazy czy jak stosować Brand Voice — zamknij w osobnych modułach `.agents/skills/<nazwa>/SKILL.md` (lub `.claude/skills/`). Na starcie sesji uprząż wczytuje na biurko tylko 2-liniowy opis z nagłówka YAML (~30 tokenów). Pełna instrukcja (150 linii) trafia na blat wyłącznie wtedy, gdy aktualne zadanie faktycznie jej dotyczy.',
+          'Dźwignia 3: Subagenci jako „Zwiadowcy z jednorazowym brudnopisem” (Context Isolation). Jeśli agent musi przeszukać 30 plików, by zrozumieć działanie autoryzacji, nigdy nie pozwalaj głównemu agentowi czytać ich bezpośrednio — to natychmiast zrzuci 60 000 tokenów surowego kodu na Twoje główne biurko. Zamiast tego uprząż powołuje Subagenta-Zwiadowcę (`research`). Subagent otwiera własne, tymczasowe biurko, przekopuje 30 plików i zwraca głównemu agentowi TYLKO 200 słów czystej syntezy z dokładnymi ścieżkami i numerami linii (`src/auth.ts#L40-L85`). Brudnopis subagenta znika, oszczędzając ~95% głównego kontekstu!',
+          'Dźwignia 4: Pamięć w plikach (`TODO.md` / `feature_list.json`) i zasada `1 Zadanie = 1 Sesja`. Zamiast trzymać 12-etapowy plan prac w historii czatu, każ uprzęży zapisać go w pliku na dysku. Po ukończeniu i przetestowaniu jednego zadania zrób commit do Gita i użyj `/compact` lub rozpocznij nową, czystą sesję.',
+        ],
+        codeBlock: {
+          caption: 'Wzorcowy, odchudzony plik AGENTS.md (<50 linii) wykorzystujący Progressive Disclosure i Subagentów',
+          language: 'markdown',
+          code: `# AGENTS.md — Mapa Operacyjna i Uprząż Projektu
+
+## 1. Tożsamość Projektu i Stack
+- **System:** Dwujęzyczna platforma edukacyjna i interaktywne laboratorium
+- **Stack:** TypeScript, Astro 5, Playwright E2E, Node.js 22
+- **Kluczowe ścieżki:** \`src/content/\` (dane EN/PL), \`src/components/\` (UI), \`tests/\` (E2E)
+
+## 2. Deterministyczna Pętla Weryfikacji (Obowiązkowa przed zakończeniem zadania)
+1. **Build i parzystość schematów:** \`npm run build\`
+2. **Audyt kontraktów HTML i SEO:** \`npm run verify\`
+3. **Testy E2E Playwright:** \`npx playwright test\`
+4. **Linter budżetu uprzęży:** \`node scripts/verify-harness.mjs\`
+
+## 3. Higiena Kontekstu i Reguły Subagentów
+- **Pułap 60% kontekstu:** Utrzymuj główny wątek w czystości; czytaj wybrane zakresy linii zamiast całych plików.
+- **Delegacja do Subagentów:** Gdy eksploracja wymaga sprawdzenia >4 plików, uruchom subagenta \`research\` i zażądaj podsumowania <250 słów z dokładnymi ścieżkami i liniami.
+- **Dyscyplina sesji:** Jedna funkcjonalność na sesję; stan wieloetapowy zapisuj w \`feature_list.json\`.
+
+## 4. Mapa Progressive Disclosure (Ładuj tylko w razie potrzeby)
+- Oszczędzanie kontekstu i wzorce subagentów → \`.agents/skills/context-hygiene/SKILL.md\`
+- Pętla weryfikacji Default-FAIL i ewaluator → \`.agents/skills/verification-loop/SKILL.md\`
+- Interaktywny architekt uprzęży → \`.agents/skills/harness-architect/SKILL.md\`
+
+## 5. Twarde Bezpieczniki (Czerwone Linie — Wymagają Zgody Człowieka)
+- NIGDY nie wysyłaj zmian bezpośrednio na \`main\` ani nie mutuj zewnętrznych API bez jawnego potwierdzenia.
+- NIGDY nie usuwaj asercji w testach i nie dodawaj \`@ts-ignore\`, aby sztucznie wymusić zielony build.`,
+        },
+      },
+      {
+        id: 'deterministic-sensors-and-code-quality',
+        levelBadge: 'POZIOM 2 → 3 · JAKOŚĆ KODU I SAMONAPRAWA',
+        heading: '4. Jak Uprząż bezpośrednio podnosi jakość kodu: Probabilistyczny Mózg + Deterministyczne Czujniki',
+        paragraphs: [
+          'Dlaczego dokładnie ten sam model AI u jednego programisty generuje kod-spaghetti pełen błędów, a u innego tworzy czystą architekturę produkcyjną? W głośnym raporcie OpenAI („Harness Engineering: Leveraging Codex in an Agent-First World”, opisującym budowę systemu o milionie linii kodu w 100% przez agentów Codex bez ręcznego pisania kodu przez ludzi) kluczem okazało się połączenie probabilistycznego modelu z deterministycznymi czujnikami w repozytorium.',
+          'Model LLM przewiduje kolejne słowa z pewnym prawdopodobieństwem — zawsze może pomylić nazwę importu albo zapomnieć o jednym polu w tłumaczeniu. Silny harness sprawia, że błędy nie mogą przejść niezauważone, dzięki trzem filarom: (1) Czytelności repozytorium dla AI (Repo Legibility) — ścisłym typom TypeScript, przewidywalnej strukturze katalogów i jawnym walidatorom kontraktów (jak funkcja `assertLocaleParity` w kodzie tej Akademii); (2) Szybkim pętlom zwrotnym — testom i skryptom weryfikacyjnym działającym w kilka sekund i zwracającym dokładny numer linii błędu; oraz (3) Twardym zakazom negatywnym — blokującym obchodzenie testów na skróty.',
+        ],
+      },
+      {
+        id: 'advanced-multi-agent-harnesses-and-open-source-kit',
+        levelBadge: 'POZIOM 3 · ZAAWANSOWANY HARNESS ENGINEERING',
+        heading: '5. Wzorce zaawansowane (Anthropic Initializer + Evaluator) i nasz pakiet Open-Source `agent-harness-kit`',
+        paragraphs: [
+          'Gdy zadanie trwa wiele godzin lub dni, nawet najczystsza pojedyncza sesja napotyka ograniczenia. W publikacji „Effective harnesses for long-running agents” inżynierowie Anthropic przedstawili dwa wieloagentowe wzorce architektoniczne, które rozwiązują problem amnezji między sesjami:',
+          'Wzorzec A: Initializer Agent + Incremental Worker Loop. Zamiast prosić jednego agenta o zbudowanie całej aplikacji w jednym ciągu (co kończy się tzw. „early victory” — przedwczesnym ogłoszeniem sukcesu, gdy połowa funkcji to puste zaślepki), jako pierwszy uruchamia się Agent Inicjujący (`Initializer`). Tworzy on skrypt startowy środowiska oraz plik `feature_list.json`, w którym każde wymaganie ma na starcie status `"failing"`. Następnie w kolejnych, czystych sesjach budzą się Agenci Kodujący — każdy bierze dokładnie jedno zadanie z listy, pisze kod, przechodzi deterministyczne testy, zmienia status na `"passed"`, robi commit w Gicie i kończy zmianę.',
+          'Wzorzec B: Generator vs. Fresh-Context Evaluator (Kontrakt Default-FAIL). Agent, który przez 20 minut pisał kod, ulega efektowi potwierdzenia — „widzi” w kodzie to, co chciał napisać, a nie to, co faktycznie napisał. Zaawansowana uprząż powołuje osobnego Agenta-Recenzenta (`Evaluator`) w zupełnie czystym oknie kontekstowym, z uprawnieniami tylko do odczytu i uruchamiania testów. Ewaluator dostaje wyłącznie specyfikację oraz `git diff` i ocenia każdy punkt według rygorystycznej zasady Default-FAIL (każde kryterium jest niezaliczone, dopóki test nie udowodni inaczej).',
+          'Abyś nie musiał budować takiej uprzęży ręcznie od zera w każdym nowym projekcie, przygotowaliśmy otwarte repozytorium na GitHubie: `RolePlayingTech/agent-harness-kit`. Wystarczy pobrać pakiet jedną komendą na starcie projektu i poprosić swojego agenta o uruchomienie skilla `harness-architect`. Agent sam przeskanuje Twój projekt, zada Ci 5 krótkich pytań architektonicznych i wygeneruje skrojony na miarę plik `AGENTS.md` (<60 linii), `CLAUDE.md`, modułowe skille `context-hygiene` oraz `verification-loop`, a także skrypt `verify-harness.mjs` pilnujący budżetu tokenów.',
+        ],
+        callout: {
+          label: 'PAKIET OPEN-SOURCE · AGENT-HARNESS-KIT',
+          text: 'Wygeneruj kompletną, dopasowaną do Twojego stacku uprząż AI w 30 sekund z repozytorium https://github.com/RolePlayingTech/agent-harness-kit — działa natywnie w Google Antigravity, Claude Code, OpenAI Codex oraz Cursor.',
+        },
+        codeBlock: {
+          caption: 'Szybki start: Zbuduj własny Harness w 30 sekund z pakietem RolePlayingTech/agent-harness-kit',
+          language: 'bash',
+          code: `# 1. Zainstaluj uniwersalne skille (.agents/skills i .claude/skills) + Linter Budżetu Kontekstu
+git clone https://github.com/RolePlayingTech/agent-harness-kit.git /tmp/agent-harness-kit \\
+  && node /tmp/agent-harness-kit/scripts/install-harness-kit.mjs .
+
+# 2. Wydaj polecenie swojemu agentowi AI (Antigravity, Claude Code, Cursor lub Codex):
+# "Użyj skilla harness-architect — przeanalizuj ten projekt, zadaj mi pytania i przygotuj nasz harness."
+
+# 3. W dowolnej chwili sprawdź, czy AGENTS.md / CLAUDE.md mieści się w budżecie <80 linii:
+node scripts/verify-harness.mjs`,
+        },
+      },
+    ],
+    comparisonTable: {
+      caption: 'Ewolucja pracy z AI: Zwykły Czat vs. Przeładowany Agent vs. Zoptymalizowany Harness',
+      headers: ['Wymiar pracy', 'Zwykły Czat / Agent bez uprzęży', 'Zoptymalizowany AI Harness (`Model + Harness`)'],
+      rows: [
+        ['Główne instrukcje (`AGENTS.md`)', 'Brak LUB 1500-liniowa encyklopedia pożerająca tokeny w każdym pytaniu', 'Zwięzła mapa poniżej 60 linii + moduły `SKILL.md` ładowane na żądanie (Progressive Disclosure)'],
+        ['Przeszukiwanie projektu', 'Główny agent czyta 30 pełnych plików, powodując gnicie kontekstu (>70% zajętości)', 'Odizolowany Subagent-Zwiadowca bada pliki w osobnym oknie i zwraca 200 słów esencji'],
+        ['Weryfikacja jakości kodu', 'Człowiek ręcznie kopiuje kod, szuka błędów i wkleja logi z powrotem do czatu', 'Deterministyczne czujniki (typy, linter, testy) działają automatycznie w pętli samonaprawy'],
+        ['Zadania wielogodzinne', 'Jedna maratońska sesja gubi zasady i ogłasza przedwczesny sukces (Early Victory)', 'Rejestr zadań `feature_list.json` + Ewaluator z czystym kontekstem i zasadą Default-FAIL'],
+        ['Bezpieczeństwo i mutacje', 'Ryzyko przypadkowego nadpisania danych lub publikacji na żywo', 'Twarde czerwone linie w uprzęży + dwufazowe bramki `Prepare → Confirm`'],
+      ],
+    },
+    caseStudy: {
+      brand: 'Open-Source `agent-harness-kit` & Silnik Przestrzeni MUMRO',
+      scenarioTitle: 'Budowa uprzęży programistycznej w 30 sekund i ten sam wzorzec Harness w operacjach treściowych',
+      context: 'Niezależnie od tego, czy agent AI pisze kod w TypeScripcie w Twoim edytorze, czy prowadzi wielokanałową kampanię treściową w MUMRO, problem inżynieryjny jest identyczny: model bez uprzęży zmyśla fakty, przepala kontekst i wykonuje niebezpieczne ruchy.',
+      executionSteps: [
+        'W repozytorium kodu: Programista uruchamia `install-harness-kit.mjs` z `RolePlayingTech/agent-harness-kit` i wywołuje skilla `harness-architect`. Agent zadaje 5 pytań i generuje 45-liniowy `AGENTS.md`, skille na żądanie oraz skrypt `verify-harness.mjs` (~390 stałych tokenów zamiast 12 000).',
+        'Podczas kodowania: Główny agent deleguje przeszukiwanie wielu plików do subagenta `research` (utrzymując główny kontekst na poziomie 18%) i przed zakończeniem pracy obowiązkowo przechodzi `npm run verify` oraz testy Playwright.',
+        'W operacjach marki w MUMRO: MUMRO działa jako kompletny, produkcyjny Harness dla agentów treści — podaje kontekst na żądanie przez MCP (`get_workspace_context`), izoluje brudnopis szkiców (`create_publication_draft`), pilnuje granic Brand Voice i wymaga dwufazowych bramek `prepare_*` → `confirm_*`.',
+      ],
+      resultNote: 'Ponad 80% mniej zmarnowanych tokenów kontekstu, zero cichych regresji w kodzie i pełna kontrola człowieka nad kodem oraz publikacjami.',
+    },
+    mumroIntegration: {
+      eyebrow: 'JAK REALIZUJE TO MUMRO',
+      title: 'MUMRO to kompletny, produkcyjny Harness dla agentów marki, treści i marketingu.',
+      summary: 'Dokładnie tak, jak Claude Code czy Antigravity otaczają model kodujący systemem plików, linterem i plikiem `AGENTS.md`, tak MUMRO otacza agentów AI deterministyczną uprzężą operacyjną marki — łącząc kontekst na żądanie, granice Brand Voice, bezpieczny brudnopis szkiców i dwufazowe bramki potwierdzeń.',
+      capabilities: [
+        'Kontekst ładowany na żądanie (`get_workspace_context`, `get_content_strategy`, kohorty wyników) zamiast wklejania gigantycznych plików PDF do czatu (`AG01`).',
+        'Bezpieczny brudnopis w przestrzeni roboczej (`create_publication_draft`, `create_article_draft`) oddzielony od publikacji na żywo bramką `prepare_*` → `confirm_*` (`AG02`, `AG03`).',
+        'Twarde bezpieczniki: 3 poziomy autonomii, godziny ciszy (`22:00–07:00`), limity kredytów oraz natychmiastowy wyłącznik Stop (`AG05`–`AG08`).',
+      ],
+      anchorHref: 'https://mumro.io/pl/#agents',
+      anchorLabel: 'Zobacz, jak MUMRO tworzy uprząż dla agentów AI na mumro.io',
+    },
+    checklist: {
+      title: 'Lista kontrolna Lekcji 13 (Gotowość Uprzęży i Kontekstu)',
+      items: [
+        'Nasz główny plik `AGENTS.md` / `CLAUDE.md` to zwięzła mapa poniżej 65 linii (~450 tokenów), weryfikowana skryptem `node scripts/verify-harness.mjs`.',
+        'Szczegółowe procedury i zasady domenowe znajdują się w modułach `SKILL.md` ładowanych na żądanie (Progressive Disclosure), zamiast obciążać każdy prompt.',
+        'Delegujemy przeszukiwanie wielu plików i analizę logów do odizolowanych subagentów, utrzymując główne okno kontekstowe poniżej 55–60%.',
+        'Każde zadanie agenta musi przejść deterministyczne czujniki (kompilator, linter, testy automatyczne) według kontraktu Default-FAIL.',
       ],
     },
   },

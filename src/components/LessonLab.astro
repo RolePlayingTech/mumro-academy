@@ -1,34 +1,40 @@
 ---
-import type { Locale, TrackId } from '../lib/contracts';
+import type { LessonSlug, Locale, TrackId } from '../lib/contracts';
 
 interface Props {
   locale: Locale;
   trackId: TrackId;
+  slug?: LessonSlug;
 }
 
-const { locale, trackId } = Astro.props;
+const { locale, trackId, slug } = Astro.props;
 const pl = locale === 'pl';
+const isHarnessLesson = slug === 'ai-agent-harness-engineering';
 ---
-<section class="preview-frame lesson-lab" data-lesson-lab={trackId}>
+<section class="preview-frame lesson-lab" data-lesson-lab={isHarnessLesson ? 'harness-engineering' : trackId}>
   <div class="lab-header">
     <div>
       <span class="eyebrow signal">
         {pl ? 'INTERAKTYWNE LABORATORIUM SYSTEMU · MUMRO STUDIO' : 'INTERACTIVE SYSTEM LAB · MUMRO STUDIO'}
       </span>
       <h2>
-        {trackId === 'brand-systems' &&
+        {isHarnessLesson &&
+          (pl
+            ? 'Symulator Kontekstu i Anatomii Uprzęży: Zwykły Czat vs. Zaśmiecony Kontekst vs. Czysty Harness'
+            : 'Context Window & Harness Simulator: Raw Chat vs. Bloated Context vs. Lean Harness')}
+        {!isHarnessLesson && trackId === 'brand-systems' &&
           (pl
             ? 'Porównaj: Pusty prompt vs. Warstwy kontekstu MUMRO (Źródła · Głos marki · Cel)'
             : 'Compare: Generic Prompt vs. MUMRO Context Layers (Sources · Brand Voice · Goal)')}
-        {trackId === 'multi-format-distribution' &&
+        {!isHarnessLesson && trackId === 'multi-format-distribution' &&
           (pl
             ? 'Przetestuj: Jedna historia w 5 slajdach karuzeli i 4 kanałach społecznościowych'
             : 'Interactive Studio: One Story Across 5 Carousel Slides & 4 Social Channels')}
-        {trackId === 'website-seo-conversations' &&
+        {!isHarnessLesson && trackId === 'website-seo-conversations' &&
           (pl
             ? 'Symulator pęli: Kohorty 7/30/90 dni, FAQ Mining i szkic Strategii v2'
             : 'Loop Simulator: 7/30/90-Day Cohorts, FAQ Mining & Strategy v2 Draft')}
-        {trackId === 'agents-mcp-governance' &&
+        {!isHarnessLesson && trackId === 'agents-mcp-governance' &&
           (pl
             ? 'Symulator MCP: Bramka Prepare → Confirm oraz 3 poziomy autonomii'
             : 'MCP Simulator: Prepare → Confirm Gate & 3 Graduated Autonomy Modes')}
@@ -174,7 +180,7 @@ const pl = locale === 'pl';
     </div>
   )}
 
-  {trackId === 'agents-mcp-governance' && (
+  {!isHarnessLesson && trackId === 'agents-mcp-governance' && (
     <div class="lab-body" data-lab-mcp>
       <div class="lab-controls" role="group" aria-label={pl ? 'Krok protokołu MCP' : 'MCP protocol step'}>
         <button type="button" class="filter-pill is-active" data-mcp-step="read" aria-pressed="true">
@@ -207,6 +213,196 @@ const pl = locale === 'pl';
           <span class="badge sage">{pl ? 'KROK 4 · ZATWIERDZENIE (CONFIRM → PLAN MUMRO)' : 'STEP 4 · CONFIRMED EXECUTION'}</span>
           <p>{pl ? 'Po jawnej zgodzie człowieka token jest realizowany, a publikacja pojawia się bezpośrednio w planie MUMRO z zachowaniem pełnego śladu audytowego.' : 'After explicit human sign-off, the confirmation token commits the exact post to the MUMRO publishing plan with a full audit trail.'}</p>
         </div>
+      </div>
+    </div>
+  )}
+
+  {isHarnessLesson && (
+    <div class="lab-body harness-lab-body" data-lab-harness>
+      <!-- PART A: Interactive Context Budget & Code Quality Simulator -->
+      <div class="harness-sim-block">
+        <span class="eyebrow">
+          {pl
+            ? '1. SYMULATOR BLATU ROBOCZEGO (OKNA KONTEKSTOWEGO RAM) I JAKOŚCI KODU'
+            : '1. WORKING DESK (CONTEXT WINDOW RAM) & CODE QUALITY SIMULATOR'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Tryb pracy z AI' : 'AI workflow mode'}>
+          <button type="button" class="filter-pill" data-harness-mode="chat" aria-pressed="false">
+            {pl ? '🔴 1. Zwykły Czat (Brak uprzęży)' : '🔴 1. Raw Chat (No Harness)'}
+          </button>
+          <button type="button" class="filter-pill" data-harness-mode="bloated" aria-pressed="false">
+            {pl ? '🟡 2. Przeładowany Monolit (AGENTS.md 1500 linii)' : '🟡 2. Bloated Monolith (1,500-line AGENTS.md)'}
+          </button>
+          <button type="button" class="filter-pill is-active" data-harness-mode="lean" aria-pressed="true">
+            {pl ? '🟢 3. Czysty Harness (Mapa + Subagent + Test Loop)' : '🟢 3. Lean Harness (Map + Subagent + Test Loop)'}
+          </button>
+        </div>
+
+        <!-- Panel 1: Raw Chat -->
+        <div class="lab-card harness-panel" data-harness-panel="chat" hidden>
+          <div class="meter-head">
+            <span class="badge signal">
+              {pl ? 'ZAPEŁNIENIE OKNA KONTEKSTOWEGO: 94% (CONTEXT ROT / GNICIE KONTEKSTU)' : 'CONTEXT WINDOW UTILIZATION: 94% (SEVERE CONTEXT ROT)'}
+            </span>
+            <strong class="token-stat">~145,000 {pl ? 'tokenów / sesję' : 'tokens / session'}</strong>
+          </div>
+          <div class="context-meter" aria-hidden="true">
+            <div class="meter-seg danger" style="width: 44%">
+              <span>{pl ? '44% Wklejone całe pliki' : '44% Pasted full files'}</span>
+            </div>
+            <div class="meter-seg warn" style="width: 34%">
+              <span>{pl ? '34% Surowe logi błędów' : '34% Raw error logs'}</span>
+            </div>
+            <div class="meter-seg muted-seg" style="width: 16%">
+              <span>{pl ? '16% Historia kłótni' : '16% Chat noise'}</span>
+            </div>
+          </div>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'Stan mózgu AI' : 'Model Attention State'}</span>
+              <p>{pl ? 'Mózg w zamkniętym pokoju bez oczu i rąk. Zgaduje z pamięci na podstawie wyrwanych z kontekstu fragmentów.' : 'Brain locked in a room without eyes or hands. Guesses from memory based on pasted fragments.'}</p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'Wpływ na jakość kodu' : 'Code Quality Impact'}</span>
+              <p>{pl ? 'Wysokie ryzyko halucynacji API, nieistniejących importów i regresji — brak kompilatora i testów w pętli.' : 'High risk of hallucinated APIs, broken imports, and regressions—zero compiler or test verification.'}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Bloated Monolith -->
+        <div class="lab-card harness-panel" data-harness-panel="bloated" hidden>
+          <div class="meter-head">
+            <span class="badge">
+              {pl ? 'ZAPEŁNIENIE OKNA KONTEKSTOWEGO: 78% (EFEKT LOST IN THE MIDDLE)' : 'CONTEXT WINDOW UTILIZATION: 78% (LOST IN THE MIDDLE)'}
+            </span>
+            <strong class="token-stat">~92,000 {pl ? 'tokenów / sesję' : 'tokens / session'}</strong>
+          </div>
+          <div class="context-meter" aria-hidden="true">
+            <div class="meter-seg warn" style="width: 32%">
+              <span>{pl ? '32% Monolityczny AGENTS.md (1500 linii)' : '32% Monolithic AGENTS.md (1,500 lines)'}</span>
+            </div>
+            <div class="meter-seg danger" style="width: 46%">
+              <span>{pl ? '46% Czytanie 25 plików w głównym wątku' : '46% Reading 25 full files in main thread'}</span>
+            </div>
+          </div>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'Stan mózgu AI' : 'Model Attention State'}</span>
+              <p>{pl ? 'Na starcie każdej wiadomości płacisz podatek za 1500 linii instrukcji, a surowe pliki z poszukiwań zaśmiecają główny wątek.' : 'Every turn pays a heavy token tax for 1,500 lines of rules while raw exploratory file reads flood the main desk.'}</p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'Wpływ na jakość kodu' : 'Code Quality Impact'}</span>
+              <p>{pl ? 'W połowie sesji przekraczasz próg 60%: agent gubi zasady stylu i ogłasza przedwczesny sukces (Early Victory).' : 'Mid-session crosses the 60% threshold: agent drops style rules and declares premature "early victory".'}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Lean Engineered Harness -->
+        <div class="lab-card harness-panel" data-harness-panel="lean">
+          <div class="meter-head">
+            <span class="badge sage">
+              {pl ? 'ZAPEŁNIENIE OKNA KONTEKSTOWEGO: 18% (CZYSTY RDZEŃ · OSZCZĘDNOŚĆ -86% TOKENÓW)' : 'CONTEXT WINDOW UTILIZATION: 18% (CLEAN CORE · -86% TOKEN SAVING)'}
+            </span>
+            <strong class="token-stat">~19,000 {pl ? 'tokenów / sesję' : 'tokens / session'}</strong>
+          </div>
+          <div class="context-meter" aria-hidden="true">
+            <div class="meter-seg ok" style="width: 3%">
+              <span>2%</span>
+            </div>
+            <div class="meter-seg ok-mid" style="width: 5%">
+              <span>4%</span>
+            </div>
+            <div class="meter-seg ok-light" style="width: 10%">
+              <span>{pl ? '12% Aktywny kod + Raport Subagenta (200 słów)' : '12% Active edit + Subagent brief (200 words)'}</span>
+            </div>
+          </div>
+          <p class="meter-legend">
+            {pl
+              ? 'Skład 18% czystego biurka: 2% Mapa AGENTS.md (<50 linii, ~390 tokenów) · 4% Jeden doczytany w locie SKILL.md · 2% Esencja od Subagenta-Zwiadowcy · 10% Edytowany kod i wynik testu.'
+              : '18% Clean Desk Breakdown: 2% AGENTS.md Map (<50 lines, ~390 tokens) · 4% One Just-In-Time SKILL.md · 2% Scout Subagent synthesis · 10% Active code & test result.'}
+          </p>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow signal">{pl ? 'Jak działa oszczędzanie kontekstu' : 'How Context Saving Works'}</span>
+              <p>{pl ? 'Progressive Disclosure ładuje tylko potrzebny SKILL.md, a Subagent-Zwiadowca bada 30 plików w osobnym, jednorazowym oknie.' : 'Progressive Disclosure loads only the active SKILL.md, while a Scout Subagent inspects 30 files in a disposable window.'}</p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow signal">{pl ? 'Wpływ na jakość kodu' : 'Code Quality Impact'}</span>
+              <p>{pl ? '100% ostrości uwagi modelu + deterministyczne czujniki (tsc, testy, verify-harness.mjs) i Ewaluator Default-FAIL.' : '100% sharp model attention + deterministic sensors (tsc, tests, verify-harness.mjs) and Default-FAIL Evaluator.'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART B: Interactive 5-Layer Anatomy of Agent = Model + Harness -->
+      <div class="harness-anatomy-block">
+        <span class="eyebrow">
+          {pl
+            ? '2. INTERAKTYWNA ANATOMIA: KLIKNIJ WARSTWĘ RÓWNANIA AGENT = MODEL + HARNESS'
+            : '2. INTERACTIVE ANATOMY: INSPECT EACH LAYER OF AGENT = MODEL + HARNESS'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Warstwa uprzęży' : 'Harness layer'}>
+          <button type="button" class="filter-pill is-active" data-anatomy-trigger="brain" aria-pressed="true">
+            {pl ? '🧠 0. Mózg (Model LLM)' : '🧠 0. Brain (LLM Model)'}
+          </button>
+          <button type="button" class="filter-pill" data-anatomy-trigger="rules" aria-pressed="false">
+            {pl ? '📜 1. Mapa i Skille (AGENTS.md)' : '📜 1. Map & Skills (AGENTS.md)'}
+          </button>
+          <button type="button" class="filter-pill" data-anatomy-trigger="tools" aria-pressed="false">
+            {pl ? '🛠️ 2. Oczy i Ręce (Narzędzia / MCP)' : '🛠️ 2. Eyes & Hands (Tools / MCP)'}
+          </button>
+          <button type="button" class="filter-pill" data-anatomy-trigger="memory" aria-pressed="false">
+            {pl ? '🗂️ 3. Blat RAM i Subagenci' : '🗂️ 3. RAM Desk & Subagents'}
+          </button>
+          <button type="button" class="filter-pill" data-anatomy-trigger="sensors" aria-pressed="false">
+            {pl ? '🔬 4. Czujniki (Testy / Default-FAIL)' : '🔬 4. Sensors (Tests / Default-FAIL)'}
+          </button>
+          <button type="button" class="filter-pill" data-anatomy-trigger="brakes" aria-pressed="false">
+            {pl ? '🛡️ 5. Hamulce (Prepare → Confirm)' : '🛡️ 5. Brakes (Prepare → Confirm)'}
+          </button>
+        </div>
+
+        <div class="lab-card" data-anatomy-panel="brain">
+          <span class="badge signal">{pl ? 'RDZEŃ · WYNAJMOWANY SILNIK (CLAUDE / GPT / GEMINI)' : 'CORE · RENTED ENGINE (CLAUDE / GPT / GEMINI)'}</span>
+          <p>{pl ? 'Łopatologicznie: Genialny mózg zamknięty w dźwiękoszczelnym pokoju. Potrafi rozumować, planować i przewidywać kolejne słowa (tokeny), ale sam z siebie nie widzi Twoich plików, nie uruchomi terminala i traci pamięć po zamknięciu karty.' : 'In plain English: A brilliant brain locked in a soundproof room. It reasons and predicts tokens, but on its own it cannot see your files, cannot run a terminal, and forgets everything when the tab closes.'}</p>
+        </div>
+        <div class="lab-card" data-anatomy-panel="rules" hidden>
+          <span class="badge">{pl ? 'WARSTWA 1 · PROGRESSIVE DISCLOSURE (AGENTS.MD < 60 LINII + SKILL.MD)' : 'LAYER 1 · PROGRESSIVE DISCLOSURE (AGENTS.MD < 60 LINES + SKILL.MD)'}</span>
+          <p>{pl ? 'Zamiast wieszać na ścianie 1500-stronicową encyklopedię, dajesz agentowi krótką mapę projektu (AGENTS.md / CLAUDE.md) oraz szufladki z instrukcjami specjalistycznymi (.agents/skills/*/SKILL.md), które agent otwiera tylko wtedy, gdy ich potrzebuje.' : 'Instead of pasting a 1,500-line encyclopedia into every turn, give the agent a <60-line project map (AGENTS.md / CLAUDE.md) and modular skill drawers (.agents/skills/*/SKILL.md) opened only on demand.'}</p>
+        </div>
+        <div class="lab-card" data-anatomy-panel="tools" hidden>
+          <span class="badge">{pl ? 'WARSTWA 2 · OCZY I RĘCE (SYSTEM PLIKÓW, GREP, TERMINAL, MCP)' : 'LAYER 2 · EYES & HANDS (FILESYSTEM, GREP, TERMINAL, MCP)'}</span>
+          <p>{pl ? 'Narzędzia pozwalają agentowi precyzyjnie wyszukiwać symbole (grep), czytać konkretne linie pliku (np. linie 40–90 zamiast całego pliku) oraz pobierać żywy kontekst z zewnętrznych systemów przez Model Context Protocol (MCP).' : 'Tools let the agent search symbols with grep, read exact line ranges (e.g., lines 40–90 instead of whole files), and fetch live workspace state via Model Context Protocol (MCP).'}</p>
+        </div>
+        <div class="lab-card" data-anatomy-panel="memory" hidden>
+          <span class="badge">{pl ? 'WARSTWA 3 · IZOLACJA KONTEKSTU (SUBAGENCI + FEATURE_LIST.JSON)' : 'LAYER 3 · CONTEXT ISOLATION (SUBAGENTS + FEATURE_LIST.JSON)'}</span>
+          <p>{pl ? 'Gdy trzeba przeszukać 30 plików, główny agent wysyła Subagenta-Zwiadowcę z osobnym, jednorazowym brudnopisem. Zwiadowca zwraca tylko 200 słów wniosków, a postęp między sesjami jest zapisywany na dysku w feature_list.json lub TODO.md.' : 'When 30 files must be searched, the main agent spawns a Scout Subagent with a disposable scratchpad. The scout returns a 200-word summary, while multi-session state lives on disk in feature_list.json.'}</p>
+        </div>
+        <div class="lab-card" data-anatomy-panel="sensors" hidden>
+          <span class="badge sage">{pl ? 'WARSTWA 4 · DETERMINISTYCZNE CZUJNIKI I PĘTLA SAMONAPRAWY' : 'LAYER 4 · DETERMINISTIC SENSORS & SELF-HEALING LOOP'}</span>
+          <p>{pl ? 'Kompilator TypeScript, linter, testy Playwright i skrypt verify-harness.mjs działają jak automatyczna kontrola jakości. Błąd testu od razu wraca do modelu, a osobny Ewaluator z czystym kontekstem weryfikuje wynik według zasady Default-FAIL.' : 'TypeScript, linters, Playwright tests, and verify-harness.mjs act as automated quality gates. Errors feed straight back to the model, and a Fresh-Context Evaluator grades the diff under a Default-FAIL contract.'}</p>
+        </div>
+        <div class="lab-card" data-anatomy-panel="brakes" hidden>
+          <span class="badge signal">{pl ? 'WARSTWA 5 · HAMULCE BEZPIECZEŃSTWA (BRAMKI PREPARE → CONFIRM)' : 'LAYER 5 · SAFETY BRAKES (PREPARE → CONFIRM GATES)'}</span>
+          <p>{pl ? 'Żaden agent nie powinien mieć jednokrokowego przycisku do nieodwracalnych zmian na produkcji. Twarde zakazy w AGENTS.md oraz dwufazowe bramki Prepare → Confirm (jak w MUMRO MCP) gwarantują, że ostatnie słowo należy do człowieka.' : 'No agent should have a single-call button for irreversible production mutations. Hard red lines in AGENTS.md and two-phase Prepare → Confirm tokens (as in MUMRO MCP) keep humans in command.'}</p>
+        </div>
+      </div>
+
+      <!-- PART C: Open-Source Kit Callout -->
+      <div class="lab-card explanation kit-banner">
+        <div>
+          <span class="eyebrow signal">
+            {pl ? 'DARMOWY PAKIET OPEN-SOURCE · ROLEPLAYINGTECH / AGENT-HARNESS-KIT' : 'FREE OPEN-SOURCE TOOLKIT · ROLEPLAYINGTECH / AGENT-HARNESS-KIT'}
+          </span>
+          <p>
+            {pl
+              ? 'Chcesz zbudować taką uprząż w swoim nowym lub istniejącym projekcie? Pobierz nasz skill `harness-architect` z GitHuba — Twój agent zada Ci 5 pytań o stack i sam wygeneruje odchudzony AGENTS.md, skille i linter budżetu kontekstu.'
+              : 'Want to scaffold this exact harness in your new or existing project? Grab our `harness-architect` skill on GitHub—your agent will ask 5 questions about your stack and generate a lean AGENTS.md, skills, and context budget linter.'}
+          </p>
+        </div>
+        <a class="button" href="https://github.com/RolePlayingTech/agent-harness-kit" target="_blank" rel="noopener">
+          {pl ? 'Otwórz agent-harness-kit na GitHubie ↗' : 'Open agent-harness-kit on GitHub ↗'}
+        </a>
       </div>
     </div>
   )}
@@ -279,8 +475,98 @@ const pl = locale === 'pl';
     background: var(--sage);
     border-color: #858c7c66;
   }
+  .harness-lab-body {
+    display: grid;
+    gap: 24px;
+  }
+  .harness-sim-block > .eyebrow,
+  .harness-anatomy-block > .eyebrow {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .meter-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .token-stat {
+    font: 600 13px/1.2 var(--mono);
+    color: var(--ink);
+  }
+  .context-meter {
+    height: 32px;
+    background: var(--wash);
+    border: 1px solid var(--line-strong);
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .meter-seg {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font: 500 11px/1 var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-right: 1px solid var(--white);
+  }
+  .meter-seg.danger {
+    background: #d94a2b;
+    color: var(--white);
+  }
+  .meter-seg.warn {
+    background: #e9a23b;
+    color: var(--ink);
+  }
+  .meter-seg.muted-seg {
+    background: #c5c8ba;
+    color: var(--ink);
+  }
+  .meter-seg.ok {
+    background: #2e5e41;
+    color: var(--white);
+  }
+  .meter-seg.ok-mid {
+    background: #4e8764;
+    color: var(--white);
+  }
+  .meter-seg.ok-light {
+    background: #d8e7dc;
+    color: var(--ink);
+  }
+  .meter-legend {
+    font-size: 13px !important;
+    color: var(--muted);
+    margin: 0 0 12px !important;
+  }
+  .harness-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .metric-item p {
+    margin: 6px 0 0;
+    font-size: 13.8px;
+  }
+  .kit-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .kit-banner > div {
+    max-width: 62ch;
+  }
   @media (max-width: 780px) {
-    .lab-split {
+    .lab-split,
+    .harness-metrics-grid {
       grid-template-columns: 1fr;
     }
   }

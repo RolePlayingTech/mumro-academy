@@ -181,6 +181,7 @@ const articleSchema = [
             const codeId = `lesson-code-${slug}-${idx}`;
             return (
               <section class="content-block" id={sec.id}>
+                {sec.levelBadge && <span class="badge signal level-badge">{sec.levelBadge}</span>}
                 <h2>{sec.heading}</h2>
                 {sec.paragraphs.map((p) => (
                   <p>{p}</p>
@@ -239,7 +240,7 @@ const articleSchema = [
           </section>
 
           <!-- Interactive System Lab -->
-          <LessonLab locale={locale} trackId={lesson.trackId} />
+          <LessonLab locale={locale} trackId={lesson.trackId} slug={slug} />
 
           <!-- Workspace Case Study -->
           <section class="content-block preview-frame case-study-box" id="case-study">
@@ -316,7 +317,7 @@ const articleSchema = [
             ) : (
               <a class="preview-frame page-link prev" href={localePath(locale)}>
                 <span class="eyebrow">← {locale === 'pl' ? 'Program Akademii' : 'Academy Curriculum'}</span>
-                <strong>{locale === 'pl' ? 'Wróć do wszystkich 12 lekcji' : 'Back to all 12 lessons'}</strong>
+                <strong>{locale === 'pl' ? 'Wróć do wszystkich 13 lekcji' : 'Back to all 13 lessons'}</strong>
               </a>
             )}
             {next ? (
@@ -423,6 +424,10 @@ const articleSchema = [
   .lesson-content {
     display: grid;
     gap: 44px;
+  }
+  .level-badge {
+    display: inline-block;
+    margin-bottom: 6px;
   }
   .content-block h2 {
     font: 400 clamp(28px, 3.2vw, 42px)/1.08 var(--display);

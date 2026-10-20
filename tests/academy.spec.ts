@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
-  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 12-lesson catalog', async ({ page }) => {
+  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 13-lesson catalog', async ({ page }) => {
     await page.goto('/?lang=en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('living brand systems');
 
     const lessonCards = page.locator('[data-lesson-card]');
-    await expect(lessonCards).toHaveCount(12);
+    await expect(lessonCards).toHaveCount(13);
 
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
-    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(3);
+    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(4);
 
     // Filter by search keyword
     await page.locator('[data-track-filter="all"]').click();
@@ -27,11 +27,26 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.goto('/pl/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
-    await expect(page.locator('[data-lesson-card]')).toHaveCount(12);
+    await expect(page.locator('[data-lesson-card]')).toHaveCount(13);
 
     await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
     await expect(page.locator('h1')).toContainText('Model Context Protocol (MCP) w praktyce');
+  });
+
+  test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {
+    await page.goto('/pl/lessons/ai-agent-harness-engineering/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('h1')).toContainText('Czym jest AI Harness');
+
+    // Interactive Context Window Simulator switches modes
+    await expect(page.locator('[data-harness-panel="lean"]')).toBeVisible();
+    await page.locator('[data-harness-mode="chat"]').click();
+    await expect(page.locator('[data-harness-panel="chat"]')).toBeVisible();
+
+    // Interactive 5-Layer Anatomy switches layers
+    await page.locator('[data-anatomy-trigger="memory"]').click();
+    await expect(page.locator('[data-anatomy-panel="memory"]')).toBeVisible();
   });
 
   test('Lesson page interactive checklist updates score and language switcher links to exact counterpart', async ({ page }) => {

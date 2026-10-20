@@ -195,6 +195,8 @@ export function initShell(): void {
   bindTabGroup('data-slide-trigger', 'data-slide-panel');
   bindTabGroup('data-cohort-trigger', 'data-cohort-panel');
   bindTabGroup('data-mcp-step', 'data-mcp-panel');
+  bindTabGroup('data-harness-mode', 'data-harness-panel');
+  bindTabGroup('data-anatomy-trigger', 'data-anatomy-panel');
 
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;

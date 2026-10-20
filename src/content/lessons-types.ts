@@ -2,6 +2,7 @@ import type { DifficultyLevel, LessonSlug, TrackId } from '../lib/contracts';
 
 export interface LessonSection {
   id: string;
+  levelBadge?: string;
   heading: string;
   paragraphs: string[];
   callout?: {
