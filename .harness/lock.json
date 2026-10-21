@@ -1,0 +1,32 @@
+{
+  "lockVersion": 1,
+  "generator": "agent-harness-kit@3.0.0",
+  "entries": {
+    "AGENTS.md": {
+      "kind": "block",
+      "sha256": "0aa156e9e4df556a173c6f09b253c1fc57b838fb8950c06fbd647af8eb63c2c9",
+      "createdFile": false
+    },
+    "CLAUDE.md": {
+      "kind": "block",
+      "sha256": "918b1c90559355ef78f33fdf3562f2b021ef8bdfd8a5c8415e5decd44934de55",
+      "createdFile": true
+    },
+    ".claude/skills/session-handoff/SKILL.md": {
+      "kind": "file",
+      "sha256": "721741adcc73ea90135ed6923aa9c7fa6e8ea225492d43a12a569fb17d8ab1e3"
+    },
+    ".claude/skills/harness-maintenance/SKILL.md": {
+      "kind": "file",
+      "sha256": "555d1c2b1b6ac6a840e94af61cc0ece8358ca610061ccb8bc9928511ed9fc370"
+    },
+    "docs/agent/decisions.md": {
+      "kind": "seed",
+      "sha256": "79ff73bb76740d5b1b97d4d562f30e1624b0643d6587cd23045cf842ecefbe0d"
+    },
+    "docs/agent/handoff.md": {
+      "kind": "seed",
+      "sha256": "564caac068051d00d01b2911f94d9f45826c966dee5f5d6d30941c4e1989281d"
+    }
+  }
+}

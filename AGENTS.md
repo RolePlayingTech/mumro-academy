@@ -1,29 +1,55 @@
-# AGENTS.md — MUMRO Academy Workspace Harness & Operational Map
+# MUMRO Academy
 
-## 1. Project Identity & Stack
-- **System:** MUMRO Academy (`academy.mumro.io`) — Bilingual (EN/PL) open handbook & interactive learning studio.
-- **Stack:** TypeScript, Astro 5 (static output), Playwright E2E, Node.js 22.
-- **Key Paths:** `src/content/` (EN/PL data with `assertLocaleParity`), `src/components/` (Astro UI & labs), `scripts/verify-build.mjs`, `tests/academy.spec.ts`.
+<!-- agent-harness:begin -->
+## Purpose
+Bilingual (EN/PL) open handbook at academy.mumro.io: lessons, interactive labs, playbooks and glossary, built as a static Astro site.
 
-## 2. Deterministic Verification Loop (Mandatory Before Completing Any Task)
-1. **Static Build & SEO/Schema Contract Verification:** `npm run build`
-2. **Playwright Bilingual & Interactive E2E Suite:** `npx playwright test`
-3. **Harness Context Budget Audit:** `node scripts/verify-harness.mjs`
+## Stack and layout
+- Stack: Node.js, TypeScript, Astro
+- `src/content/`: EN/PL lessons, playbooks and glossary as typed data
+- `src/pages/`: page routes
+- `src/components/`: UI components
+- `src/lib/`: shared library code
+- `tests/`: tests
+- `scripts/`: project scripts
+- `public/`: static assets
 
-## 3. Context Hygiene & Subagent Rules
-- **60% Context Ceiling:** Treat context window as working RAM; read targeted line ranges instead of whole files.
-- **Scout Subagents:** Delegate >4-file exploration to an isolated `research` subagent; require a <250-word synthesis with exact file/line references.
-- **Locale Symmetry:** Every change in `src/content/*.ts` must maintain 1:1 structural parity between `en` and `pl`.
+## Commands
+- Fast check, after each meaningful change: `npm run check`
+- Full check, once before reporting a task done: `npm run build && npm test`
 
-## 4. Progressive Disclosure Map (Load Just-In-Time)
-- Master Dual-Mode Harness Router → `.agents/skills/harness-architect/SKILL.md`
-- Path A: Greenfield Product & Stack Advisor → `.agents/skills/greenfield-advisor/SKILL.md`
-- Path B: Brownfield Silent Repo Reconnaissance → `.agents/skills/brownfield-onboarder/SKILL.md`
-- Testing Depth vs. Context Token Advisor → `.agents/skills/testing-tradeoffs/SKILL.md`
-- Context Hygiene & 7 Crisis Playbooks → `.agents/skills/context-hygiene/SKILL.md`
-- Default-FAIL Evaluator & 3-Strike Circuit Breaker → `.agents/skills/verification-loop/SKILL.md`
-- Recursive Harness Evolution (Harness² c1..c8) → `.agents/skills/recursive-refiner/SKILL.md`
+## Definition of done
+- Run the fast check after each meaningful change, not only at the end.
+- Before reporting done, run the full check once.
+- When you change behavior that tests already cover, update or add a test in the same change.
+- Report which checks you ran and their result. Never describe a check you did not run, or one that failed, as passing.
+- If the same check still fails after three fix attempts, stop. Report what you tried and what you suspect, and ask how to proceed.
 
-## 5. Hard Guardrails (Red Lines — Require Human Confirmation)
-- NEVER bypass `assertLocaleParity`, `scripts/verify-build.mjs`, or Playwright E2E assertions.
-- NEVER bloat `AGENTS.md` or `CLAUDE.md` above 80 lines.
+## Ask before
+- Pushing, merging or force-pushing to shared branches
+- Deploying, releasing or publishing
+- Deleting files, data or branches beyond what the task requires
+- Adding, removing or upgrading dependencies
+- Changing CI/CD workflows (`.github/workflows`)
+- Changing infrastructure or deployment configuration (`deploy`)
+
+## Project rules
+- Every change in src/content/*.ts keeps EN and PL structurally identical; assertLocaleParity enforces this at build time.
+- Never weaken assertLocaleParity, scripts/verify-build.mjs or Playwright assertions to make a check pass; change them only as a separate, explained step.
+- Lessons state numbers and research claims only with a source, and describe agent-harness-kit only as its current code behaves.
+
+## Memory
+- Before changing architecture, conventions or dependencies, read `docs/agent/decisions.md`. When you and the user settle something that should outlast the task, add an entry there.
+- Work that spans sessions: use the `session-handoff` skill. Read `docs/agent/handoff.md` when you start and update it before you stop.
+
+## Working with context
+- Search (for example `rg`) before opening files, and open large files by line range.
+- Run long suites with concise output and read only the failures (Playwright `--reporter=line`; through package scripts, pass flags after `--`). Re-run a single failing test verbosely when you need detail; do not paste whole logs.
+
+## Skills
+- `session-handoff` (`.claude/skills/session-handoff/SKILL.md`): at the start and end of a session on unfinished work.
+- `harness-maintenance` (`.claude/skills/harness-maintenance/SKILL.md`): when the user wants to change how you work, or the same problem has happened twice.
+
+## About this file
+Generated by agent-harness-kit from `.harness/spec.json`. Do not edit between the agent-harness markers: change the spec and run `npx agent-harness build`. Notes outside the markers are preserved.
+<!-- agent-harness:end -->

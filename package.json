@@ -32,6 +32,7 @@
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.63.0",
     "@types/node": "22.20.5",
+    "agent-harness-kit": "github:RolePlayingTech/agent-harness-kit#489c0b958b24ea62b810158146bd004db4ad08cb",
     "axe-core": "4.14.0",
     "typescript": "6.0.3"
   }
