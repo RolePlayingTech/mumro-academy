@@ -1,0 +1,89 @@
+{
+  "$schema": "https://raw.githubusercontent.com/RolePlayingTech/agent-harness-kit/main/schema/spec.schema.json",
+  "specVersion": 1,
+  "project": {
+    "name": "MUMRO Academy",
+    "summary": "Bilingual (EN/PL) open handbook at academy.mumro.io: lessons, interactive labs, playbooks and glossary, built as a static Astro site.",
+    "stage": "existing",
+    "stack": [
+      "Node.js",
+      "TypeScript",
+      "Astro"
+    ],
+    "layout": [
+      {
+        "path": "src/content",
+        "purpose": "EN/PL lessons, playbooks and glossary as typed data"
+      },
+      {
+        "path": "src/pages",
+        "purpose": "page routes"
+      },
+      {
+        "path": "src/components",
+        "purpose": "UI components"
+      },
+      {
+        "path": "src/lib",
+        "purpose": "shared library code"
+      },
+      {
+        "path": "tests",
+        "purpose": "tests"
+      },
+      {
+        "path": "scripts",
+        "purpose": "project scripts"
+      },
+      {
+        "path": "public",
+        "purpose": "static assets"
+      }
+    ],
+    "packageManager": "npm",
+    "testFrameworks": [
+      "Playwright"
+    ],
+    "workspaces": [],
+    "sourceFiles": 43,
+    "sensitive": {
+      "ci": [
+        ".github/workflows"
+      ],
+      "infra": [
+        "deploy"
+      ]
+    }
+  },
+  "agents": [
+    "cursor",
+    "claude"
+  ],
+  "verification": {
+    "rigor": "standard",
+    "fast": "npm run check",
+    "full": "npm run build && npm test",
+    "e2e": null
+  },
+  "memory": "handoff",
+  "approvals": [
+    "push",
+    "deploy",
+    "destructive",
+    "dependencies",
+    "ci",
+    "infra"
+  ],
+  "rules": [
+    "Every change in src/content/*.ts keeps EN and PL structurally identical; assertLocaleParity enforces this at build time.",
+    "Never weaken assertLocaleParity, scripts/verify-build.mjs or Playwright assertions to make a check pass; change them only as a separate, explained step.",
+    "Lessons state numbers and research claims only with a source, and describe agent-harness-kit only as its current code behaves."
+  ],
+  "overrides": {},
+  "tooling": {
+    "cli": "npx agent-harness"
+  },
+  "budget": {
+    "alwaysOnLines": 200
+  }
+}
