@@ -4,6 +4,7 @@ import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import ContactDialog from './ContactDialog.astro';
 import LessonLab from './LessonLab.astro';
+import InlineText from './InlineText.astro';
 import { tracksContent } from '../content/tracks';
 import { getAdjacentLessons, getLessonBySlug } from '../content/lessons';
 import { localePath, type LessonSlug, type Locale } from '../lib/contracts';
@@ -115,7 +116,7 @@ const articleSchema = [
           </span>
           <ul>
             {lesson.keyTakeaways.map((point) => (
-              <li>{point}</li>
+              <li><InlineText text={point} /></li>
             ))}
           </ul>
         </div>
@@ -163,15 +164,15 @@ const articleSchema = [
           <section class="content-block" id="problem-statement">
             <span class="eyebrow signal">{locale === 'pl' ? 'DIAGNOZA SYSTEMU' : 'SYSTEM DIAGNOSIS'}</span>
             <h2>{lesson.problemStatement.heading}</h2>
-            <p>{lesson.problemStatement.body}</p>
+            <p><InlineText text={lesson.problemStatement.body} /></p>
             <div class="pattern-contrast">
               <div class="pattern-box anti">
                 <span class="eyebrow">{locale === 'pl' ? 'Antywzorzec (Rozproszony)' : 'Anti-Pattern (Disconnected)'}</span>
-                <p>{lesson.problemStatement.antiPattern}</p>
+                <p><InlineText text={lesson.problemStatement.antiPattern} /></p>
               </div>
               <div class="pattern-box connected">
                 <span class="eyebrow signal">{locale === 'pl' ? 'Wzorzec połączony (MUMRO)' : 'Connected Pattern (MUMRO)'}</span>
-                <p>{lesson.problemStatement.connectedPattern}</p>
+                <p><InlineText text={lesson.problemStatement.connectedPattern} /></p>
               </div>
             </div>
           </section>
@@ -182,14 +183,14 @@ const articleSchema = [
             return (
               <section class="content-block" id={sec.id}>
                 {sec.levelBadge && <span class="badge signal level-badge">{sec.levelBadge}</span>}
-                <h2>{sec.heading}</h2>
+                <h2><InlineText text={sec.heading} /></h2>
                 {sec.paragraphs.map((p) => (
-                  <p>{p}</p>
+                  <p><InlineText text={p} /></p>
                 ))}
                 {sec.callout && (
                   <blockquote class="editorial-callout">
                     <span class="eyebrow signal">{sec.callout.label}</span>
-                    <p>{sec.callout.text}</p>
+                    <p><InlineText text={sec.callout.text} /></p>
                   </blockquote>
                 )}
                 {sec.codeBlock && (
@@ -216,7 +217,7 @@ const articleSchema = [
           <!-- Comparison Table -->
           <section class="content-block" id="comparison-matrix">
             <span class="eyebrow signal">{locale === 'pl' ? 'PORÓWNANIE ARCHITEKTURY' : 'ARCHITECTURE COMPARISON'}</span>
-            <h2>{lesson.comparisonTable.caption}</h2>
+            <h2><InlineText text={lesson.comparisonTable.caption} /></h2>
             <div class="table-wrap">
               <table>
                 <thead>
@@ -229,9 +230,9 @@ const articleSchema = [
                 <tbody>
                   {lesson.comparisonTable.rows.map((row) => (
                     <tr>
-                      <td><strong>{row[0]}</strong></td>
-                      <td>{row[1]}</td>
-                      <td class="highlight-cell">{row[2]}</td>
+                      <td><strong><InlineText text={row[0]} /></strong></td>
+                      <td><InlineText text={row[1]} /></td>
+                      <td class="highlight-cell"><InlineText text={row[2]} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -249,14 +250,14 @@ const articleSchema = [
               <span class="demo-note">{lesson.caseStudy.brand}</span>
             </div>
             <h2>{lesson.caseStudy.scenarioTitle}</h2>
-            <p>{lesson.caseStudy.context}</p>
+            <p><InlineText text={lesson.caseStudy.context} /></p>
             <ol class="case-steps">
               {lesson.caseStudy.executionSteps.map((step) => (
-                <li>{step}</li>
+                <li><InlineText text={step} /></li>
               ))}
             </ol>
             <p class="case-result">
-              <strong>{locale === 'pl' ? 'Rezultat w procesie:' : 'Workflow outcome:'}</strong> {lesson.caseStudy.resultNote}
+              <strong>{locale === 'pl' ? 'Rezultat w procesie:' : 'Workflow outcome:'}</strong> <InlineText text={lesson.caseStudy.resultNote} />
             </p>
           </section>
 
@@ -264,10 +265,10 @@ const articleSchema = [
           <section class="content-block mumro-box" id="in-mumro">
             <span class="eyebrow signal">{lesson.mumroIntegration.eyebrow}</span>
             <h2>{lesson.mumroIntegration.title}</h2>
-            <p>{lesson.mumroIntegration.summary}</p>
+            <p><InlineText text={lesson.mumroIntegration.summary} /></p>
             <ul>
               {lesson.mumroIntegration.capabilities.map((cap) => (
-                <li>{cap}</li>
+                <li><InlineText text={cap} /></li>
               ))}
             </ul>
             <div class="mumro-box-actions">
@@ -300,7 +301,7 @@ const articleSchema = [
                 return (
                   <label class="checklist-row" for={inputId}>
                     <input type="checkbox" id={inputId} />
-                    <span>{item}</span>
+                    <span><InlineText text={item} /></span>
                   </label>
                 );
               })}

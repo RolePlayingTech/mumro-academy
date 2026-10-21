@@ -68,6 +68,7 @@ article, section, main, div { min-width: 0; }
 .section-title, .preview-frame, h1, h2, h3, h4, h5, blockquote { overflow-wrap: anywhere; }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 code, pre { font-family: var(--mono); }
+.inline-code { font-size: .88em; padding: .08em .34em; border-radius: 2px; background: var(--wash); border: 1px solid var(--line); overflow-wrap: anywhere; }
 pre {
   background: #181b17;
   color: #f2f0e8;
