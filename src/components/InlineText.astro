@@ -1,0 +1,10 @@
+---
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const parts = text.split('`');
+// An odd number of backticks means unbalanced markup; render the text unchanged.
+const balanced = parts.length % 2 === 1;
+---
+{balanced ? parts.map((part, i) => (i % 2 === 1 ? <code class="inline-code">{part}</code> : part)) : text}

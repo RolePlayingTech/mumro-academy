@@ -185,44 +185,46 @@ channel_adaptations:
       number: 'PLAYBOOK 05',
       trackId: 'agents-mcp-governance',
       relatedLesson: 'ai-agent-harness-engineering',
-      title: 'Dual-Mode AI Agent Harness Blueprint (`AGENTS.md` + Testing-vs-Context Profiles + `agent-harness-kit` v2.0)',
-      subtitle: 'Copy-ready <60-line AGENTS.md routing map, 6 modular skills (Greenfield & Brownfield), and CLI commands from RolePlayingTech/agent-harness-kit v2.0.',
-      whenToUse: 'At the very start of any new software repository (Path A: Greenfield) or when onboarding AI agents onto an existing codebase (Path B: Brownfield).',
-      mumroBenefit: 'Pairs seamlessly with MUMRO’s MCP tools and skills (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`) so coding and marketing agents operate with clean context and deterministic gates.',
-      templateFormat: 'Markdown Blueprint + CLI v2.0',
-      templateCode: `# 1. Dual-Mode CLI Bootstrap (RolePlayingTech/agent-harness-kit v2.0)
-# npx github:RolePlayingTech/agent-harness-kit inspect .
-# npx github:RolePlayingTech/agent-harness-kit plan .
-# npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
-# npx github:RolePlayingTech/agent-harness-kit verify . --strict
+      title: 'Agent Harness Blueprint: seven decisions → `.harness/spec.json` → `AGENTS.md` and skills (`agent-harness-kit` v3)',
+      subtitle: 'A decision-first template: the seven decisions behind a good harness, the commands that record and generate it with RolePlayingTech/agent-harness-kit, and the shape of the generated AGENTS.md.',
+      whenToUse: 'When you set up a coding agent on a new or existing repository, or when an existing AGENTS.md has grown, drifted from the code or started contradicting CLAUDE.md and Cursor rules.',
+      mumroBenefit: 'The same split between short always-loaded instructions, on-demand procedures and boundaries enforced by tools applies to MUMRO’s MCP tools and skills (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`), where publishing always goes through `prepare_*` → `confirm_*`.',
+      templateFormat: 'CLI v3 + generated Markdown',
+      templateCode: `# 1. Seven decisions (answer them before writing any instructions)
+#    1 tools        codex | claude | cursor | other
+#    2 purpose      one sentence: what the project is and for whom
+#    3 commands     fast check (seconds) / full check (before done) / e2e (when flows change)
+#    4 rigor        light | standard | strict   (the cost of a mistake decides, not fashion)
+#    5 memory       none | decisions | handoff
+#    6 approvals    push, deploy, destructive, dependencies, migrations, secrets, ci, infra, payments, auth
+#                   + where each one is enforced outside the model
+#    7 rules        only what the code cannot tell the agent
 
-# 2. Root AGENTS.md (<60 lines — Progressive Disclosure Routing Map)
-## Project Identity & Stack
-- **System:** [1-sentence summary of your system]
-- **Stack:** TypeScript, Node.js 22, Astro / Next.js, Playwright
-- **Testing Profile:** \`smart-tiered\` (~800–1,500 tokens/turn) | Security: \`tier-2-network-dev\`
+# 2. Record them and generate the harness (Node.js 20+)
+npx github:RolePlayingTech/agent-harness-kit scan
+npx github:RolePlayingTech/agent-harness-kit design          # interview; Enter accepts what the scan found
+npx github:RolePlayingTech/agent-harness-kit explain         # why each part is in or out, and its cost
+npx github:RolePlayingTech/agent-harness-kit build --dry-run # full diff, nothing written
+npx github:RolePlayingTech/agent-harness-kit build
+npx github:RolePlayingTech/agent-harness-kit check           # add --run to execute the checks; use --strict in CI
 
-## Deterministic Verification Loop (Mandatory Before Completing Any Task)
-1. **Inner Loop (Every Edit):** \`npx tsc --noEmit\` + targeted unit test for touched file
-2. **Outer Gate (Task Completion):** \`npm run build && npx playwright test\`
-3. **Harness Budget & Schema Gate:** \`npx github:RolePlayingTech/agent-harness-kit verify . --strict\`
+# 3. Shape of the generated AGENTS.md block (a section appears only when its module applies)
+<!-- agent-harness:begin -->
+## Purpose               decision 2
+## Stack and layout      detected stack, non-obvious directories
+## Commands              real commands from decision 3
+## Definition of done    wording set by rigor; stop rule after three failed fix attempts
+## Ask before            decision 6 (advisory: enforce outside the model)
+## Project rules         decision 7, one line each
+## Memory                decision log and/or handoff note (decision 5)
+## Working with context  search first; concise test output; subagents only in large repos
+## Skills                verify-change (strict), session-handoff (handoff), harness-maintenance
+<!-- agent-harness:end -->
 
-## Context Hygiene, Subagents & 3-Strike Circuit Breaker
-- **60% Context Ceiling:** Treat context window as working RAM; never dump whole large files.
-- **Scout Subagents:** Delegate >4-file exploration to an isolated \`research\` subagent (<250-word digest).
-- **3-Strike Repair Circuit Breaker:** Max 3 consecutive auto-repair attempts per failing test before logging in \`HANDOFF.md\` and escalating.
-
-## Progressive Disclosure Map (6 On-Demand Skills)
-- Master Dual-Mode Router (Path A / Path B) → \`.agents/skills/harness-architect/SKILL.md\`
-- Path A: Greenfield Product & Stack Advisor → \`.agents/skills/greenfield-advisor/SKILL.md\`
-- Path B: Brownfield Silent Repo Reconnaissance → \`.agents/skills/brownfield-onboarder/SKILL.md\`
-- Testing Depth vs. Context Token Advisor → \`.agents/skills/testing-tradeoffs/SKILL.md\`
-- Context Hygiene & 7 Crisis Playbooks → \`.agents/skills/context-hygiene/SKILL.md\`
-- Default-FAIL Evaluator & 3-Strike Circuit Breaker → \`.agents/skills/verification-loop/SKILL.md\`
-
-## Hard Guardrails (Red Lines — Require Human Confirmation)
-- NEVER overwrite user-customized \`AGENTS.md\` or \`SKILL.md\` without explicit \`--force\`.
-- NEVER mark a task \`verified\` in \`feature_list.json\` until its deterministic command exits \`0\`.`,
+# 4. Keep it small
+# - Change the harness through .harness/spec.json, never inside the markers.
+# - Add a rule after the same mistake happens twice; remove rules that no longer change behavior.
+# - Enforce what matters with branch protection, CODEOWNERS, CI and tool permissions.`,
     },
   ] satisfies PlaybookItem[],
 };
@@ -399,44 +401,46 @@ channel_adaptations:
       number: 'PLAYBOOK 05',
       trackId: 'agents-mcp-governance',
       relatedLesson: 'ai-agent-harness-engineering',
-      title: 'Dwutrybowy Szablon AI Harnessu (`AGENTS.md` + Profile Testy vs Kontekst + `agent-harness-kit` v2.0)',
-      subtitle: 'Gotowa mapa AGENTS.md (<60 linii), 6 modułowych skilli (Greenfield i Brownfield) oraz komendy CLI z repozytorium RolePlayingTech/agent-harness-kit v2.0.',
-      whenToUse: 'Jako pierwszy krok przy zakładaniu nowego projektu od zera (Ścieżka A: Greenfield) lub przy podłączaniu agenta do istniejącego repozytorium (Ścieżka B: Brownfield).',
-      mumroBenefit: 'Współpracuje natywnie z narzędziami MCP i skillami MUMRO (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`), zapewniając czysty kontekst i deterministyczne bramki.',
-      templateFormat: 'Szablon Markdown + CLI v2.0',
-      templateCode: `# 1. Dwutrybowy start CLI (RolePlayingTech/agent-harness-kit v2.0)
-# npx github:RolePlayingTech/agent-harness-kit inspect .
-# npx github:RolePlayingTech/agent-harness-kit plan .
-# npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
-# npx github:RolePlayingTech/agent-harness-kit verify . --strict
+      title: 'Szablon harnessu agenta: siedem decyzji → `.harness/spec.json` → `AGENTS.md` i skille (`agent-harness-kit` v3)',
+      subtitle: 'Szablon „najpierw decyzje”: siedem decyzji, na których opiera się dobry harness, komendy, którymi zapiszesz je i wygenerujesz harness z RolePlayingTech/agent-harness-kit, oraz kształt generowanego AGENTS.md.',
+      whenToUse: 'Gdy uruchamiasz agenta w nowym lub istniejącym repozytorium albo gdy dotychczasowy AGENTS.md rozrósł się, rozjechał z kodem lub zaczął przeczyć CLAUDE.md i regułom Cursora.',
+      mumroBenefit: 'Ten sam podział na krótkie instrukcje ładowane zawsze, procedury na żądanie i granice egzekwowane przez narzędzia obowiązuje w narzędziach MCP i skillach MUMRO (`mumro-analyze-performance`, `mumro-plan-campaign`, `mumro-publish-content`), gdzie publikacja zawsze przechodzi przez `prepare_*` → `confirm_*`.',
+      templateFormat: 'CLI v3 + generowany Markdown',
+      templateCode: `# 1. Siedem decyzji (podejmij je, zanim napiszesz jakąkolwiek instrukcję)
+#    1 narzędzia    codex | claude | cursor | other
+#    2 cel          jedno zdanie: czym jest projekt i dla kogo
+#    3 komendy      szybkie sprawdzenie (sekundy) / pełne (przed „gotowe”) / e2e (gdy zmienia się przepływ)
+#    4 rigor        light | standard | strict   (decyduje koszt pomyłki, nie moda)
+#    5 pamięć       none | decisions | handoff
+#    6 zgody        push, deploy, destructive, dependencies, migrations, secrets, ci, infra, payments, auth
+#                   + gdzie każda z nich jest egzekwowana poza modelem
+#    7 reguły       tylko to, czego agent nie wyczyta z kodu
 
-# 2. Główny plik AGENTS.md (<60 linii — Mapa Progressive Disclosure)
-## Tożsamość Projektu i Stack
-- **System:** [1-zdaniowy opis Twojego systemu]
-- **Stack:** TypeScript, Node.js 22, Astro / Next.js, Playwright
-- **Profil Testów:** \`smart-tiered\` (~800–1 500 tokenów/turę) | Bezpieczeństwo: \`tier-2-network-dev\`
+# 2. Zapisz je i wygeneruj harness (Node.js 20+)
+npx github:RolePlayingTech/agent-harness-kit scan
+npx github:RolePlayingTech/agent-harness-kit design          # wywiad; Enter przyjmuje to, co znalazł skan
+npx github:RolePlayingTech/agent-harness-kit explain         # dlaczego każdy element jest włączony lub pominięty i ile kosztuje
+npx github:RolePlayingTech/agent-harness-kit build --dry-run # pełny diff, nic nie zapisuje
+npx github:RolePlayingTech/agent-harness-kit build
+npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by uruchomić testy; w CI użyj --strict
 
-## Deterministyczna Pętla Weryfikacji (Obowiązkowa przed zakończeniem zadania)
-1. **Pętla wewnętrzna (po edycji):** \`npx tsc --noEmit\` + 1 celowany test dotkniętego pliku
-2. **Bramka końcowa (przed zamknięciem):** \`npm run build && npx playwright test\`
-3. **Weryfikator budżetu i schematu:** \`npx github:RolePlayingTech/agent-harness-kit verify . --strict\`
+# 3. Kształt generowanego bloku AGENTS.md (sekcja pojawia się tylko, gdy dotyczy jej moduł)
+<!-- agent-harness:begin -->
+## Purpose               decyzja 2
+## Stack and layout      wykryty stack, nieoczywiste katalogi
+## Commands              prawdziwe komendy z decyzji 3
+## Definition of done    treść zależna od rygoru; reguła stopu po trzech nieudanych próbach
+## Ask before            decyzja 6 (instrukcja: egzekwuj poza modelem)
+## Project rules         decyzja 7, jedna linia każda
+## Memory                dziennik decyzji i/lub notatka handoff (decyzja 5)
+## Working with context  najpierw wyszukiwanie; zwięzłe wyniki testów; subagenci tylko w dużych repo
+## Skills                verify-change (strict), session-handoff (handoff), harness-maintenance
+<!-- agent-harness:end -->
 
-## Higiena Kontekstu, Subagenci i Bezpiecznik 3 Prób
-- **Pułap 60% kontekstu:** Traktuj okno kontekstowe jak pamięć RAM; nie wklejaj całych dużych plików.
-- **Subagenci-Zwiadowcy:** Eksplorację >4 plików deleguj do subagenta \`research\` (synteza <250 słów).
-- **Bezpiecznik 3 Prób (3-Strike Circuit Breaker):** Maksymalnie 3 próby samonaprawy tego samego testu przed zapisem w \`HANDOFF.md\` i pytaniem do człowieka.
-
-## Mapa Progressive Disclosure (6 Skilli Ładowanych na Żądanie)
-- Główny Router Dwutrybowy (Ścieżka A / B) → \`.agents/skills/harness-architect/SKILL.md\`
-- Ścieżka A: Doradca Produktu i Stacku (Greenfield) → \`.agents/skills/greenfield-advisor/SKILL.md\`
-- Ścieżka B: Cichy Skan Istniejącego Repo (Brownfield) → \`.agents/skills/brownfield-onboarder/SKILL.md\`
-- Doradca Kompromisów: Testy vs Kontekst → \`.agents/skills/testing-tradeoffs/SKILL.md\`
-- Higiena Kontekstu i 7 Scenariuszy Kryzysowych → \`.agents/skills/context-hygiene/SKILL.md\`
-- Pętla Default-FAIL i Bezpiecznik 3 Prób → \`.agents/skills/verification-loop/SKILL.md\`
-
-## Twarde Bezpieczniki (Czerwone Linie — Wymagają Zgody Człowieka)
-- NIGDY nie nadpisuj zmodyfikowanych przez użytkownika plików \`AGENTS.md\` lub \`SKILL.md\` bez flagi \`--force\`.
-- NIGDY nie zmieniaj statusu zadania na \`verified\` w \`feature_list.json\`, dopóki komenda testowa nie zwróci kodu \`0\`.`,
+# 4. Pilnuj rozmiaru
+# - Zmieniaj harness przez .harness/spec.json, nigdy między znacznikami.
+# - Dodawaj regułę, gdy ten sam błąd powtórzy się dwa razy; usuwaj reguły, które niczego nie zmieniają.
+# - To, co ważne, egzekwuj ochroną gałęzi, CODEOWNERS, CI i uprawnieniami narzędzia.`,
     },
   ] satisfies PlaybookItem[],
 };
