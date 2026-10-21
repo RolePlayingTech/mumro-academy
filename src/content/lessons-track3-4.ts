@@ -853,19 +853,19 @@ const en: LessonData[] = [
       },
       {
         id: 'advanced-multi-agent-harnesses-and-open-source-kit',
-        levelBadge: 'LEVEL 3 · DUAL-MODE WIZARD (GREENFIELD & BROWNFIELD)',
-        heading: '5. Dual-Mode Hand-Holding Wizard (Greenfield vs. Brownfield) & `agent-harness-kit` v2.0',
+        levelBadge: 'LEVEL 3 · DUAL-MODE WIZARD & GOOGLE HARNESS²',
+        heading: '5. Dual-Mode Wizard (Greenfield vs. Brownfield), Google Research `Harness²` & `agent-harness-kit`',
         paragraphs: [
-          'A truly useful harness builder cannot treat a blank folder and a 100,000-line legacy repository the same way. That is why our open-source `RolePlayingTech/agent-harness-kit` v2.0 guides you "by the hand" across two distinct operational paths (`harness-architect`):',
-          'Path A — Greenfield Project & Stack Advisor (`greenfield-advisor`, for empty repos): When you start from just an app idea, no code or linter exists yet. The agent first helps you define your MVP core loop and explicit Non-Goals, compares 2–3 technology stacks with honest pros/cons, hosting costs, and AI-legibility ratings, helps you pick a Testing-vs-Context profile, and generates a complete project blueprint (`docs/PROJECT_BRIEF.md`, `docs/ARCHITECTURE.md`, ADR, `docs/ROADMAP.md`, `HANDOFF.md`, and a Default-FAIL `feature_list.json` initialized with honest `"pending"` statuses).',
-          'Path B — Brownfield Silent Repo Reconnaissance (`brownfield-onboarder`, for existing repos): When run on an existing project, the agent NEVER asks lazy questions like "what framework do you use?" that are already answered in `package.json` or `pyproject.toml`. Instead, it silently scans your workspace first (`agent-harness inspect .`), reports grounded findings with exact file paths, preserves your existing `AGENTS.md`/`CLAUDE.md` non-destructively, and discusses only unknowns: fragile legacy zones, noisy tests, and your preferred testing-vs-context trade-off.',
+          'A truly useful harness builder cannot treat a blank folder and a 100,000-line legacy repository the same way. That is why our open-source `RolePlayingTech/agent-harness-kit` guides you "by the hand" across two distinct operational paths (`harness-architect`): Path A (`greenfield-advisor` for empty repos—scoping MVP & Non-Goals, comparing 2–3 stacks, and generating a full blueprint with `feature_list.json` initialized as `"pending"`) and Path B (`brownfield-onboarder` for existing repos—running silent workspace reconnaissance first, preserving existing user files, and discussing only fragile zones and testing-vs-context trade-offs).',
+          'Going even further, Google Research’s `Harness²: Recursive Agent Harnessing for an Open World` (`google-research/harness2`, arXiv:2610.14224) formalizes the harness into 8 editable components (`c1..c8`: System Prompt, Guardrails, Memory, Tool Guidance, Subagents, Skills, Scripts, and Plugins/Hooks) and introduces two-level recursive self-improvement: (1) Task-Level Recursion (`Propose → Probe → Compose`), which refines the harness by contrasting Invariant (`INV`) vs. Domain (`DOM`) edits on the current task, and (2) Harnessing-Level Recursion (`Experience Reflector`), which saves evidence-backed lessons into persistent skills. Crucially, `Harness²` proves that an "untriggered skill is dead weight": if a skill in `.agents/skills/<name>/SKILL.md` is not explicitly named with a trigger condition in `AGENTS.md` (and kept under the `8,000-char` Always-On cap so Codex never silently truncates it), the model will never load it.',
+          'We integrated these exact Google Research `Harness²` mechanisms directly into `RolePlayingTech/agent-harness-kit`: it ships with the `recursive-refiner` skill (`c1..c8`), detects untriggered dead-weight skills (`UNTRIGGERED_SKILL`), auto-repairs missing trigger lines via `agent-harness autotrigger .`, and validates `.codex/hooks.json` and `.claude/hooks.json` lifecycle event schemas (`PreToolUse`, `PostToolUse`, `PreCompact`, `SubagentStop`, `Stop`).',
         ],
         callout: {
-          label: 'OPEN-SOURCE TOOLKIT · AGENT-HARNESS-KIT V2.0',
-          text: 'Run `npx github:RolePlayingTech/agent-harness-kit inspect .` and `init .` in any new or existing repository — works with Claude Code, Google Antigravity, Cursor, GitHub Copilot, Windsurf, and OpenAI Codex.',
+          label: 'OPEN-SOURCE TOOLKIT · AGENT-HARNESS-KIT + HARNESS²',
+          text: 'Run `npx github:RolePlayingTech/agent-harness-kit inspect .`, `init .`, and `autotrigger .` in any new or existing repository — combines Dual-Mode onboarding with Google Research Harness² validation.',
         },
         codeBlock: {
-          caption: 'Dual-Mode CLI & Conversational Setup with RolePlayingTech/agent-harness-kit v2.0',
+          caption: 'Dual-Mode CLI & Google Research Harness² Autotrigger Setup',
           language: 'bash',
           code: `# 1. Silently inspect any empty (Greenfield) or existing (Brownfield) repository:
 npx github:RolePlayingTech/agent-harness-kit inspect .
@@ -873,10 +873,11 @@ npx github:RolePlayingTech/agent-harness-kit inspect .
 # 2. Preview the recommended interview path & Testing-vs-Context trade-off matrix:
 npx github:RolePlayingTech/agent-harness-kit plan .
 
-# 3. Non-destructively install the 6 skills + generate harness & blueprint files:
+# 3. Non-destructively install the 7 skills (incl. recursive-refiner) + blueprint:
 npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
 
-# 4. Run strict deterministic verification (checks YAML schema, line caps & broken paths):
+# 4. Auto-register any untriggered skills in AGENTS.md & run strict Harness² verification:
+npx github:RolePlayingTech/agent-harness-kit autotrigger .
 npx github:RolePlayingTech/agent-harness-kit verify . --strict`,
         },
       },
@@ -1779,19 +1780,19 @@ const pl: LessonData[] = [
       },
       {
         id: 'advanced-multi-agent-harnesses-and-open-source-kit',
-        levelBadge: 'POZIOM 3 · DWUTRYBOWY KREATOR (GREENFIELD I BROWNFIELD)',
-        heading: '5. Kreator „Za Rączkę” w Dwóch Trybach (Nowy Projekt vs. Istniejące Repo) i `agent-harness-kit` v2.0',
+        levelBadge: 'POZIOM 3 · DWUTRYBOWY KREATOR I GOOGLE HARNESS²',
+        heading: '5. Kreator „Za Rączkę” (Greenfield vs. Brownfield), Google Research `Harness²` i `agent-harness-kit`',
         paragraphs: [
-          'Prawdziwie użyteczny kreator uprzęży nie może traktować pustego folderu tak samo jak działającego od dwóch lat projektu. Dlatego nasz otwarty pakiet `RolePlayingTech/agent-harness-kit` v2.0 prowadzi programistę za rączkę dwiema odrębnymi ścieżkami (`harness-architect`):',
-          'Ścieżka A — Nowy Projekt od Zera (`greenfield-advisor`, na pustym repozytorium): Gdy startujesz od samego pomysłu na aplikację, żaden kod ani linter jeszcze nie istnieje. Agent pomaga Ci najpierw określić główną pętlę wartości MVP oraz listę Non-Goals (czego świadomie nie budujemy w v1), porównuje 2–3 stosy technologiczne (koszt hostingu, szybkość startu, czytelność typów dla AI), dobiera profil Testy kontra Kontekst i generuje kompletny blueprint projektu (`docs/PROJECT_BRIEF.md`, `docs/ARCHITECTURE.md`, ADR, `docs/ROADMAP.md`, `HANDOFF.md` oraz rejestr `feature_list.json` z uczciwym statusem `"pending"` na starcie).',
-          'Ścieżka B — Istniejący Projekt (`brownfield-onboarder`, na działającym repozytorium): Gdy uruchamiasz skilla w istniejącym projekcie, agent NIGDY nie zadaje leniwych pytań w stylu „jakiego frameworka używasz?”, skoro odpowiedź leży w `package.json` lub `pyproject.toml`. Najpierw wykonuje cichy skan repozytorium (`agent-harness inspect .`), prezentuje wykryte technologie, skrypty i ryzyka, bezpiecznie zachowuje Twoje dotychczasowe pliki `AGENTS.md`/`CLAUDE.md` bez ich nadpisywania i podejmuje z Tobą dyskusję wyłącznie o tym, czego nie widać w kodzie: wrażliwych folderach legacy, wolnych testach i wyborze profilu oszczędzania tokenów.',
+          'Prawdziwie użyteczny kreator uprzęży nie może traktować pustego folderu tak samo jak działającego od dwóch lat projektu. Dlatego nasz otwarty pakiet `RolePlayingTech/agent-harness-kit` prowadzi programistę za rączkę dwiema odrębnymi ścieżkami (`harness-architect`): Ścieżką A (`greenfield-advisor` dla pustych repozytoriów — definiowanie MVP i Non-Goals, porównanie 2–3 stosów technologicznych oraz generowanie blueprintu z `feature_list.json` o statusie `"pending"`) oraz Ścieżką B (`brownfield-onboarder` dla istniejących projektów — cichy skan repozytorium na starcie, zachowanie istniejących plików użytkownika i rozmowa wyłącznie o wrażliwych strefach oraz kompromisie Testy kontra Kontekst).',
+          'Idąc o krok dalej, najnowsza publikacja Google Research `Harness²: Recursive Agent Harnessing for an Open World` (`google-research/harness2`, arXiv:2610.14224) dzieli uprząż na 8 edytowalnych komponentów (`c1..c8`: System Prompt, Guardrails, Memory, Tool Guidance, Subagents, Skills, Scripts oraz Plugins/Hooks) i wprowadza dwupoziomową rekursję samoulepszania: (1) Rekursję na poziomie zadania (`Propose → Probe → Compose`), która zestawia poprawki ogólne (`INV` — Invariant) oraz domenowe (`DOM` — Domain), oraz (2) Rekursję na poziomie systemu (`Experience Reflector`), która po trudnym zadaniu zapisuje potwierdzone dowodami wnioski do trwałej pamięci skilli. Co niezwykle ważne, kod Google Research udowadnia, że „skill bez wyzwalacza w `AGENTS.md` to martwy balast” (*an untriggered skill is dead weight*): jeśli stworzysz plik `.agents/skills/<name>/SKILL.md`, ale nie wymienisz jego nazwy wraz z warunkiem użycia w `AGENTS.md` (pilnując jednocześnie limitu `8 000 znaków` Always-On), agent nigdy go nie załaduje.',
+          'Wdrożyliśmy te dokładnie mechanizmy z Google Research `Harness²` bezpośrednio do `RolePlayingTech/agent-harness-kit`: pakiet zawiera 7. skill `recursive-refiner` (`c1..c8`), automatycznie wykrywa „martwe” skille bez wyzwalacza (`UNTRIGGERED_SKILL`), naprawia je jednym poleceniem `agent-harness autotrigger .` oraz waliduje schematy hooków `.codex/hooks.json` i `.claude/hooks.json` (`PreToolUse`, `PostToolUse`, `PreCompact`, `SubagentStop`, `Stop`).',
         ],
         callout: {
-          label: 'PAKIET OPEN-SOURCE · AGENT-HARNESS-KIT V2.0',
-          text: 'Uruchom `npx github:RolePlayingTech/agent-harness-kit inspect .` oraz `init .` w dowolnym nowym lub istniejącym repozytorium — działa z Claude Code, Google Antigravity, Cursor, GitHub Copilot, Windsurf oraz OpenAI Codex.',
+          label: 'PAKIET OPEN-SOURCE · AGENT-HARNESS-KIT + HARNESS²',
+          text: 'Uruchom `npx github:RolePlayingTech/agent-harness-kit inspect .`, `init .` oraz `autotrigger .` w dowolnym nowym lub istniejącym repozytorium — łączy dwutrybowy kreator z regułami walidacji Google Research Harness².',
         },
         codeBlock: {
-          caption: 'Dwutrybowy start CLI i rozmowa „za rączkę” z pakietem RolePlayingTech/agent-harness-kit v2.0',
+          caption: 'Dwutrybowy start CLI i automatyczne wyzwalacze Google Research Harness²',
           language: 'bash',
           code: `# 1. Cichy skan dowolnego pustego (Greenfield) lub istniejącego (Brownfield) repozytorium:
 npx github:RolePlayingTech/agent-harness-kit inspect .
@@ -1799,10 +1800,11 @@ npx github:RolePlayingTech/agent-harness-kit inspect .
 # 2. Podgląd rekomendowanej ścieżki rozmowy i matrycy kompromisów Testy vs Kontekst:
 npx github:RolePlayingTech/agent-harness-kit plan .
 
-# 3. Bezpieczna instalacja 6 skilli + wygenerowanie uprzęży i blueprintu (bez nadpisywania Twoich plików):
+# 3. Bezpieczna instalacja 7 skilli (w tym recursive-refiner) + wygenerowanie blueprintu:
 npx github:RolePlayingTech/agent-harness-kit init . --profile smart-tiered --blueprint
 
-# 4. Twarda weryfikacja deterministyczna (sprawdza schemat YAML, limit 80 linii i ścieżki plików):
+# 4. Automatyczne dopisanie wyzwalaczy skilli w AGENTS.md i twarda weryfikacja Harness²:
+npx github:RolePlayingTech/agent-harness-kit autotrigger .
 npx github:RolePlayingTech/agent-harness-kit verify . --strict`,
         },
       },

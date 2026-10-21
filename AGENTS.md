@@ -22,6 +22,7 @@
 - Testing Depth vs. Context Token Advisor → `.agents/skills/testing-tradeoffs/SKILL.md`
 - Context Hygiene & 7 Crisis Playbooks → `.agents/skills/context-hygiene/SKILL.md`
 - Default-FAIL Evaluator & 3-Strike Circuit Breaker → `.agents/skills/verification-loop/SKILL.md`
+- Recursive Harness Evolution (Harness² c1..c8) → `.agents/skills/recursive-refiner/SKILL.md`
 
 ## 5. Hard Guardrails (Red Lines — Require Human Confirmation)
 - NEVER bypass `assertLocaleParity`, `scripts/verify-build.mjs`, or Playwright E2E assertions.
