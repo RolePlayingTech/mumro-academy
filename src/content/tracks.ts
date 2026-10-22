@@ -25,7 +25,7 @@ const en: Record<TrackId, TrackData> = {
     audience: 'Founders, Brand Strategists, Content Leads',
     coreProblem: 'Teams rewrite brand context in every prompt, lose track of which strategic hypothesis is active, and publish claims that cannot be traced back to verified sources.',
     systemOutcome: 'A versioned Brand Operating System where strategy (v1 → v2), tone boundaries, and vetted research sources automatically guide every draft.',
-    mumroAnchor: 'https://mumro.io/# benefits',
+    mumroAnchor: 'https://mumro.io/#benefits',
     mumroCapability: 'MUMRO Strategy Versioning, Shared Brand Voice & Source Provenance Trail',
     outcomes: [
       'Design a versioned content strategy with explicit content pillars, channel roles, and 30-day testable hypotheses.',

@@ -1,4 +1,17 @@
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test, expect } from '@playwright/test';
+import {
+  MINI_LAB_BROKEN_SPEC,
+  MINI_LAB_EXPECTED_BUILD_OUT,
+  MINI_LAB_EXPECTED_CHECK_FAIL,
+  MINI_LAB_EXPECTED_CHECK_PASS,
+  MINI_LAB_EXPECTED_SKILL_MD,
+  MINI_LAB_FIXED_SPEC,
+} from '../src/content/lesson-mcp-tools-skills';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
   test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 14-lesson catalog', async ({ page }) => {
@@ -48,7 +61,66 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('h1')).toContainText('Model Context Protocol (MCP) w praktyce');
   });
 
-  test('Lesson 14 (MCP tools & skills) renders the product-surface simulator in PL and EN', async ({ page }) => {
+  test('Lesson 14 hands-on mini-lab contract executes real mcp-surface-kit CLI (check --strict, build, and SHA-256 verification)', () => {
+    const cliBin = resolve(process.cwd(), 'node_modules/mcp-surface-kit/bin/mcp-surface.mjs');
+    expect(existsSync(cliBin), `Expected pinned mcp-surface-kit CLI at ${cliBin}`).toBe(true);
+
+    const workDir = mkdtempSync(join(tmpdir(), 'academy-lesson14-lab-'));
+    try {
+      const specDir = join(workDir, '.mcp-surface');
+      mkdirSync(specDir, { recursive: true });
+
+      // 1. Broken 3-tool spec must fail `check --strict` with exact output shown in Lesson 14
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(MINI_LAB_BROKEN_SPEC, null, 2), 'utf8');
+      const cliBroken = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliBroken.status).toBe(1);
+      expect(cliBroken.stdout.trim()).toBe(MINI_LAB_EXPECTED_CHECK_FAIL);
+
+      // 2. Unknown or misspelled fields must be rejected by the real CLI
+      writeFileSync(
+        join(specDir, 'spec.json'),
+        JSON.stringify({ ...MINI_LAB_FIXED_SPEC, version: 1, untrustedContent: ['note_markdown'] }, null, 2),
+        'utf8'
+      );
+      const cliUnknown = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliUnknown.status).toBe(1);
+      expect(cliUnknown.stdout).toContain('unknown field "version"');
+      expect(cliUnknown.stdout).toContain('unknown field "untrustedContent" (did you mean "untrustedFields"?)');
+
+      // 3. Repaired 4-tool spec must pass `check --strict` with 0 warnings
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(MINI_LAB_FIXED_SPEC, null, 2), 'utf8');
+      const cliFixed = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliFixed.status).toBe(0);
+      expect(cliFixed.stdout.trim()).toBe(MINI_LAB_EXPECTED_CHECK_PASS);
+
+      // 4. `build` must emit exact stdout and generate the exact SKILL.md with verified SHA-256 marker
+      const cliBuild = spawnSync(process.execPath, [cliBin, 'build', workDir], { encoding: 'utf8' });
+      expect(cliBuild.status).toBe(0);
+      expect(cliBuild.stdout.trim()).toBe(MINI_LAB_EXPECTED_BUILD_OUT);
+
+      const builtSkill = readFileSync(join(workDir, '.mcp-surface/skills/publish-notes/SKILL.md'), 'utf8');
+      expect(builtSkill).toBe(MINI_LAB_EXPECTED_SKILL_MD);
+
+      const markerMatch = builtSkill.match(/<!-- mcp-surface-kit:managed sha256=([a-f0-9]{64}) -->/);
+      expect(markerMatch).not.toBeNull();
+      const recordedDigest = markerMatch![1];
+      const zeroedSkill = builtSkill.replace(
+        `<!-- mcp-surface-kit:managed sha256=${recordedDigest} -->`,
+        `<!-- mcp-surface-kit:managed sha256=${'0'.repeat(64)} -->`
+      );
+      const computedDigest = createHash('sha256').update(zeroedSkill, 'utf8').digest('hex');
+      expect(computedDigest).toBe(recordedDigest);
+      expect(recordedDigest).toBe('fc3052dd77ffb6e8b9a7a33c38b03f55a442ca2063641c4a99af713527cfc3d4');
+
+      console.log(
+        `PASS: Executed real mcp-surface-kit CLI (${cliBin}) against Lesson 14 broken and repaired specs (sha256=${recordedDigest}).`
+      );
+    } finally {
+      rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  test('Lesson 14 (MCP tools & skills) renders the product-surface simulator and hands-on mini-lab in PL and EN', async ({ page }) => {
     await page.goto('/pl/lessons/mcp-tools-skills-and-product-surfaces/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('MCP, narzędzia i skille');
@@ -59,6 +131,16 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
     await page.locator('[data-stack-trigger="gates"]').click();
     await expect(page.locator('[data-stack-panel="gates"]')).toBeVisible();
+
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('prepare_note_publish');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('confirm_note_publish');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('## Responsibility boundary');
+
+    await page.goto('/lessons/mcp-tools-skills-and-product-surfaces/');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('prepare_note_publish');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText(
+      '<!-- mcp-surface-kit:managed sha256=fc3052dd77ffb6e8b9a7a33c38b03f55a442ca2063641c4a99af713527cfc3d4 -->'
+    );
   });
 
   test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {
