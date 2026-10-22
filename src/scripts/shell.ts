@@ -197,6 +197,8 @@ export function initShell(): void {
   bindTabGroup('data-mcp-step', 'data-mcp-panel');
   bindTabGroup('data-harness-mode', 'data-harness-panel');
   bindTabGroup('data-anatomy-trigger', 'data-anatomy-panel');
+  bindTabGroup('data-surface-mode', 'data-surface-panel');
+  bindTabGroup('data-stack-trigger', 'data-stack-panel');
 
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;

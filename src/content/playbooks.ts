@@ -226,6 +226,67 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
 # - Add a rule after the same mistake happens twice; remove rules that no longer change behavior.
 # - Enforce what matters with branch protection, CODEOWNERS, CI and tool permissions.`,
     },
+    {
+      id: 'mcp-surface-spec',
+      number: 'PLAYBOOK 06',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+      title: 'MCP Surface Spec: tiers, prepare/confirm pairs, skills and scopes',
+      subtitle: 'A checkable contract for an agent-operable product: which tools exist, which tier they sit in, which skill teaches them, and which OAuth scope they need.',
+      whenToUse: 'When you add MCP to an existing product, when the tool list has grown, or when you want a pull-request check that a new live verb did not land without a prepare partner.',
+      mumroBenefit:
+        'MUMRO’s gateway is this spec in production: read → draft → prepare/confirm, scopes `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`, and host skills (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) that name exact tools. Validate the same shape with mcp-surface-kit.',
+      templateFormat: 'JSON Surface Spec',
+      templateCode: `{
+  "name": "content-workspace",
+  "purpose": "Workspace-scoped social and website publishing for AI agents.",
+  "transport": "streamable-http",
+  "resourceUrl": "https://mcp.example.com/mcp",
+  "scopes": ["read", "drafts", "schedule", "publish"],
+  "untrustedFields": ["caption", "comment_text", "article_html", "image_text"],
+  "tools": [
+    {
+      "name": "get_workspace_context",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
+    },
+    {
+      "name": "create_publication_draft",
+      "tier": "draft",
+      "scope": "drafts",
+      "annotations": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Create an editable social draft. Never schedules or publishes. Requires an idempotency key."
+    },
+    {
+      "name": "prepare_publication_action",
+      "tier": "mutate",
+      "phase": "prepare",
+      "pair": "confirm_publication_action",
+      "scope": "schedule",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
+      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+    },
+    {
+      "name": "confirm_publication_action",
+      "tier": "mutate",
+      "phase": "confirm",
+      "pair": "prepare_publication_action",
+      "scope": "schedule",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
+    }
+  ],
+  "skills": [
+    {
+      "name": "publish-content",
+      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "uses": ["get_workspace_context", "create_publication_draft", "prepare_publication_action", "confirm_publication_action"]
+    }
+  ]
+}`,
+    },
   ] satisfies PlaybookItem[],
 };
 
@@ -441,6 +502,67 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
 # - Zmieniaj harness przez .harness/spec.json, nigdy między znacznikami.
 # - Dodawaj regułę, gdy ten sam błąd powtórzy się dwa razy; usuwaj reguły, które niczego nie zmieniają.
 # - To, co ważne, egzekwuj ochroną gałęzi, CODEOWNERS, CI i uprawnieniami narzędzia.`,
+    },
+    {
+      id: 'mcp-surface-spec',
+      number: 'PLAYBOOK 06',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+      title: 'Specyfikacja powierzchni MCP: poziomy, pary prepare/confirm, skille i scope’y',
+      subtitle: 'Sprawdzalny kontrakt produktu sterowanego przez agenta: które narzędzia istnieją, na którym poziomie siedzą, który skill ich uczy i jakiego scope’u OAuth potrzebują.',
+      whenToUse: 'Gdy dodajesz MCP do istniejącego produktu, gdy lista narzędzi urosła, albo gdy chcesz w pull requescie sprawdzenie, że nowy czasownik na żywo nie wylądował bez partnera prepare.',
+      mumroBenefit:
+        'Bramka MUMRO to ta specyfikacja w produkcji: odczyt → szkic → prepare/confirm, scope’y `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` oraz skille hosta (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) nazywające dokładne narzędzia. Tę samą postać sprawdzisz mcp-surface-kit.',
+      templateFormat: 'Specyfikacja JSON powierzchni',
+      templateCode: `{
+  "name": "content-workspace",
+  "purpose": "Workspace-scoped social and website publishing for AI agents.",
+  "transport": "streamable-http",
+  "resourceUrl": "https://mcp.example.com/mcp",
+  "scopes": ["read", "drafts", "schedule", "publish"],
+  "untrustedFields": ["caption", "comment_text", "article_html", "image_text"],
+  "tools": [
+    {
+      "name": "get_workspace_context",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
+    },
+    {
+      "name": "create_publication_draft",
+      "tier": "draft",
+      "scope": "drafts",
+      "annotations": { "readOnlyHint": false, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Create an editable social draft. Never schedules or publishes. Requires an idempotency key."
+    },
+    {
+      "name": "prepare_publication_action",
+      "tier": "mutate",
+      "phase": "prepare",
+      "pair": "confirm_publication_action",
+      "scope": "schedule",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
+      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+    },
+    {
+      "name": "confirm_publication_action",
+      "tier": "mutate",
+      "phase": "confirm",
+      "pair": "prepare_publication_action",
+      "scope": "schedule",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
+    }
+  ],
+  "skills": [
+    {
+      "name": "publish-content",
+      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "uses": ["get_workspace_context", "create_publication_draft", "prepare_publication_action", "confirm_publication_action"]
+    }
+  ]
+}`,
     },
   ] satisfies PlaybookItem[],
 };

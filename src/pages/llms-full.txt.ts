@@ -36,7 +36,7 @@ export const GET: APIRoute = () => {
       chunks.push(`- MUMRO Capability: ${t.mumroCapability}`, '');
     }
 
-    chunks.push(`## All 13 Lessons (${locale.toUpperCase()})`, '');
+    chunks.push(`## All 14 Lessons (${locale.toUpperCase()})`, '');
     for (const l of lessons) {
       chunks.push(`### ${l.number}: ${l.title}`);
       chunks.push(`URL: https://academy.mumro.io${locale === 'pl' ? '/pl' : ''}/lessons/${l.slug}/`);

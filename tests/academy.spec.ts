@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
-  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 13-lesson catalog', async ({ page }) => {
+  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 14-lesson catalog', async ({ page }) => {
     await page.goto('/?lang=en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('living brand systems');
 
     const lessonCards = page.locator('[data-lesson-card]');
-    await expect(lessonCards).toHaveCount(13);
+    await expect(lessonCards).toHaveCount(14);
 
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
-    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(4);
+    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(5);
 
     // Filter by search keyword
     await page.locator('[data-track-filter="all"]').click();
@@ -27,11 +27,24 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.goto('/pl/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
-    await expect(page.locator('[data-lesson-card]')).toHaveCount(13);
+    await expect(page.locator('[data-lesson-card]')).toHaveCount(14);
 
     await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
     await expect(page.locator('h1')).toContainText('Model Context Protocol (MCP) w praktyce');
+  });
+
+  test('Lesson 14 (MCP tools & skills) renders the product-surface simulator in PL and EN', async ({ page }) => {
+    await page.goto('/pl/lessons/mcp-tools-skills-and-product-surfaces/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('h1')).toContainText('MCP, narzędzia i skille');
+
+    await expect(page.locator('[data-surface-panel="designed"]')).toBeVisible();
+    await page.locator('[data-surface-mode="clicks"]').click();
+    await expect(page.locator('[data-surface-panel="clicks"]')).toBeVisible();
+
+    await page.locator('[data-stack-trigger="gates"]').click();
+    await expect(page.locator('[data-stack-panel="gates"]')).toBeVisible();
   });
 
   test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {

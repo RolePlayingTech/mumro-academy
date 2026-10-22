@@ -142,6 +142,36 @@ const en = {
       whyItMatters: 'Keeps the main session focused and gives an independent second look. It is a trade-off: total token use goes up and a summary can miss details, so cited lines should still be opened before editing.',
       relatedLesson: 'ai-agent-harness-engineering',
     },
+    {
+      id: 'mcp-tool-surface',
+      term: 'MCP Tool Surface (read / draft / gated mutation)',
+      category: 'Agentic AI',
+      definition:
+        'The designed set of Model Context Protocol tools a product exposes, grouped so read tools cannot change state, draft tools write only workspace artifacts, and live provider calls require a separate prepare → confirm pair.',
+      whyItMatters:
+        'Once users delegate click paths to agents, this surface is part of product quality: too small and the agent pastes; unbounded and it can publish by mistake; designed and humans and agents edit the same rows.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'tools-vs-skills',
+      term: 'Tools vs Skills (capability vs choreography)',
+      category: 'Agentic AI',
+      definition:
+        'A tool is a typed MCP function the model can call (the capability). A skill is a `SKILL.md` workflow loaded on demand that says when and in what order to call those tools (the choreography). Server instructions are the always-loaded backstop; only the tool implementation can enforce a boundary.',
+      whyItMatters:
+        'Tools without skills make every agent invent a different loop. Skills without tools cannot touch the product. Instructions without gates are requests the model can skip.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'untrusted-workspace-data',
+      term: 'Untrusted Workspace Data (indirect prompt injection)',
+      category: 'Agentic AI',
+      definition:
+        'Captions, comments, article HTML and text inside images returned by MCP read tools, labelled in the server contract as data the model must not follow as instructions, because a tenant artifact can contain an injection aimed at the agent.',
+      whyItMatters:
+        'Connecting an agent to live workspace text without this contract turns every comment into an attack surface. The label does not make models immune; scopes and prepare/confirm still have to refuse a one-step publish.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
   ] satisfies GlossaryTerm[],
 };
 
@@ -277,6 +307,36 @@ const pl: typeof en = {
       definition: 'Zlecanie szerokiego przeszukiwania wielu plików subagentowi, który pracuje we własnym kontekście i zwraca krótkie podsumowanie ze ścieżkami, oraz proszenie osobnego agenta lub nowej sesji o przegląd ryzykownego diffu bez znajomości rozumowania autora.',
       whyItMatters: 'Utrzymuje główną sesję w skupieniu i daje niezależne spojrzenie. To kompromis: łączne zużycie tokenów rośnie, a streszczenie może pominąć szczegół, więc przed edycją i tak warto otworzyć wskazane linie.',
       relatedLesson: 'ai-agent-harness-engineering',
+    },
+    {
+      id: 'mcp-tool-surface',
+      term: 'Powierzchnia narzędzi MCP (odczyt / szkic / mutacja z bramką)',
+      category: 'Agenci AI',
+      definition:
+        'Zaprojektowany zestaw narzędzi Model Context Protocol, które produkt wystawia, pogrupowany tak, że narzędzia odczytu nie zmieniają stanu, narzędzia szkiców zapisują tylko artefakty workspace, a żywe wywołania dostawcy wymagają osobnej pary prepare → confirm.',
+      whyItMatters:
+        'Gdy użytkownicy zlecają ścieżki kliknięć agentom, ta powierzchnia jest częścią jakości produktu: za mała i agent wkleja; nieograniczona i może opublikować przez pomyłkę; zaprojektowana — ludzie i agenci edytują te same wiersze.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'tools-vs-skills',
+      term: 'Narzędzia a skille (zdolność kontra choreografia)',
+      category: 'Agenci AI',
+      definition:
+        'Narzędzie to typowana funkcja MCP, którą model może wywołać (zdolność). Skill to workflow w `SKILL.md` ładowany na żądanie, który mówi, kiedy i w jakiej kolejności te narzędzia wołać (choreografia). Instrukcje serwera to siatka bezpieczeństwa ładowana zawsze; granicę egzekwuje tylko implementacja narzędzia.',
+      whyItMatters:
+        'Narzędzia bez skilli sprawiają, że każdy agent wymyśla inną pętlę. Skille bez narzędzi nie dosięgną produktu. Instrukcje bez bramek to prośby, które model może pominąć.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'untrusted-workspace-data',
+      term: 'Niezaufane dane workspace (pośrednia injekcja promptu)',
+      category: 'Agenci AI',
+      definition:
+        'Podpisy, komentarze, HTML artykułów i tekst na obrazach zwracane przez narzędzia odczytu MCP, oznaczone w kontrakcie serwera jako dane, których model nie wolno słuchać jak instrukcji, bo artefakt tenanta może zawierać injekcję skierowaną do agenta.',
+      whyItMatters:
+        'Podłączenie agenta do żywego tekstu workspace bez tego kontraktu zamienia każdy komentarz w powierzchnię ataku. Etykieta nie czyni modeli odpornymi; scope’y i prepare/confirm i tak muszą odmówić publikacji w jednym kroku.',
+      relatedLesson: 'mcp-tools-skills-and-product-surfaces',
     },
   ] satisfies GlossaryTerm[],
 };

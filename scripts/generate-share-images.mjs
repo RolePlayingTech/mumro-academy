@@ -137,16 +137,16 @@ try {
           <h1>${pl ? 'Systemy marki. Inżynieria treści.' : 'Brand Systems. Content Ops.'}<em>${pl ? 'Agenci AI i MCP.' : 'Agentic AI & MCP.'}</em></h1>
           <p>${
             pl
-              ? '4 ścieżki, 12 pogłębionych lekcji i gotowe playbooki o strategii, wielokanałowych treściach, technicznym SEO i kontrolowanej autonomii AI.'
-              : '4 tracks, 12 deep-dive lessons, and copy-ready playbooks on versioned strategy, multi-channel content, technical SEO, and governed AI agents.'
+              ? '4 ścieżki, 14 pogłębionych lekcji i gotowe playbooki o strategii, wielokanałowych treściach, technicznym SEO i kontrolowanej autonomii AI.'
+              : '4 tracks, 14 deep-dive lessons, and copy-ready playbooks on versioned strategy, multi-channel content, technical SEO, and governed AI agents.'
           }</p>
         </div>
         <div class="tracks">
-          <div class="tracks-head">${pl ? 'PROGRAM AKADEMII (12 LEKCJI)' : 'ACADEMY CURRICULUM (12 LESSONS)'}</div>
+          <div class="tracks-head">${pl ? 'PROGRAM AKADEMII (14 LEKCJI)' : 'ACADEMY CURRICULUM (14 LESSONS)'}</div>
           <div class="track-row"><span>${pl ? 'Żywe systemy marki i Brand Voice' : 'Living Brand Systems & Voice'}</span><code>01–03</code></div>
           <div class="track-row"><span>${pl ? 'Jedna historia, 4 kanały i karuzele' : 'One Story, 4 Channels & Carousels'}</span><code>04–06</code></div>
           <div class="track-row"><span>${pl ? 'Strona WWW, SEO, czatbot i kohorty' : 'Website, SEO, Assistant & Cohorts'}</span><code>07–09</code></div>
-          <div class="track-row"><span>${pl ? 'Agenci MCP, Prepare→Confirm i kontrola' : 'MCP Agents, Prepare→Confirm & Control'}</span><code>10–12</code></div>
+          <div class="track-row"><span>${pl ? 'Agenci MCP, Prepare→Confirm i kontrola' : 'MCP Agents, Prepare→Confirm & Control'}</span><code>10–14</code></div>
         </div>
       </main>
       <footer>

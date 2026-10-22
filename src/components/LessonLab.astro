@@ -10,8 +10,13 @@ interface Props {
 const { locale, trackId, slug } = Astro.props;
 const pl = locale === 'pl';
 const isHarnessLesson = slug === 'ai-agent-harness-engineering';
+const isMcpSurfaceLesson = slug === 'mcp-tools-skills-and-product-surfaces';
+const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
 ---
-<section class="preview-frame lesson-lab" data-lesson-lab={isHarnessLesson ? 'harness-engineering' : trackId}>
+<section
+  class="preview-frame lesson-lab"
+  data-lesson-lab={isMcpSurfaceLesson ? 'mcp-surface' : isHarnessLesson ? 'harness-engineering' : trackId}
+>
   <div class="lab-header">
     <div>
       <span class="eyebrow signal">
@@ -22,19 +27,23 @@ const isHarnessLesson = slug === 'ai-agent-harness-engineering';
           (pl
             ? 'Symulator Kontekstu i Anatomii Uprzęży: Zwykły Czat vs. Zaśmiecony Kontekst vs. Czysty Harness'
             : 'Context Window & Harness Simulator: Raw Chat vs. Bloated Context vs. Lean Harness')}
-        {!isHarnessLesson && trackId === 'brand-systems' &&
+        {isMcpSurfaceLesson &&
+          (pl
+            ? 'Symulator powierzchni produktu: Klikanie UI vs. Surowe narzędzia MCP vs. Narzędzia + skille + bramka'
+            : 'Product Surface Simulator: Clicking the UI vs. Raw MCP Tools vs. Tools + Skills + Gate')}
+        {usesTrackLab && trackId === 'brand-systems' &&
           (pl
             ? 'Porównaj: Pusty prompt vs. Warstwy kontekstu MUMRO (Źródła · Głos marki · Cel)'
             : 'Compare: Generic Prompt vs. MUMRO Context Layers (Sources · Brand Voice · Goal)')}
-        {!isHarnessLesson && trackId === 'multi-format-distribution' &&
+        {usesTrackLab && trackId === 'multi-format-distribution' &&
           (pl
             ? 'Przetestuj: Jedna historia w 5 slajdach karuzeli i 4 kanałach społecznościowych'
             : 'Interactive Studio: One Story Across 5 Carousel Slides & 4 Social Channels')}
-        {!isHarnessLesson && trackId === 'website-seo-conversations' &&
+        {usesTrackLab && trackId === 'website-seo-conversations' &&
           (pl
             ? 'Symulator pęli: Kohorty 7/30/90 dni, FAQ Mining i szkic Strategii v2'
             : 'Loop Simulator: 7/30/90-Day Cohorts, FAQ Mining & Strategy v2 Draft')}
-        {!isHarnessLesson && trackId === 'agents-mcp-governance' &&
+        {usesTrackLab && trackId === 'agents-mcp-governance' &&
           (pl
             ? 'Symulator MCP: Bramka Prepare → Confirm oraz 3 poziomy autonomii'
             : 'MCP Simulator: Prepare → Confirm Gate & 3 Graduated Autonomy Modes')}
@@ -43,7 +52,7 @@ const isHarnessLesson = slug === 'ai-agent-harness-engineering';
     <span class="badge sage">{pl ? 'Interaktywna makieta' : 'Interactive blueprint'}</span>
   </div>
 
-  {trackId === 'brand-systems' && (
+  {usesTrackLab && trackId === 'brand-systems' && (
     <div class="lab-body" data-lab-voice>
       <div class="lab-controls" role="group" aria-label={pl ? 'Warstwa kontekstu' : 'Context layer'}>
         <button type="button" class="filter-pill is-active" data-voice-layer="all" aria-pressed="true">
@@ -180,7 +189,7 @@ const isHarnessLesson = slug === 'ai-agent-harness-engineering';
     </div>
   )}
 
-  {!isHarnessLesson && trackId === 'agents-mcp-governance' && (
+  {usesTrackLab && trackId === 'agents-mcp-governance' && (
     <div class="lab-body" data-lab-mcp>
       <div class="lab-controls" role="group" aria-label={pl ? 'Krok protokołu MCP' : 'MCP protocol step'}>
         <button type="button" class="filter-pill is-active" data-mcp-step="read" aria-pressed="true">
@@ -213,6 +222,122 @@ const isHarnessLesson = slug === 'ai-agent-harness-engineering';
           <span class="badge sage">{pl ? 'KROK 4 · ZATWIERDZENIE (CONFIRM → PLAN MUMRO)' : 'STEP 4 · CONFIRMED EXECUTION'}</span>
           <p>{pl ? 'Po jawnej zgodzie człowieka token jest realizowany, a publikacja pojawia się bezpośrednio w planie MUMRO z zachowaniem pełnego śladu audytowego.' : 'After explicit human sign-off, the confirmation token commits the exact post to the MUMRO publishing plan with a full audit trail.'}</p>
         </div>
+      </div>
+    </div>
+  )}
+
+  {isMcpSurfaceLesson && (
+    <div class="lab-body harness-lab-body" data-lab-surface>
+      <div class="harness-sim-block">
+        <span class="eyebrow">
+          {pl
+            ? '1. TO SAMO ZADANIE, TRZY POWIERZCHNIE (SCHEMAT POGLĄDOWY)'
+            : '1. THE SAME JOB, THREE SURFACES (SCHEMATIC)'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Sposób wykonania zadania' : 'How the job is done'}>
+          <button type="button" class="filter-pill" data-surface-mode="clicks" aria-pressed="false">
+            {pl ? '1. Klikanie w UI' : '1. Clicking the UI'}
+          </button>
+          <button type="button" class="filter-pill" data-surface-mode="raw" aria-pressed="false">
+            {pl ? '2. Surowe narzędzia MCP' : '2. Raw MCP tools'}
+          </button>
+          <button type="button" class="filter-pill is-active" data-surface-mode="designed" aria-pressed="true">
+            {pl ? '3. Narzędzia + skille + bramka' : '3. Tools + skills + gate'}
+          </button>
+        </div>
+
+        <div class="lab-card harness-panel" data-surface-panel="clicks" hidden>
+          <span class="badge signal">{pl ? 'CZŁOWIEK PROWADZI KAŻDE POLE' : 'A HUMAN DRIVES EVERY FIELD'}</span>
+          <p>
+            {pl
+              ? 'Otwórz workspace → Strategia → Composer → kalendarz → modal potwierdzenia. Agent w czacie jest ślepy: wklejasz kontekst, dostajesz akapit, wklejasz go z powrotem. Produkt nie traci danych — traci sesję, bo delegacja jest niemożliwa.'
+              : 'Open workspace → Strategy → Composer → calendar → confirm modal. The agent in chat is blind: you paste context, get a paragraph, paste it back. The product does not lose data — it loses the session, because delegation is impossible.'}
+          </p>
+        </div>
+        <div class="lab-card harness-panel" data-surface-panel="raw" hidden>
+          <span class="badge">{pl ? 'MODEL WIDZI 38 CZASOWNIKÓW I ZGADUJE KOLEJNOŚĆ' : 'THE MODEL SEES 38 VERBS AND GUESSES THE ORDER'}</span>
+          <p>
+            {pl
+              ? 'Host podłączył MCP, więc agent może wołać narzędzia. Bez skilla zgaduje kolejność — pominie godziny ciszy albo strategię. Zamek i tak jest w serwerze: MUMRO nie ma publikacji w jednym wywołaniu. Lista czasowników bez choreografii jest bałaganem; lista z jednoetapowym publish_* jest groźna.'
+              : 'The host connected MCP, so the agent can call tools. Without a skill it guesses the order — it may skip quiet hours or strategy. The lock is still the server: MUMRO has no one-step publish. A list of verbs without choreography is messy; a list with a one-step publish_* is dangerous.'}
+          </p>
+        </div>
+        <div class="lab-card harness-panel" data-surface-panel="designed">
+          <span class="badge sage">{pl ? 'TEN SAM WIERSZ CO W UI, BRAMKA W SERWERZE' : 'THE SAME ROW AS THE UI, GATE IN THE SERVER'}</span>
+          <p>
+            {pl
+              ? 'Skill `mumro-publish-content` ustawia kolejność. Odczyt i szkic nie ruszają dostawcy. `prepare_publication_action` zwraca podgląd i frazę; `confirm_*` wykonuje tylko świeżą akcję. Człowiek w Planie widzi ten sam szkic.'
+              : 'The `mumro-publish-content` skill sets the order. Reads and drafts never touch a provider. `prepare_publication_action` returns a preview and phrase; `confirm_*` executes only a still-fresh action. A human in Plan sees the same draft.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="harness-anatomy-block">
+        <span class="eyebrow">
+          {pl ? '2. CZTERY WARSTWY POWIERZCHNI — KLIKNIJ, ŻEBY ZOBACZYĆ, KTO EGZEKWUJE' : '2. FOUR LAYERS OF THE SURFACE — CLICK TO SEE WHO ENFORCES THEM'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Warstwa powierzchni' : 'Surface layer'}>
+          <button type="button" class="filter-pill is-active" data-stack-trigger="instructions" aria-pressed="true">
+            {pl ? '1. Instrukcje' : '1. Instructions'}
+          </button>
+          <button type="button" class="filter-pill" data-stack-trigger="skills" aria-pressed="false">
+            {pl ? '2. Skille' : '2. Skills'}
+          </button>
+          <button type="button" class="filter-pill" data-stack-trigger="tools" aria-pressed="false">
+            {pl ? '3. Narzędzia MCP' : '3. MCP tools'}
+          </button>
+          <button type="button" class="filter-pill" data-stack-trigger="gates" aria-pressed="false">
+            {pl ? '4. Bramki serwera' : '4. Server gates'}
+          </button>
+        </div>
+        <div class="lab-card" data-stack-panel="instructions">
+          <span class="badge">{pl ? 'WARSTWA 1 · AGENTS.MD + INSTRUCTIONS SERWERA · EGZEKWUJE: MODEL' : 'LAYER 1 · AGENTS.MD + SERVER INSTRUCTIONS · ENFORCED BY: THE MODEL'}</span>
+          <p>
+            {pl
+              ? 'Krótki tekst ładowany zawsze: szkice nie publikują, treść workspace jest danymi niezaufanymi, najpierw wołaj get_workspace_context. Kształtuje zachowanie, ale go nie gwarantuje.'
+              : 'Short always-loaded text: drafts do not publish, workspace content is untrusted data, call get_workspace_context first. It shapes behavior but does not guarantee it.'}
+          </p>
+        </div>
+        <div class="lab-card" data-stack-panel="skills" hidden>
+          <span class="badge">{pl ? 'WARSTWA 2 · SKILL.MD · EGZEKWUJE: MODEL (Gdy WCZYTA)' : 'LAYER 2 · SKILL.MD · ENFORCED BY: THE MODEL (IF LOADED)'}</span>
+          <p>
+            {pl
+              ? 'Procedura na żądanie: opis mówi „używaj, gdy…”, ciało ustala kolejność narzędzi i STOP na prepare. Mumro-publish-content nie jest endpointem HTTP — to choreografia na hoście.'
+              : 'On-demand procedure: the description says “use when…”, the body sets tool order and STOP at prepare. mumro-publish-content is not an HTTP endpoint — it is choreography on the host.'}
+          </p>
+        </div>
+        <div class="lab-card" data-stack-panel="tools" hidden>
+          <span class="badge">{pl ? 'WARSTWA 3 · TOOLS/LIST · EGZEKWUJE: HOST + SCHEMAT' : 'LAYER 3 · TOOLS/LIST · ENFORCED BY: HOST + SCHEMA'}</span>
+          <p>
+            {pl
+              ? 'Typowane czasowniki z adnotacjami i scope’ami. Host może pozwolić na odczyt i zapytać przy open-world. Literówka w argumencie musi paść — w MUMRO additionalProperties: false.'
+              : 'Typed verbs with annotations and scopes. The host can allow reads and prompt on open-world tools. A typo in an argument must fail — in MUMRO, additionalProperties: false.'}
+          </p>
+        </div>
+        <div class="lab-card" data-stack-panel="gates" hidden>
+          <span class="badge sage">{pl ? 'WARSTWA 4 · PREPARE → CONFIRM, SCOPE, ODCISK · EGZEKWUJE: SERWER' : 'LAYER 4 · PREPARE → CONFIRM, SCOPE, FINGERPRINT · ENFORCED BY: THE SERVER'}</span>
+          <p>
+            {pl
+              ? 'Jedyna warstwa, która zatrzyma publikację, gdy model „nie uważa”: para prepare/confirm, kumulatywne scope’y, klucz idempotentności i ponowne sprawdzenie odcisku payloadu. Skill może kłamać; ta warstwa nie.'
+              : 'The only layer that will stop a publish when the model is not being careful: the prepare/confirm pair, cumulative scopes, an idempotency key and a rechecked payload fingerprint. A skill can lie; this layer cannot.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="lab-card explanation kit-banner">
+        <div>
+          <span class="eyebrow signal">
+            {pl ? 'OPEN SOURCE · ROLEPLAYINGTECH / MCP-SURFACE-KIT' : 'OPEN SOURCE · ROLEPLAYINGTECH / MCP-SURFACE-KIT'}
+          </span>
+          <p>
+            {pl
+              ? 'mcp-surface-kit zapisuje poziomy, pary prepare/confirm, skille i scope’y w .mcp-surface/spec.json, wyjaśnia pokrycie i sprawdza, czy nowy czasownik na żywo nie wylądował bez partnera prepare: explain → check → build.'
+              : 'mcp-surface-kit records tiers, prepare/confirm pairs, skills and scopes in .mcp-surface/spec.json, explains coverage, and checks that a new live verb did not land without a prepare partner: explain → check → build.'}
+          </p>
+        </div>
+        <a class="button" href="https://github.com/RolePlayingTech/mcp-surface-kit" target="_blank" rel="noopener">
+          {pl ? 'Otwórz mcp-surface-kit na GitHubie ↗' : 'Open mcp-surface-kit on GitHub ↗'}
+        </a>
       </div>
     </div>
   )}

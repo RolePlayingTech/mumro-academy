@@ -1,6 +1,7 @@
 import { assertLocaleParity } from '../lib/contracts';
 import type { LessonData } from './lessons-types';
 import { harnessLesson } from './lesson-harness-engineering';
+import { mcpSurfaceLesson } from './lesson-mcp-tools-skills';
 
 const en: LessonData[] = [
   {
@@ -711,6 +712,7 @@ const en: LessonData[] = [
     },
   },
   harnessLesson.en,
+  mcpSurfaceLesson.en,
 ];
 
 const pl: LessonData[] = [
@@ -1422,6 +1424,7 @@ const pl: LessonData[] = [
     },
   },
   harnessLesson.pl,
+  mcpSurfaceLesson.pl,
 ];
 
 export const lessonsTrack3And4 = assertLocaleParity({ en, pl }, 'lessonsTrack3And4');

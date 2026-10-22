@@ -28,6 +28,7 @@ export const lessonSlugs = [
   'two-phase-commit-for-ai-agents',
   'autonomy-levels-and-guardrails',
   'ai-agent-harness-engineering',
+  'mcp-tools-skills-and-product-surfaces',
 ] as const;
 export type LessonSlug = (typeof lessonSlugs)[number];
 
