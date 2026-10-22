@@ -115,7 +115,7 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
     </div>
   )}
 
-  {trackId === 'multi-format-distribution' && (
+  {usesTrackLab && trackId === 'multi-format-distribution' && (
     <div class="lab-body" data-lab-carousel>
       <div class="lab-controls" role="group" aria-label={pl ? 'Slajdy karuzeli' : 'Carousel slides'}>
         {[1, 2, 3, 4, 5].map((num) => (
@@ -159,7 +159,7 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
     </div>
   )}
 
-  {trackId === 'website-seo-conversations' && (
+  {usesTrackLab && trackId === 'website-seo-conversations' && (
     <div class="lab-body" data-lab-cohort>
       <div class="lab-controls" role="group" aria-label={pl ? 'Okno kohorty' : 'Cohort window'}>
         <button type="button" class="filter-pill" data-cohort-trigger="7" aria-pressed="false">

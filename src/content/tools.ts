@@ -7,6 +7,7 @@ export interface FeaturedLessonHighlight {
   companionToolName: string;
   companionToolRepo: string;
   companionPlaybookNumber: string;
+  companionPlaybookAnchor: string;
   readCta: string;
 }
 
@@ -62,6 +63,7 @@ const en: EcosystemContent = {
         companionToolName: 'agent-harness-kit',
         companionToolRepo: 'https://github.com/RolePlayingTech/agent-harness-kit',
         companionPlaybookNumber: 'PLAYBOOK 05',
+        companionPlaybookAnchor: '#agent-harness-kit-blueprint',
         readCta: 'Read Lesson 13',
       },
       {
@@ -72,6 +74,7 @@ const en: EcosystemContent = {
         companionToolName: 'mcp-surface-kit',
         companionToolRepo: 'https://github.com/RolePlayingTech/mcp-surface-kit',
         companionPlaybookNumber: 'PLAYBOOK 06',
+        companionPlaybookAnchor: '#mcp-surface-spec',
         readCta: 'Read Lesson 14',
       },
     ],
@@ -156,6 +159,7 @@ const pl: EcosystemContent = {
         companionToolName: 'agent-harness-kit',
         companionToolRepo: 'https://github.com/RolePlayingTech/agent-harness-kit',
         companionPlaybookNumber: 'PLAYBOOK 05',
+        companionPlaybookAnchor: '#agent-harness-kit-blueprint',
         readCta: 'Otwórz Lekcję 13',
       },
       {
@@ -166,6 +170,7 @@ const pl: EcosystemContent = {
         companionToolName: 'mcp-surface-kit',
         companionToolRepo: 'https://github.com/RolePlayingTech/mcp-surface-kit',
         companionPlaybookNumber: 'PLAYBOOK 06',
+        companionPlaybookAnchor: '#mcp-surface-spec',
         readCta: 'Otwórz Lekcję 14',
       },
     ],

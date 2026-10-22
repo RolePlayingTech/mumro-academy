@@ -124,7 +124,7 @@ const homeSchema = [
                   <a class="text-link" href={item.companionToolRepo}>
                     <code>{item.companionToolName}</code> <span aria-hidden="true">↗</span>
                   </a>
-                  <a class="text-link" href={`${localePath(locale, 'playbooks')}#${item.slug === 'ai-agent-harness-engineering' ? 'agent-harness-kit-blueprint' : 'mcp-surface-spec'}`}>
+                  <a class="text-link" href={`${localePath(locale, 'playbooks')}${item.companionPlaybookAnchor}`}>
                     {item.companionPlaybookNumber} <span aria-hidden="true">→</span>
                   </a>
                 </div>
