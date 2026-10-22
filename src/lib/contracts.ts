@@ -84,3 +84,25 @@ export function assertLocaleParity<T>(data: Localized<T>, label = 'content'): Lo
   compareStructure(data.en, data.pl, label);
   return data;
 }
+
+export function plLessonNoun(count: number): string {
+  if (count === 1) return 'lekcja';
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return 'lekcje';
+  }
+  return 'lekcji';
+}
+
+export function formatTrackLessonsHeading(locale: Locale, count: number): string {
+  return locale === 'pl'
+    ? `W tej ścieżce (${count} ${plLessonNoun(count)}):`
+    : `Lessons in this track (${count}):`;
+}
+
+export function formatTrackBadgeCount(locale: Locale, count: number): string {
+  return locale === 'pl'
+    ? `${count} ${plLessonNoun(count)} w ścieżce`
+    : `${count} ${count === 1 ? 'lesson' : 'lessons'} in track`;
+}

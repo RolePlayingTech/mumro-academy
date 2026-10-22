@@ -231,19 +231,21 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       number: 'PLAYBOOK 06',
       trackId: 'agents-mcp-governance',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
-      title: 'MCP Surface Spec: tiers, prepare/confirm pairs, skills and scopes',
-      subtitle: 'A checkable contract for an agent-operable product: which tools exist, which tier they sit in, which skill teaches them, and which OAuth scope they need.',
-      whenToUse: 'When you add MCP to an existing product, when the tool list has grown, or when you want a pull-request check that a new live verb did not land without a prepare partner.',
+      title: 'MCP Surface Spec: tiers, prepare/confirm pairs, delete guards, skills and operation scopes (`mcp-surface-kit`)',
+      subtitle: 'A checkable contract for an agent-operable product: which tools exist, which tier they sit in, which skill teaches them, and which baseline and per-operation OAuth scopes they require.',
+      whenToUse: 'When you add MCP to an existing product, when the tool list has grown, or when you want a pull-request check (`mcp-surface check --strict`) that no live or destructive verb landed without a guard.',
       mumroBenefit:
-        'MUMRO’s gateway is this spec in production: read → draft → prepare/confirm, scopes `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`, and host skills (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) that name exact tools. Validate the same shape with mcp-surface-kit.',
-      templateFormat: 'JSON Surface Spec',
+        'MUMRO’s gateway is this spec in production: read → draft → local-draft delete → prepare/confirm, cumulative scopes `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` with per-operation elevation for `publish_now`, and host skills (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) that name exact tools. Validate the contract with `RolePlayingTech/mcp-surface-kit`.',
+      templateFormat: 'JSON Surface Spec (v1.1)',
       templateCode: `{
   "name": "content-workspace",
   "purpose": "Workspace-scoped social and website publishing for AI agents.",
   "transport": "streamable-http",
   "resourceUrl": "https://mcp.example.com/mcp",
+  "scopeModel": "cumulative",
   "scopes": ["read", "drafts", "schedule", "publish"],
   "untrustedFields": ["caption", "comment_text", "article_html", "image_text"],
+  "copySkillsTo": [".claude/skills"],
   "tools": [
     {
       "name": "get_workspace_context",
@@ -260,11 +262,24 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "description": "Create an editable social draft. Never schedules or publishes. Requires an idempotency key."
     },
     {
+      "name": "delete_publication_draft",
+      "tier": "delete",
+      "guard": "local_draft_only",
+      "scope": "drafts",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
+      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+    },
+    {
       "name": "prepare_publication_action",
       "tier": "mutate",
       "phase": "prepare",
       "pair": "confirm_publication_action",
       "scope": "schedule",
+      "operationScopes": {
+        "schedule_draft": "schedule",
+        "cancel": "schedule",
+        "publish_now": "publish"
+      },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
       "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
@@ -274,15 +289,26 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "phase": "confirm",
       "pair": "prepare_publication_action",
       "scope": "schedule",
+      "operationScopes": {
+        "schedule_draft": "schedule",
+        "cancel": "schedule",
+        "publish_now": "publish"
+      },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
       "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
-      "uses": ["get_workspace_context", "create_publication_draft", "prepare_publication_action", "confirm_publication_action"]
+      "uses": [
+        "get_workspace_context",
+        "create_publication_draft",
+        "delete_publication_draft",
+        "prepare_publication_action",
+        "confirm_publication_action"
+      ]
     }
   ]
 }`,
@@ -508,19 +534,21 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       number: 'PLAYBOOK 06',
       trackId: 'agents-mcp-governance',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
-      title: 'Specyfikacja powierzchni MCP: poziomy, pary prepare/confirm, skille i scope’y',
-      subtitle: 'Sprawdzalny kontrakt produktu sterowanego przez agenta: które narzędzia istnieją, na którym poziomie siedzą, który skill ich uczy i jakiego scope’u OAuth potrzebują.',
-      whenToUse: 'Gdy dodajesz MCP do istniejącego produktu, gdy lista narzędzi urosła, albo gdy chcesz w pull requescie sprawdzenie, że nowy czasownik na żywo nie wylądował bez partnera prepare.',
+      title: 'Specyfikacja powierzchni MCP: poziomy, pary prepare/confirm, strażnicy usuwania, skille i scope’y operacji (`mcp-surface-kit`)',
+      subtitle: 'Sprawdzalny kontrakt produktu sterowanego przez agenta: które narzędzia istnieją, na którym poziomie siedzą, który skill ich uczy oraz jakich bazowych i per-operacyjnych scope’ów OAuth potrzebują.',
+      whenToUse: 'Gdy dodajesz MCP do istniejącego produktu, gdy lista narzędzi urosła, albo gdy chcesz w pull requescie sprawdzenie (`mcp-surface check --strict`), że żaden czasownik na żywo ani destrukcyjny nie wylądował bez zabezpieczenia.',
       mumroBenefit:
-        'Bramka MUMRO to ta specyfikacja w produkcji: odczyt → szkic → prepare/confirm, scope’y `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` oraz skille hosta (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) nazywające dokładne narzędzia. Tę samą postać sprawdzisz mcp-surface-kit.',
-      templateFormat: 'Specyfikacja JSON powierzchni',
+        'Bramka MUMRO to ta specyfikacja w produkcji: odczyt → szkic → usuwanie lokalnego szkicu → prepare/confirm, kumulatywne scope’y `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` z podniesieniem uprawnień dla `publish_now` oraz skille hosta (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) nazywające dokładne narzędzia. Kontrakt zweryfikujesz `RolePlayingTech/mcp-surface-kit`.',
+      templateFormat: 'Specyfikacja JSON powierzchni (v1.1)',
       templateCode: `{
   "name": "content-workspace",
   "purpose": "Workspace-scoped social and website publishing for AI agents.",
   "transport": "streamable-http",
   "resourceUrl": "https://mcp.example.com/mcp",
+  "scopeModel": "cumulative",
   "scopes": ["read", "drafts", "schedule", "publish"],
   "untrustedFields": ["caption", "comment_text", "article_html", "image_text"],
+  "copySkillsTo": [".claude/skills"],
   "tools": [
     {
       "name": "get_workspace_context",
@@ -537,11 +565,24 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "description": "Create an editable social draft. Never schedules or publishes. Requires an idempotency key."
     },
     {
+      "name": "delete_publication_draft",
+      "tier": "delete",
+      "guard": "local_draft_only",
+      "scope": "drafts",
+      "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
+      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+    },
+    {
       "name": "prepare_publication_action",
       "tier": "mutate",
       "phase": "prepare",
       "pair": "confirm_publication_action",
       "scope": "schedule",
+      "operationScopes": {
+        "schedule_draft": "schedule",
+        "cancel": "schedule",
+        "publish_now": "publish"
+      },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
       "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
@@ -551,15 +592,26 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "phase": "confirm",
       "pair": "prepare_publication_action",
       "scope": "schedule",
+      "operationScopes": {
+        "schedule_draft": "schedule",
+        "cancel": "schedule",
+        "publish_now": "publish"
+      },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
       "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
-      "uses": ["get_workspace_context", "create_publication_draft", "prepare_publication_action", "confirm_publication_action"]
+      "uses": [
+        "get_workspace_context",
+        "create_publication_draft",
+        "delete_publication_draft",
+        "prepare_publication_action",
+        "confirm_publication_action"
+      ]
     }
   ]
 }`,

@@ -6,7 +6,7 @@ import ContactDialog from './ContactDialog.astro';
 import LessonLab from './LessonLab.astro';
 import { tracksContent } from '../content/tracks';
 import { getLessonsByTrack } from '../content/lessons';
-import { localePath, trackIds, type Locale, type TrackId } from '../lib/contracts';
+import { formatTrackBadgeCount, localePath, trackIds, type Locale, type TrackId } from '../lib/contracts';
 
 interface Props {
   locale: Locale;
@@ -80,7 +80,7 @@ const courseSchema = [
     <section class="track-hero">
       <div class="track-hero-meta">
         <span class="badge signal">{track.number}</span>
-        <span class="badge">{lessons.length} {locale === 'pl' ? 'lekcje w ścieżce' : 'lessons in track'}</span>
+        <span class="badge">{formatTrackBadgeCount(locale, lessons.length)}</span>
         <span class="demo-note">{track.audience}</span>
       </div>
       <h1>{track.title}</h1>
