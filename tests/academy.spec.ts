@@ -9,6 +9,16 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     const lessonCards = page.locator('[data-lesson-card]');
     await expect(lessonCards).toHaveCount(14);
 
+    // Latest Additions (Lessons 13 & 14) and Open-Source CLI Tools
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    await expect(page.locator('[data-open-source-tool="agent-harness-kit"]')).toContainText('RolePlayingTech/agent-harness-kit');
+    await expect(page.locator('[data-open-source-tool="mcp-surface-kit"]')).toContainText('RolePlayingTech/mcp-surface-kit');
+
+    // Dynamic lesson counts per track (3 vs 5)
+    await expect(page.locator('#tracks')).toContainText('Lessons in this track (3):');
+    await expect(page.locator('#tracks')).toContainText('Lessons in this track (5):');
+
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
     await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(5);
@@ -28,6 +38,10 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
     await expect(page.locator('[data-lesson-card]')).toHaveCount(14);
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
+    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (5 lekcji):');
 
     await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);

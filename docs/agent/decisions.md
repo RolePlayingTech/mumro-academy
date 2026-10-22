@@ -4,6 +4,9 @@ Durable agreements for this project, newest first. Read before changing architec
 
 Entry format: a heading `## YYYY-MM-DD: decision`, then one to three lines on why.
 
+## 2026-10-22: Ecosystem tools and dynamic homepage counters
+Homepage sections for Latest Additions (`#latest-lessons`) and Open-Source Tools (`#open-source-tools`) live in `src/content/tools.ts` with `assertLocaleParity`. Lesson metadata (number, title, reading time) and track/catalog counts are derived from source arrays and formatted via `formatTrackLessonsHeading` / `formatTrackBadgeCount` in `src/lib/contracts.ts`.
+
 ## 2026-10-22: Lesson 14 companion is mcp-surface-kit
 Lesson 14 (MCP, tools, skills) needed a checkable product-side spec, the way Lesson 13 uses agent-harness-kit for the coding harness. The companion lives in `C:\repos\mcp-surface-kit` (intended GitHub: RolePlayingTech/mcp-surface-kit): a Node CLI with no dependencies that explains, checks and generates SKILL.md from `.mcp-surface/spec.json`. It does not scan server source.
 

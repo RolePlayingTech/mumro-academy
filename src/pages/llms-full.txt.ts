@@ -3,6 +3,7 @@ import { getLessons } from '../content/lessons';
 import { playbooksContent } from '../content/playbooks';
 import { glossaryContent } from '../content/glossary';
 import { tracksContent } from '../content/tracks';
+import { ecosystemContent } from '../content/tools';
 import { trackIds } from '../lib/contracts';
 
 export const GET: APIRoute = () => {
@@ -20,6 +21,7 @@ export const GET: APIRoute = () => {
     const lessons = getLessons(locale);
     const playbooks = playbooksContent[locale];
     const glossary = glossaryContent[locale];
+    const tools = ecosystemContent[locale].toolsSection.items;
 
     chunks.push(`====================================================================`);
     chunks.push(`# EDITION: ${locale.toUpperCase()}`);
@@ -36,7 +38,7 @@ export const GET: APIRoute = () => {
       chunks.push(`- MUMRO Capability: ${t.mumroCapability}`, '');
     }
 
-    chunks.push(`## All 14 Lessons (${locale.toUpperCase()})`, '');
+    chunks.push(`## All ${lessons.length} Lessons (${locale.toUpperCase()})`, '');
     for (const l of lessons) {
       chunks.push(`### ${l.number}: ${l.title}`);
       chunks.push(`URL: https://academy.mumro.io${locale === 'pl' ? '/pl' : ''}/lessons/${l.slug}/`);
@@ -58,6 +60,15 @@ export const GET: APIRoute = () => {
     for (const pb of playbooks.items) {
       chunks.push(`### ${pb.number}: ${pb.title}`);
       chunks.push(`${pb.subtitle} — ${pb.mumroBenefit}`, '');
+    }
+
+    chunks.push(`## Open-Source CLI Kits (${locale.toUpperCase()})`, '');
+    for (const tool of tools) {
+      chunks.push(`### ${tool.name} (${tool.repoUrl})`);
+      chunks.push(`- ${tool.focusLabel}: ${tool.focus}`);
+      chunks.push(`- ${tool.problemLabel}: ${tool.problemSolved}`);
+      for (const cap of tool.capabilities) chunks.push(`  * ${cap}`);
+      chunks.push('');
     }
 
     chunks.push(`## Glossary (${locale.toUpperCase()})`, '');
