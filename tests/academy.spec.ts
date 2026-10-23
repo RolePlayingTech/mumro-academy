@@ -134,9 +134,24 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
     await expect(page.locator('#hands-on-mini-lab')).toContainText('prepare_note_publish');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('confirm_note_publish');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('10-minutowego ćwiczenia');
+    await expect(page.locator('#hands-on-mini-lab')).not.toContainText('?wiczenia');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('Krok 1 — Zapisz');
+    await expect(page.locator('#further-reading .reading-resource')).toHaveCount(22);
+    const plResources = page.locator('#further-reading .reading-resource a');
+    await expect(plResources.first()).toHaveAttribute('target', '_blank');
+    await expect(plResources.first()).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(page.locator('#further-reading')).toContainText('OWASP — MCP Top 10');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('## Responsibility boundary');
 
     await page.goto('/lessons/mcp-tools-skills-and-product-surfaces/');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('Lessons 11–13');
+    await expect(page.locator('#hands-on-mini-lab')).not.toContainText('Lessons 11?13');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('Step 1 — Author');
+    await expect(page.locator('#further-reading .reading-resource')).toHaveCount(22);
+    const enResources = page.locator('#further-reading .reading-resource a');
+    await expect(enResources.first()).toHaveAttribute('target', '_blank');
+    await expect(page.locator('#further-reading')).toContainText('OWASP — MCP Top 10');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('prepare_note_publish');
     await expect(page.locator('#hands-on-mini-lab')).toContainText(
       '<!-- mcp-surface-kit:managed sha256=fc3052dd77ffb6e8b9a7a33c38b03f55a442ca2063641c4a99af713527cfc3d4 -->'
