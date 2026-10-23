@@ -11,11 +11,20 @@ const { locale, trackId, slug } = Astro.props;
 const pl = locale === 'pl';
 const isHarnessLesson = slug === 'ai-agent-harness-engineering';
 const isMcpSurfaceLesson = slug === 'mcp-tools-skills-and-product-surfaces';
-const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
+const isGitWorkflowLesson = slug === 'git-and-github-for-ai-coding-agents';
+const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLesson;
 ---
 <section
   class="preview-frame lesson-lab"
-  data-lesson-lab={isMcpSurfaceLesson ? 'mcp-surface' : isHarnessLesson ? 'harness-engineering' : trackId}
+  data-lesson-lab={
+    isGitWorkflowLesson
+      ? 'git-agent-workflow'
+      : isMcpSurfaceLesson
+        ? 'mcp-surface'
+        : isHarnessLesson
+          ? 'harness-engineering'
+          : trackId
+  }
 >
   <div class="lab-header">
     <div>
@@ -23,6 +32,10 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
         {pl ? 'INTERAKTYWNE LABORATORIUM SYSTEMU · MUMRO STUDIO' : 'INTERACTIVE SYSTEM LAB · MUMRO STUDIO'}
       </span>
       <h2>
+        {isGitWorkflowLesson &&
+          (pl
+            ? 'Symulator Wieloagentowego Gita i Pierwszej Pomocy: Wspólny main vs. Ślepe CI vs. Izolowane Worktrees + Audyt Zakresu'
+            : 'Multi-Agent Git & First-Aid Simulator: Shared main vs. Blind Green CI vs. Isolated Worktrees + Scope Gate')}
         {isHarnessLesson &&
           (pl
             ? 'Symulator Kontekstu i Anatomii Uprzęży: Zwykły Czat vs. Zaśmiecony Kontekst vs. Czysty Harness'
@@ -527,6 +540,260 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/agent-harness-kit" target="_blank" rel="noopener">
           {pl ? 'Otwórz agent-harness-kit na GitHubie ↗' : 'Open agent-harness-kit on GitHub ↗'}
+        </a>
+      </div>
+    </div>
+  )}
+
+  {isGitWorkflowLesson && (
+    <div class="harness-lab-body">
+      <!-- PART A: Multi-Agent Topology & PR Gate Simulator -->
+      <div class="harness-sim-block">
+        <span class="eyebrow">
+          {pl
+            ? 'CZĘŚĆ 1 · SYMULATOR PRACY TRZECH AGENTÓW AI W REPOZYTORIUM'
+            : 'PART 1 · THREE-AGENT REPOSITORY TOPOLOGY & PR GATE SIMULATOR'}
+        </span>
+        <div class="lab-controls" role="group" aria-label="Multi-agent Git workflow mode">
+          <button type="button" class="filter-pill" data-git-mode="shared-main" aria-pressed="false">
+            {pl ? '1. Trzech agentów na wspólnym main' : '1. Three Agents on Shared main'}
+          </button>
+          <button type="button" class="filter-pill" data-git-mode="unreviewed-branches" aria-pressed="false">
+            {pl ? '2. Osobne gałęzie + ślepe zaufanie do zielonego CI' : '2. Feature Branches + Blind Green CI'}
+          </button>
+          <button type="button" class="filter-pill is-active" data-git-mode="isolated-worktrees" aria-pressed="true">
+            {pl ? '3. Izolowane git worktree + bramka git-agent (Wzorzec)' : '3. Isolated git worktree + git-agent Gate (Target)'}
+          </button>
+        </div>
+
+        <div class="lab-card" data-git-panel="shared-main" hidden>
+          <div class="meter-head">
+            <span class="badge signal">
+              {pl ? 'TRYB 1 · WSPÓLNY KATALOG I GAŁĄŹ MAIN (CHAOS)' : 'MODE 1 · SINGLE DIRECTORY ON MAIN (COLLISION)'}
+            </span>
+            <span class="token-stat">
+              {pl ? '1 drzewo robocze · 0 izolacji · Wysokie ryzyko utraty kodu' : '1 working tree · 0 isolation · High data-loss risk'}
+            </span>
+          </div>
+          <div class="context-meter" aria-label="Repository safety breakdown">
+            <div class="meter-seg danger" style="width: 45%">{pl ? 'Nadpisane pliki (45%)' : 'Overwritten files (45%)'}</div>
+            <div class="meter-seg warn" style="width: 35%">{pl ? 'Wyciek .env przy git add . (35%)' : 'Leaked .env on git add . (35%)'}</div>
+            <div class="meter-seg muted-seg" style="width: 20%">{pl ? 'Brak punktu powrotu (20%)' : 'No clean baseline (20%)'}</div>
+          </div>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'CO DZIEJE SIĘ NA DYSKU' : 'WHAT HAPPENS ON DISK'}</span>
+              <p>
+                {pl
+                  ? 'Wszyscy trzej agenci zapisują do tego samego Working Tree i .git/index. Gdy Agent 2 robi commit, niechcący wciąga niedokończony plik Agenta 1 oraz lokalny .env.local przez odruchowe git add .'
+                  : 'All three agents write into the same Working Tree and .git/index. When Agent 2 commits, a reflexive git add . sweeps in Agent 1’s half-written file and an unignored .env.local secret.'}
+              </p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow signal">{pl ? 'WERDYKT GIT-AGENT DOCTOR' : 'GIT-AGENT DOCTOR VERDICT'}</span>
+              <p>
+                {pl
+                  ? 'FAIL: Aktywna gałąź to chroniony main, drzewo robocze jest brudne, a plik .env.local nie jest zignorowany w .gitignore.'
+                  : 'FAIL: Active branch is protected main, working tree is dirty, and .env.local is untracked without a .gitignore rule.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-card" data-git-panel="unreviewed-branches" hidden>
+          <div class="meter-head">
+            <span class="badge">
+              {pl ? 'TRYB 2 · GAŁĘZIE BEZ AUDYTU ZAKRESU I DIFFU TESTÓW' : 'MODE 2 · BRANCHES WITHOUT SCOPE OR TEST-DIFF AUDIT'}
+            </span>
+            <span class="token-stat">
+              {pl ? 'CI świeci na zielono · Regresja bezpieczeństwa w produkcji' : 'CI is 100% green · Security regression in production'}
+            </span>
+          </div>
+          <div class="context-meter" aria-label="Repository safety breakdown">
+            <div class="meter-seg ok-mid" style="width: 35%">{pl ? 'Izolacja gałęzi (35%)' : 'Branch isolation (35%)'}</div>
+            <div class="meter-seg warn" style="width: 30%">{pl ? 'Zmiana poza zakresem (30%)' : 'Out-of-scope edit (30%)'}</div>
+            <div class="meter-seg danger" style="width: 35%">{pl ? 'Osłabiona asercja w teście (35%)' : 'Weakened test assertion (35%)'}</div>
+          </div>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'DLACZEGO ZIELONE CI NIE WYSTARCZYŁO' : 'WHY GREEN CI WAS NOT ENOUGH'}</span>
+              <p>
+                {pl
+                  ? 'Agent 3 miał naprawić testy (tests/**), ale zmodyfikował też src/auth.js (wpuszczając gości) i zamienił assert.strictEqual(res.status, 403) na assert.ok(res.status). Testy przeszły na zielono!'
+                  : 'Agent 3 was asked to fix tests (tests/**), but also edited src/auth.js (allowing guests) and replaced assert.strictEqual(res.status, 403) with assert.ok(res.status). CI reported 100% green!'}
+              </p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow signal">{pl ? 'CO WYKRYWA GIT-AGENT PR-READY' : 'WHAT GIT-AGENT PR-READY CATCHES'}</span>
+              <p>
+                {pl
+                  ? 'FAIL: Wykryto plik spoza zakresu (src/auth.js przy --allow "tests/**") oraz podejrzane osłabienie asercji w tests/auth.test.js.'
+                  : 'FAIL: Out-of-scope file modified (src/auth.js under --allow "tests/**") plus suspicious assertion weakening in tests/auth.test.js.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-card" data-git-panel="isolated-worktrees">
+          <div class="meter-head">
+            <span class="badge sage">
+              {pl
+                ? 'TRYB 3 · IZOLOWANE GIT WORKTREES + AUDYT PR-READY + NIEZALEŻNE REVIEW'
+                : 'MODE 3 · ISOLATED GIT WORKTREES + PR-READY SCOPE GATE + INDEPENDENT REVIEW'}
+            </span>
+            <span class="token-stat">
+              {pl ? 'Osobny katalog na agenta · Kontrola zakresu · Bezpieczny merge' : '1 worktree per agent · Scope enforced · Verified merge'}
+            </span>
+          </div>
+          <div class="context-meter" aria-label="Repository safety breakdown">
+            <div class="meter-seg ok" style="width: 35%">{pl ? 'git worktree + doctor (35%)' : 'git worktree + doctor (35%)'}</div>
+            <div class="meter-seg ok-mid" style="width: 35%">{pl ? 'pr-ready --allow --strict (35%)' : 'pr-ready --allow --strict (35%)'}</div>
+            <div class="meter-seg ok-light" style="width: 30%">{pl ? 'Niezależne Review + Branch Protection (30%)' : 'Independent Review + Branch Protection (30%)'}</div>
+          </div>
+          <div class="harness-metrics-grid">
+            <div class="metric-item">
+              <span class="eyebrow">{pl ? 'IZOLACJA I KONTRAKT ZADANIA' : 'ISOLATION & TASK CONTRACT'}</span>
+              <p>
+                {pl
+                  ? 'Każdy równoległy agent działa we własnym katalogu git worktree utworzonym od origin/main. Przed pracą uruchamia git-agent doctor, a przed PR-em weryfikuje zakres przez git-agent pr-ready --allow.'
+                  : 'Each parallel agent runs in its own git worktree directory branched from origin/main. Before coding it runs git-agent doctor; before opening a PR it verifies scope with git-agent pr-ready --allow.'}
+              </p>
+            </div>
+            <div class="metric-item">
+              <span class="eyebrow signal">{pl ? 'EGZEKUCJA POZA MODELEM' : 'ENFORCEMENT OUTSIDE THE MODEL'}</span>
+              <p>
+                {pl
+                  ? 'Niezależny recenzent bada diff testów, a GitHub Branch Protection blokuje bezpośredni push na main i wymaga zielonego CI przed Squash & Merge.'
+                  : 'An independent reviewer inspects the test diff first, and GitHub Branch Protection blocks direct pushes to main and requires green CI checks before Squash & Merge.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART B: Interactive Non-Destructive Recovery Matrix -->
+      <div class="harness-anatomy-block">
+        <span class="eyebrow">
+          {pl
+            ? 'CZĘŚĆ 2 · INTERAKTYWNA APTECZKA GIT (KLIKNIJ SYTUACJĘ KRYZYSOWĄ, ABY ZOBACZYĆ BEZPIECZNY PLAN)'
+            : 'PART 2 · INTERACTIVE GIT FIRST-AID MATRIX (CLICK A FAILURE MODE FOR THE NON-DESTRUCTIVE PLAN)'}
+        </span>
+        <div class="lab-controls" role="group" aria-label="Git recovery scenarios">
+          <button type="button" class="filter-pill is-active" data-git-recovery-trigger="uncommitted" aria-pressed="true">
+            {pl ? '1. Plik spoza zakresu' : '1. Out-of-Scope File'}
+          </button>
+          <button type="button" class="filter-pill" data-git-recovery-trigger="wrong-branch" aria-pressed="false">
+            {pl ? '2. Praca na main' : '2. Edits on main'}
+          </button>
+          <button type="button" class="filter-pill" data-git-recovery-trigger="conflict" aria-pressed="false">
+            {pl ? '3. Konflikt merge' : '3. Merge Conflict'}
+          </button>
+          <button type="button" class="filter-pill" data-git-recovery-trigger="reset-reflog" aria-pressed="false">
+            {pl ? '4. Utracony commit (reset)' : '4. Lost Commit (reflog)'}
+          </button>
+          <button type="button" class="filter-pill" data-git-recovery-trigger="bad-merge" aria-pressed="false">
+            {pl ? '5. Błędny merge na main' : '5. Bad Merge on main'}
+          </button>
+          <button type="button" class="filter-pill" data-git-recovery-trigger="detached-head" aria-pressed="false">
+            {pl ? '6. Detached HEAD' : '6. Detached HEAD'}
+          </button>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="uncommitted">
+          <span class="badge sage">
+            {pl
+              ? 'SCENARIUSZ 1 · AGENT ZMODYFIKOWAŁ PLIK SPOZA ZADANIA · NARZĘDZIE: GIT RESTORE / STASH'
+              : 'SCENARIO 1 · AGENT MODIFIED AN OUT-OF-SCOPE FILE · TOOL: GIT RESTORE / STASH'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: `git restore <plik>` (dla zmian niezacommitowanych) lub `git restore --source=main --staged --worktree <plik>` (gdy zmiana weszła już do lokalnego commita na gałęzi zadaniowej). Jeśli chcesz najpierw zachować kopię zapasową całego brudnopisu, użyj `git stash push -u -m "wip: backup"`. Unikaj `git reset --hard`, które kasuje wszystkie niezapisane zmiany w całym drzewie roboczym.'
+              : 'Safe command: `git restore <file>` (for uncommitted edits) or `git restore --source=main --staged --worktree <file>` (if already committed on your feature branch). To keep a safety backup of everything first, run `git stash push -u -m "wip: backup"`. Avoid `git reset --hard`, which wipes all uncommitted edits across the entire working tree.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="wrong-branch" hidden>
+          <span class="badge">
+            {pl
+              ? 'SCENARIUSZ 2 ·ZACZĄŁEŚ EDYCJĘ BEZPOŚREDNIO NA MAIN · NARZĘDZIE: GIT SWITCH -C'
+              : 'SCENARIO 2 · STARTED EDITING DIRECTLY ON MAIN · TOOL: GIT SWITCH -C'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: jeśli zmiany nie są jeszcze zacommitowane, wykonaj po prostu `git switch -c feat/moje-zadanie` — Git przeniesie wszystkie zmodyfikowane pliki na nową gałąź, zostawiając `main` w czystym stanie. Jeśli zrobiłeś już lokalny commit na `main` (jeszcze niewypchnięty), utwórz gałąź `git branch feat/moje-zadanie`, a dopiero przy czystym `git status` cofnij lokalny `main` do `origin/main`.'
+              : 'Safe command: if your edits are still uncommitted, simply run `git switch -c feat/my-task` — Git carries your modified files onto the new branch while leaving `main` clean. If you already committed locally on `main` (and have not pushed), run `git branch feat/my-task` first so the commit is anchored on a feature branch before resetting local `main` to `origin/main`.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="conflict" hidden>
+          <span class="badge signal">
+            {pl
+              ? 'SCENARIUSZ 3 · KONFLIKT SCALANIA (UU) MIĘDZY AGENTAMI · NARZĘDZIE: MERGE --ABORT LUB ŚWIADOME POŁĄCZENIE'
+              : 'SCENARIO 3 · MERGE CONFLICT (UU) BETWEEN AGENTS · TOOL: MERGE --ABORT OR INTENTIONAL MERGE'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: uruchom `git-agent doctor .` aby zobaczyć dokładne pliki i numery linii ze znacznikami `<<<<<<<`. Jeśli nie jesteś gotowy na rozwiązanie konfliktu, `git merge --abort` (lub `git rebase --abort`) bezpiecznie przywraca stan sprzed scalania. Przy rozwiązywaniu konfliktu połącz logikę obu stron, usuń wszystkie znaczniki i uruchom `npm test` przed `git add` i `git commit`.'
+              : 'Safe command: run `git-agent doctor .` to list exact conflicted files and line numbers with `<<<<<<<` markers. If you want to back out cleanly, `git merge --abort` (or `git rebase --abort`) restores the exact pre-merge state. When resolving, combine both branches’ logic, remove all conflict markers, and run `npm test` before `git add` and `git commit`.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="reset-reflog" hidden>
+          <span class="badge">
+            {pl
+              ? 'SCENARIUSZ 4 · UTRACONY COMMIT PO RESET --HARD LUB USUNIĘCIU GAŁĘZI · NARZĘDZIE: GIT REFLOG'
+              : 'SCENARIO 4 · LOST COMMIT AFTER RESET --HARD OR BRANCH DELETION · TOOL: GIT REFLOG'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: dopóki zmiana była wcześniej zacommitowana lokalnie, zapisana jest w lokalnym dzienniku ruchów `HEAD`. Uruchom `git reflog -n 15`, znajdź skrót SHA commita sprzed wypadku, sprawdź go przez `git show --stat <sha>` i odzyskaj jednym poleceniem: `git switch -c rescue/odzyskana-praca <sha>`.'
+              : 'Safe command: as long as the work was committed locally before the reset, it is recorded in Git’s local flight recorder. Run `git reflog -n 15`, locate the commit SHA right before the reset, inspect it with `git show --stat <sha>`, and recover it onto a new branch with `git switch -c rescue/recovered-work <sha>`.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="bad-merge" hidden>
+          <span class="badge sage">
+            {pl
+              ? 'SCENARIUSZ 5 · WADLIWY MERGE WYPCHNIĘTY NA WSPÓLNY MAIN · NARZĘDZIE: GIT REVERT -M 1'
+              : 'SCENARIO 5 · FAULTY MERGE ALREADY PUSHED TO SHARED MAIN · TOOL: GIT REVERT -M 1'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: nigdy nie przepisuj historii wspólnej gałęzi przez `git reset --hard` i `git push --force`. Zamiast tego wycofaj merge nowym commitem odwracającym: `git revert -m 1 <merge-commit-sha>` (gdzie `-m 1` wskazuje główną linię `main` jako rodzica, do którego wracamy), uruchom `npm test` i wypchnij normalnym `git push`.'
+              : 'Safe command: never rewrite shared history with `git reset --hard` and `git push --force`. Instead, undo the merge with a new forward inverse commit: `git revert -m 1 <merge-commit-sha>` (where `-m 1` selects the `main` mainline parent), verify with `npm test`, and push normally with `git push`.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-git-recovery-panel="detached-head" hidden>
+          <span class="badge">
+            {pl
+              ? 'SCENARIUSZ 6 · COMMITY UTWORZONE W STANIE DETACHED HEAD · NARZĘDZIE: GIT SWITCH -C'
+              : 'SCENARIO 6 · COMMITS CREATED IN DETACHED HEAD · TOOL: GIT SWITCH -C'}
+          </span>
+          <p>
+            {pl
+              ? 'Bezpieczna komenda: zanim przełączysz się z powrotem na `main`, przypnij bieżący stan `HEAD` do nowej gałęzi poleceniem `git switch -c feat/uratowany-head`. Od tej chwili Twoje commity mają normalną nazwę gałęzi i nie zostaną osierocone.'
+              : 'Safe command: before switching back to `main`, anchor the current `HEAD` commit onto a named branch with `git switch -c feat/saved-head`. Your commits now have a permanent branch label and will not be orphaned.'}
+          </p>
+        </div>
+      </div>
+
+      <!-- PART C: Open-source kit callout -->
+      <div class="lab-card explanation kit-banner">
+        <div>
+          <span class="eyebrow signal">
+            {pl
+              ? 'OPEN SOURCE · ROLEPLAYINGTECH / GIT-AGENT-WORKFLOW-KIT'
+              : 'OPEN SOURCE · ROLEPLAYINGTECH / GIT-AGENT-WORKFLOW-KIT'}
+          </span>
+          <p>
+            {pl
+              ? 'Git Agent Workflow Kit dostarcza nieinwazyjne komendy diagnostyczne (`git-agent doctor`, `pr-ready`, `recovery-plan`), 5 przenośnych skilli (`SKILL.md`) dla Claude Code, Codexa, Cursora i Antigravity oraz generator dwóch lokalnych laboratoriów (`sandbox lab-a` i `sandbox lab-b`).'
+              : 'Git Agent Workflow Kit provides read-only repository diagnostics (`git-agent doctor`, `pr-ready`, `recovery-plan`), 5 portable Agent Skills (`SKILL.md`) for Claude Code, Codex, Cursor, and Antigravity, and an offline sandbox generator for both hands-on labs (`sandbox lab-a` and `sandbox lab-b`).'}
+          </p>
+        </div>
+        <a class="button" href="https://github.com/RolePlayingTech/git-agent-workflow-kit" target="_blank" rel="noopener">
+          {pl ? 'Otwórz git-agent-workflow-kit na GitHubie ↗' : 'Open git-agent-workflow-kit on GitHub ↗'}
         </a>
       </div>
     </div>

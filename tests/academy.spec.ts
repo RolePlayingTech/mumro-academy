@@ -12,29 +12,37 @@ import {
   MINI_LAB_EXPECTED_SKILL_MD,
   MINI_LAB_FIXED_SPEC,
 } from '../src/content/lesson-mcp-tools-skills';
+import {
+  LAB_A_EXPECTED_DOCTOR_FAIL,
+  LAB_A_EXPECTED_PR_FAIL,
+  LAB_A_EXPECTED_PR_PASS,
+  LAB_B_EXPECTED_AGENT3_PR_FAIL,
+  LAB_B_EXPECTED_CONFLICT_DOCTOR,
+} from '../src/content/lesson-git-agent-workflow';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
-  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 14-lesson catalog', async ({ page }) => {
+  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 15-lesson catalog', async ({ page }) => {
     await page.goto('/?lang=en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('living brand systems');
 
     const lessonCards = page.locator('[data-lesson-card]');
-    await expect(lessonCards).toHaveCount(14);
+    await expect(lessonCards).toHaveCount(15);
 
-    // Latest Additions (Lessons 13 & 14) and Open-Source CLI Tools
-    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
-    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    // Latest Additions (Lessons 13, 14 & 16) and Open-Source CLI Tools
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(3);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(3);
     await expect(page.locator('[data-open-source-tool="agent-harness-kit"]')).toContainText('RolePlayingTech/agent-harness-kit');
     await expect(page.locator('[data-open-source-tool="mcp-surface-kit"]')).toContainText('RolePlayingTech/mcp-surface-kit');
+    await expect(page.locator('[data-open-source-tool="git-agent-workflow-kit"]')).toContainText('RolePlayingTech/git-agent-workflow-kit');
 
-    // Dynamic lesson counts per track (3 vs 5)
+    // Dynamic lesson counts per track (3 vs 6)
     await expect(page.locator('#tracks')).toContainText('Lessons in this track (3):');
-    await expect(page.locator('#tracks')).toContainText('Lessons in this track (5):');
+    await expect(page.locator('#tracks')).toContainText('Lessons in this track (6):');
 
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
-    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(5);
+    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(6);
 
     // Filter by search keyword
     await page.locator('[data-track-filter="all"]').click();
@@ -50,11 +58,11 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.goto('/pl/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
-    await expect(page.locator('[data-lesson-card]')).toHaveCount(14);
-    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
-    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    await expect(page.locator('[data-lesson-card]')).toHaveCount(15);
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(3);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(3);
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
-    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (5 lekcji):');
+    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (6 lekcji):');
 
     await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
@@ -156,6 +164,218 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     // Interactive 5-Layer Anatomy switches layers
     await page.locator('[data-anatomy-trigger="memory"]').click();
     await expect(page.locator('[data-anatomy-panel="memory"]')).toBeVisible();
+  });
+
+  test('Lesson 16 hands-on Lab A & Lab B contract executes real git-agent-workflow-kit CLI (sandbox, doctor, pr-ready, recovery-plan)', () => {
+    const cliBin = resolve(process.cwd(), 'node_modules/git-agent-workflow-kit/bin/git-agent.mjs');
+    expect(existsSync(cliBin), `Expected pinned git-agent-workflow-kit CLI at ${cliBin}`).toBe(true);
+
+    const gitEnv: NodeJS.ProcessEnv = {
+      ...process.env,
+      GIT_AUTHOR_DATE: '2026-10-20T11:00:00Z',
+      GIT_COMMITTER_DATE: '2026-10-20T11:00:00Z',
+      GIT_AUTHOR_NAME: 'MUMRO Academy Learner',
+      GIT_AUTHOR_EMAIL: 'learner@academy.mumro.io',
+      GIT_COMMITTER_NAME: 'MUMRO Academy Learner',
+      GIT_COMMITTER_EMAIL: 'learner@academy.mumro.io',
+    };
+
+    const childNodeEnv: NodeJS.ProcessEnv = { ...gitEnv };
+    delete childNodeEnv.NODE_TEST_CONTEXT;
+
+    const runCli = (args: string[], cwd: string) =>
+      spawnSync(process.execPath, [cliBin, ...args], {
+        cwd,
+        encoding: 'utf8',
+        env: gitEnv,
+      });
+
+    const runGit = (args: string[], cwd: string) =>
+      spawnSync('git', args, {
+        cwd,
+        encoding: 'utf8',
+        env: gitEnv,
+      });
+
+    const runNodeTests = (cwd: string) =>
+      spawnSync(process.execPath, ['--test'], {
+        cwd,
+        encoding: 'utf8',
+        env: childNodeEnv,
+      });
+
+    const workDir = mkdtempSync(join(tmpdir(), 'academy-lesson16-lab-'));
+    try {
+      // --- LAB A ---
+      const labADir = join(workDir, 'lab-a');
+      expect(runCli(['sandbox', 'lab-a', labADir], workDir).status).toBe(0);
+      const wsA = join(labADir, 'workspace');
+
+      const docA = runCli(['doctor', '.'], wsA);
+      expect(docA.status).toBe(1);
+      expect(docA.stdout.trim()).toBe(LAB_A_EXPECTED_DOCTOR_FAIL);
+
+      expect(runGit(['switch', '-c', 'feat/session-expiry'], wsA).status).toBe(0);
+      writeFileSync(join(wsA, '.gitignore'), 'node_modules/\ndist/\n.env\n.env.*\n!.env.example\n', 'utf8');
+      writeFileSync(
+        join(wsA, 'tests/auth.test.js'),
+        [
+          "import test from 'node:test';",
+          "import assert from 'node:assert/strict';",
+          "import { verifySession } from '../src/auth.js';",
+          '',
+          "test('accepts session with userId', () => {",
+          "  const res = verifySession({ userId: 'usr_01', expiresAt: 2000, now: 1000 });",
+          '  assert.strictEqual(res.valid, true);',
+          '});',
+          '',
+          "test('rejects expired session', () => {",
+          "  const res = verifySession({ userId: 'usr_01', expiresAt: 1000, now: 1500 });",
+          '  assert.strictEqual(res.valid, false);',
+          "  assert.strictEqual(res.reason, 'expired');",
+          '});',
+          '',
+        ].join('\n'),
+        'utf8'
+      );
+
+      // Before fixing src/auth.js, the new session expiry test must fail
+      expect(runNodeTests(wsA).status).not.toBe(0);
+
+      writeFileSync(
+        join(wsA, 'src/auth.js'),
+        [
+          'export function verifySession(session) {',
+          "  if (!session || typeof session.userId !== 'string') {",
+          "    return { valid: false, reason: 'missing-user' };",
+          '  }',
+          "  if (typeof session.expiresAt === 'number' && typeof session.now === 'number' && session.now >= session.expiresAt) {",
+          "    return { valid: false, reason: 'expired' };",
+          '  }',
+          '  return { valid: true, userId: session.userId };',
+          '}',
+          '',
+        ].join('\n'),
+        'utf8'
+      );
+
+      // After fixing src/auth.js, both session tests must pass
+      expect(runNodeTests(wsA).status).toBe(0);
+
+      writeFileSync(join(wsA, 'src/dashboard.js'), '// Accidental out-of-scope agent edit\n', 'utf8');
+      expect(runGit(['add', '.gitignore', 'src/auth.js', 'tests/auth.test.js', 'src/dashboard.js'], wsA).status).toBe(0);
+      expect(runGit(['commit', '-m', 'feat: check session expiry'], wsA).status).toBe(0);
+
+      const prFailA = runCli(
+        ['pr-ready', '.', '--base', 'main', '--allow', 'src/auth.js', '--allow', 'tests/auth.test.js', '--allow', '.gitignore'],
+        wsA
+      );
+      expect(prFailA.status).toBe(1);
+      expect(prFailA.stdout.trim()).toBe(LAB_A_EXPECTED_PR_FAIL);
+
+      expect(runGit(['restore', '--source=main', '--staged', '--worktree', 'src/dashboard.js'], wsA).status).toBe(0);
+      expect(runGit(['commit', '--amend', '-m', 'feat: check session expiry'], wsA).status).toBe(0);
+
+      const prPassA = runCli(
+        [
+          'pr-ready',
+          '.',
+          '--base',
+          'main',
+          '--allow',
+          'src/auth.js',
+          '--allow',
+          'tests/auth.test.js',
+          '--allow',
+          '.gitignore',
+          '--strict',
+        ],
+        wsA
+      );
+      expect(prPassA.status).toBe(0);
+      expect(prPassA.stdout.trim()).toBe(LAB_A_EXPECTED_PR_PASS);
+
+      // --- LAB B ---
+      const labBDir = join(workDir, 'lab-b');
+      expect(runCli(['sandbox', 'lab-b', labBDir], workDir).status).toBe(0);
+      const wsB = join(labBDir, 'workspace');
+
+      expect(runGit(['merge', 'agent-1/auth-audit'], wsB).status).toBe(0);
+      const merge2 = runGit(['merge', 'agent-2/dashboard-cards'], wsB);
+      expect(merge2.status).not.toBe(0);
+
+      const docBConflict = runCli(['doctor', '.'], wsB);
+      expect(docBConflict.status).toBe(1);
+      expect(docBConflict.stdout.trim()).toBe(LAB_B_EXPECTED_CONFLICT_DOCTOR);
+
+      const recConflict = runCli(['recovery-plan', '.'], wsB);
+      expect(recConflict.status).toBe(0);
+      expect(recConflict.stdout).toContain('[conflict-in-progress]');
+
+      // Resolve conflict in src/auth.js keeping both auditedRole and unified v2 header, then commit the merge
+      writeFileSync(
+        join(wsB, 'src/auth.js'),
+        [
+          'export function authorizeRequest(req) {',
+          "  const role = req?.user?.role ?? 'guest';",
+          "  const header = 'X-App-Auth: v2-unified';",
+          "  if (role !== 'admin' && role !== 'editor') {",
+          '    return { status: 403, allowed: false, header, auditedRole: role };',
+          '  }',
+          '  return { status: 200, allowed: true, header, auditedRole: role };',
+          '}',
+          '',
+        ].join('\n'),
+        'utf8'
+      );
+      expect(runGit(['add', 'src/auth.js'], wsB).status).toBe(0);
+      expect(runGit(['commit', '-m', 'merge: combine agent-1 audit role and agent-2 dashboard cards'], wsB).status).toBe(0);
+      expect(runNodeTests(wsB).status).toBe(0);
+
+      expect(runGit(['switch', 'agent-3/fix-tests'], wsB).status).toBe(0);
+
+      const prFailB = runCli(['pr-ready', '.', '--base', 'main', '--allow', 'tests/**', '--strict'], wsB);
+      expect(prFailB.status).toBe(1);
+      expect(prFailB.stdout.trim()).toBe(LAB_B_EXPECTED_AGENT3_PR_FAIL);
+
+      // Simulate accidental merge of agent-3/fix-tests onto main and recover via git revert -m 1 HEAD
+      expect(runGit(['switch', 'main'], wsB).status).toBe(0);
+      expect(runGit(['merge', '--no-ff', '-X', 'theirs', 'agent-3/fix-tests', '-m', 'Merge agent-3/fix-tests'], wsB).status).toBe(0);
+      const recMerged = runCli(['recovery-plan', '.'], wsB);
+      expect(recMerged.status).toBe(0);
+      expect(recMerged.stdout).toContain('[bad-merge-on-main]');
+      expect(recMerged.stdout).toContain('git revert -m 1 ');
+
+      expect(runGit(['revert', '-m', '1', 'HEAD', '--no-edit'], wsB).status).toBe(0);
+      expect(runNodeTests(wsB).status).toBe(0);
+
+      console.log(`PASS: Executed real git-agent-workflow-kit CLI (${cliBin}) for Lab A and Lab B contracts.`);
+    } finally {
+      rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  test('Lesson 16 (Git & AI Coding Agents) renders Multi-Agent Git Simulator, Recovery Matrix & Labs A/B in PL and EN', async ({
+    page,
+  }) => {
+    await page.goto('/pl/lessons/git-and-github-for-ai-coding-agents/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('h1')).toContainText('Git to nie przycisk „Zapisz”');
+
+    await expect(page.locator('[data-git-panel="isolated-worktrees"]')).toBeVisible();
+    await page.locator('[data-git-mode="shared-main"]').click();
+    await expect(page.locator('[data-git-panel="shared-main"]')).toBeVisible();
+
+    await page.locator('[data-git-recovery-trigger="bad-merge"]').click();
+    await expect(page.locator('[data-git-recovery-panel="bad-merge"]')).toBeVisible();
+
+    await expect(page.locator('#hands-on-lab-a-first-pr')).toContainText('git-agent-workflow-kit');
+    await expect(page.locator('#hands-on-lab-b-three-agents')).toContainText('git revert -m 1');
+
+    await page.goto('/lessons/git-and-github-for-ai-coding-agents/');
+    await expect(page.locator('h1')).toContainText('Git Isn’t a Save Button');
+    await expect(page.locator('#hands-on-lab-a-first-pr')).toContainText('Out-of-scope file modified: "src/dashboard.js"');
+    await expect(page.locator('#hands-on-lab-b-three-agents')).toContainText('Suspicious test modification in "tests/auth.test.js"');
   });
 
   test('Lesson page interactive checklist updates score and language switcher links to exact counterpart', async ({ page }) => {

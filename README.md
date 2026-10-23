@@ -40,14 +40,16 @@ Most marketing content fails not because teams lack writing tools, but because *
 | **Track 04**<br>Agents, MCP & Control | `12` | **Bounded Autonomy: Credit Budgets, Quiet Hours, Channels & Kill Switches** | `draft_only`, `schedule_with_confirmation`, `autonomous_schedule` & RBAC |
 | **Track 04**<br>Agents, MCP & Control | `13` | **What Is an AI Harness? From First Steps with Coding Agents to Harness Engineering** | `AGENTS.md`, progressive-disclosure skills, verification loops & [`agent-harness-kit`](https://github.com/RolePlayingTech/agent-harness-kit) |
 | **Track 04**<br>Agents, MCP & Control | `14` | **MCP, Tools and Skills: Why Agent-Operable Products Will Win** | Four-tier MCP surfaces, per-operation scopes, untrusted data & [`mcp-surface-kit`](https://github.com/RolePlayingTech/mcp-surface-kit) |
+| **Track 04**<br>Agents, MCP & Control | `16` | **Git Isn’t a Save Button: Version Control, Worktrees, and Safe Recovery in the Age of AI Coding Agents** | Three Trees, branches, `git worktree` isolation, catching weakened tests, safe recovery & [`git-agent-workflow-kit`](https://github.com/RolePlayingTech/git-agent-workflow-kit) |
 
 ### Operational Playbooks, Glossary & Open-Source CLI Kits
 
-- **Playbooks (`/playbooks/`, `/pl/playbooks/`)**: 6 copy-ready YAML/JSON specifications for Brand Voice & Claim Boundaries, One-Story 4-Channel Decomposition, MCP Agent Campaign Loop Runbooks, Workspace Autonomy Governance, Agent Harness Blueprints (`agent-harness-kit`), and MCP Surface Specs (`mcp-surface-kit`).
+- **Playbooks (`/playbooks/`, `/pl/playbooks/`)**: Copy-ready YAML/JSON specifications for Brand Voice & Claim Boundaries, One-Story 4-Channel Decomposition, MCP Agent Campaign Loop Runbooks, Workspace Autonomy Governance, Agent Harness Blueprints (`agent-harness-kit`), MCP Surface Specs (`mcp-surface-kit`), and Multi-Agent Git Workflow Policies (`git-agent-workflow-kit`).
 - **Glossary (`/glossary/`, `/pl/glossary/`)**: Structured A–Z technical & marketing definitions with `DefinedTermSet` schema.org markup.
 - **Open-Source CLI Kits**:
   - **[`RolePlayingTech/agent-harness-kit`](https://github.com/RolePlayingTech/agent-harness-kit)** — Scan, design, explain, build, and check coding-agent harnesses (`.harness/spec.json` → `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, and skills).
   - **[`RolePlayingTech/mcp-surface-kit`](https://github.com/RolePlayingTech/mcp-surface-kit)** — Explain, validate (`--strict`), and generate `SKILL.md` workflows from a declarative MCP product surface contract (`.mcp-surface/spec.json`).
+  - **[`RolePlayingTech/git-agent-workflow-kit`](https://github.com/RolePlayingTech/git-agent-workflow-kit)** — Read-only repository diagnostics (`doctor`), pre-PR scope and test-integrity audits (`pr-ready`), non-destructive recovery plans (`recovery-plan`), 5 portable Agent Skills (`SKILL.md`), and local Git lab sandboxes (`sandbox`).
 
 ---
 

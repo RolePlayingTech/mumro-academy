@@ -18,6 +18,7 @@ const expectedSlugs = [
   'autonomy-levels-and-guardrails',
   'ai-agent-harness-engineering',
   'mcp-tools-skills-and-product-surfaces',
+  'git-and-github-for-ai-coding-agents',
 ];
 
 const expectedTracks = [

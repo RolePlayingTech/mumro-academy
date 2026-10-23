@@ -87,6 +87,7 @@ const en: Record<TrackId, TrackData> = {
       'Configure workspace governance: 3 autonomy modes (`draft_only`, `schedule_with_confirmation`, `autonomous_schedule`), quiet hours, credit budgets, and RBAC.',
       'Engineer lean, verifiable coding-agent harnesses (`AGENTS.md`, progressive-disclosure skills, and CI checks) with `RolePlayingTech/agent-harness-kit`.',
       'Design and validate four-tier MCP product surfaces, per-operation OAuth scopes, and generated host skills with `RolePlayingTech/mcp-surface-kit`.',
+      'Coordinate one or multiple coding agents across branches and `git worktree` directories, audit PR scope and test integrity, and recover safely with `RolePlayingTech/git-agent-workflow-kit`.',
     ],
   },
 };
@@ -164,6 +165,7 @@ const pl: Record<TrackId, TrackData> = {
       'Skonfigurujesz zasady nadzoru: 3 poziomy autonomii (`draft_only`, `schedule_with_confirmation`, `autonomous_schedule`), godziny ciszy, budżet kredytów i role zespołu.',
       'Zaprojektujesz zwięzły, weryfikowalny harness dla agentów kodujących (`AGENTS.md`, skille ładowane na żądanie i bramki CI) z użyciem `RolePlayingTech/agent-harness-kit`.',
       'Zdefiniujesz i zwalidujesz czteropoziomową powierzchnię produktu MCP, uprawnienia OAuth per operacja oraz generowane skille hosta z użyciem `RolePlayingTech/mcp-surface-kit`.',
+      'Zorganizujesz bezpieczną pracę jednego lub wielu agentów na gałęziach i w `git worktree`, zweryfikujesz zakres PR oraz integralność testów i odzyskasz kod po błędach z `RolePlayingTech/git-agent-workflow-kit`.',
     ],
   },
 };
