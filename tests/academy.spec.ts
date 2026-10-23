@@ -12,6 +12,10 @@ import {
   MINI_LAB_EXPECTED_SKILL_MD,
   MINI_LAB_FIXED_SPEC,
 } from '../src/content/lesson-mcp-tools-skills';
+import {
+  HYBRID_VERIFICATION_CODE,
+  LESSON15_LAB_HTML_APP,
+} from '../src/content/lesson-playwright-browser-automation';
 import { playbooksContent } from '../src/content/playbooks';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
@@ -122,7 +126,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     }
   });
 
-  test('Lesson 15 companion contract executes real playwright-harness-kit CLI (check --strict, build, and SHA-256 verification)', () => {
+  test('Lesson 15 companion contract executes real playwright-harness-kit CLI (origin URL validation, --verify-files, build --prune, and SHA-256 verification)', () => {
     const cliBin = resolve(process.cwd(), 'node_modules/playwright-harness-kit/bin/playwright-harness.mjs');
     expect(existsSync(cliBin), `Expected pinned playwright-harness-kit CLI at ${cliBin}`).toBe(true);
 
@@ -148,16 +152,112 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(cliBroken.status).toBe(1);
       expect(cliBroken.stdout).toContain('allowSharedStorageState cannot be true when singleUseRefreshRotation is true');
 
-      // 2. Valid Playbook 07 browser verification spec must pass `build` and `check --strict`
+      // 2. Deceptive ui-contract origin (`https://localhost.attacker.example`) must fail URL structural validation
+      const deceptiveOriginSpec = {
+        ...validSpec,
+        tiers: {
+          ...validSpec.tiers,
+          'ui-contract': {
+            ...validSpec.tiers['ui-contract'],
+            origin: 'https://localhost.attacker.example',
+          },
+        },
+      };
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(deceptiveOriginSpec, null, 2), 'utf8');
+      const cliDeceptiveOrigin = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliDeceptiveOrigin.status).toBe(1);
+      expect(cliDeceptiveOrigin.stdout).toContain(
+        'origin "https://localhost.attacker.example" (host "localhost.attacker.example") is not allowed for ui-contract'
+      );
+
+      // 3. Valid Playbook 07 browser verification spec + extra temporary skill to test `build --prune`
+      const twoSkillSpec = {
+        ...validSpec,
+        skills: [
+          ...validSpec.skills,
+          {
+            name: 'temporary-audit-skill',
+            description: 'Temporary browser skill for mobile layout checks. Use when auditing temporary mobile scenarios.',
+            covers: ['M-UX-01'],
+          },
+        ],
+      };
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(twoSkillSpec, null, 2), 'utf8');
+      const cliInitialBuild = spawnSync(process.execPath, [cliBin, 'build', workDir], { encoding: 'utf8' });
+      expect(cliInitialBuild.status).toBe(0);
+      expect(existsSync(join(workDir, '.claude/skills/temporary-audit-skill/SKILL.md'))).toBe(true);
+
+      // Remove `temporary-audit-skill` from spec.json and run `build --prune`
       writeFileSync(join(specDir, 'spec.json'), JSON.stringify(validSpec, null, 2), 'utf8');
-      const cliBuild = spawnSync(process.execPath, [cliBin, 'build', workDir], { encoding: 'utf8' });
-      expect(cliBuild.status).toBe(0);
+      const cliBuildPrune = spawnSync(process.execPath, [cliBin, 'build', workDir, '--prune'], { encoding: 'utf8' });
+      expect(cliBuildPrune.status).toBe(0);
+      expect(cliBuildPrune.stdout).toContain('[prune    ] .claude/skills/temporary-audit-skill/SKILL.md');
+      expect(existsSync(join(workDir, '.claude/skills/temporary-audit-skill/SKILL.md'))).toBe(false);
 
       const cliCheck = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
       expect(cliCheck.status).toBe(0);
       expect(cliCheck.stdout.trim()).toBe(
         'PASS: Playwright verification spec is internally consistent (strict mode, 0 warnings).'
       );
+
+      // 4. `--verify-files` must fail when scenario `.spec.ts` files do not exist on disk
+      const cliMissingFiles = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict', '--verify-files'], {
+        encoding: 'utf8',
+      });
+      expect(cliMissingFiles.status).toBe(1);
+      expect(cliMissingFiles.stdout).toContain(
+        'M-AUTH-01: spec file "frontend/e2e/ui-contract/auth-session.spec.ts" does not exist on disk'
+      );
+
+      // 5. Write scenario `.spec.ts` files, `frontend/package.json`, and `.gitignore` and verify `--verify-files` passes
+      mkdirSync(join(workDir, 'frontend/e2e/ui-contract'), { recursive: true });
+      writeFileSync(
+        join(workDir, 'frontend/e2e/ui-contract/auth-session.spec.ts'),
+        HYBRID_VERIFICATION_CODE,
+        'utf8'
+      );
+      writeFileSync(
+        join(workDir, 'frontend/e2e/ui-contract/ux-shell-mobile.spec.ts'),
+        HYBRID_VERIFICATION_CODE,
+        'utf8'
+      );
+      writeFileSync(
+        join(workDir, 'frontend/package.json'),
+        JSON.stringify(
+          {
+            name: 'mumro-web-verification-fixture',
+            private: true,
+            scripts: {
+              'test:e2e:contract': 'playwright test',
+              'test:e2e:integrated': 'playwright test',
+            },
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+      writeFileSync(
+        join(workDir, '.gitignore'),
+        'playwright-report/\ntest-results/\nplaywright/.auth/\n',
+        'utf8'
+      );
+
+      const cliVerified = spawnSync(
+        process.execPath,
+        [cliBin, 'check', workDir, '--strict', '--verify-files', '--json'],
+        { encoding: 'utf8' }
+      );
+      expect(cliVerified.status).toBe(0);
+      const verifiedReport = JSON.parse(cliVerified.stdout);
+      expect(verifiedReport.ok).toBe(true);
+      const evidenceByPolicy = Object.fromEntries(
+        verifiedReport.evidence.map((entry: { policy: string; status: string }) => [entry.policy, entry.status])
+      );
+      expect(evidenceByPolicy.scenarioSpecFiles).toBe('observed');
+      expect(evidenceByPolicy.tierCommands).toBe('observed');
+      expect(evidenceByPolicy.gitIgnoreHygiene).toBe('observed');
+      expect(evidenceByPolicy.uiContractNetworkIsolation).toBe('not-verified');
 
       const builtSkill = readFileSync(join(workDir, '.claude/skills/verify-browser-scenarios/SKILL.md'), 'utf8');
       const markerMatch = builtSkill.match(/<!-- playwright-harness-kit:managed sha256=([a-f0-9]{64}) -->/);
@@ -175,6 +275,111 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       );
     } finally {
       rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  test('Lesson 15 executable offline UI lab reproduces broken state and verifies fixed state under fail-closed ui-contract fixture', async ({ browser }) => {
+    const ORIGIN = 'https://offline-ui-contract.invalid';
+    const context = await browser.newContext({
+      baseURL: ORIGIN,
+      serviceWorkers: 'block',
+    });
+
+    try {
+      const blockedRequests: string[] = [];
+      let forgotPasswordCalls = 0;
+
+      await context.routeWebSocket(/.*/, (ws) => {
+        ws.close({ code: 1008, reason: 'Blocked by ui-contract networkPolicy: deny-unhandled' });
+      });
+
+      await context.route('**/*', async (route) => {
+        const req = route.request();
+        const url = new URL(req.url());
+
+        if (url.origin !== ORIGIN || url.username || url.password) {
+          blockedRequests.push(req.url());
+          return route.abort('blockedbyclient');
+        }
+
+        if (url.pathname === '/api/auth/password/forgot' && req.method() === 'POST') {
+          forgotPasswordCalls += 1;
+          return route.fulfill({
+            status: 503,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: 'service_unavailable' }),
+          });
+        }
+
+        if (url.pathname === '/' || url.pathname === '/forgot-password') {
+          return route.fulfill({
+            status: 200,
+            contentType: 'text/html; charset=utf-8',
+            body: LESSON15_LAB_HTML_APP,
+          });
+        }
+
+        blockedRequests.push(req.url());
+        await route.abort('blockedbyclient');
+      });
+
+      const page = await context.newPage();
+
+      // 1. BROKEN MODE (`/forgot-password?mode=broken`): reproduce both intentional bugs
+      await page.goto(`${ORIGIN}/forgot-password?mode=broken`);
+      const emailInput = page.getByLabel('Email');
+      await emailInput.fill('qa-reset@example.invalid');
+      await page.getByRole('button', { name: 'Send reset link' }).click();
+      await expect(page.getByRole('alert')).toBeVisible();
+      // Bug 1 reproduced: broken mode wipes the user's email input on HTTP 503 and fires a duplicate background POST
+      await expect(emailInput).toHaveValue('');
+      await page.waitForTimeout(120);
+      expect(forgotPasswordCalls).toBe(2);
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      const drawer = page.getByRole('dialog', { name: 'Release schedule preview' });
+      const closeBtn = page.getByRole('button', { name: 'Close drawer' });
+      // ARIA snapshot sees the dialog and button as visible, but DOM geometry catches the 540px overflow on 390px viewport
+      await expect(drawer).toBeVisible();
+      await expect(closeBtn).toBeVisible();
+      const brokenOverflow = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      }));
+      expect(brokenOverflow.scrollWidth).toBeGreaterThan(brokenOverflow.innerWidth);
+      const brokenCloseBox = await closeBtn.boundingBox();
+      expect(brokenCloseBox).not.toBeNull();
+      expect(brokenCloseBox!.x + brokenCloseBox!.width).toBeGreaterThan(390);
+
+      // 2. FIXED MODE (`/forgot-password?mode=fixed`): verify M-AUTH-01 and M-UX-01 pass
+      forgotPasswordCalls = 0;
+      await page.goto(`${ORIGIN}/forgot-password?mode=fixed`);
+      await emailInput.fill('qa-reset@example.invalid');
+      await page.getByRole('button', { name: 'Send reset link' }).click();
+      await expect(page.getByRole('alert')).toBeVisible();
+      await expect(emailInput).toHaveValue('qa-reset@example.invalid');
+      await page.waitForTimeout(120);
+      expect(forgotPasswordCalls).toBe(1);
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(drawer).toBeVisible();
+      await expect(closeBtn).toBeVisible();
+      const fixedOverflow = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      }));
+      expect(fixedOverflow.scrollWidth).toBeLessThanOrEqual(fixedOverflow.innerWidth);
+      const fixedCloseBox = await closeBtn.boundingBox();
+      expect(fixedCloseBox).not.toBeNull();
+      expect(fixedCloseBox!.x).toBeGreaterThanOrEqual(0);
+      expect(fixedCloseBox!.x + fixedCloseBox!.width).toBeLessThanOrEqual(390);
+      expect(blockedRequests).toEqual([]);
+
+      // 3. NEGATIVE BOUNDARY TEST: unmocked third-party request is blocked by default-deny route
+      await expect(page.evaluate(() => fetch('https://analytics.example.com/ping'))).rejects.toThrow();
+      expect(blockedRequests).toEqual(['https://analytics.example.com/ping']);
+    } finally {
+      await context.close();
     }
   });
 
@@ -201,7 +406,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     );
   });
 
-  test('Lesson 15 (Playwright & Multimodal Browser Verification) renders browser modality simulator in PL and EN', async ({ page }) => {
+  test('Lesson 15 (Playwright & Multimodal Browser Verification) renders browser modality simulator and hands-on mini-lab in PL and EN', async ({ page }) => {
     await page.goto('/pl/lessons/playwright-browser-automation-and-verification/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('Playwright');
@@ -213,10 +418,17 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.locator('[data-browser-layer-trigger="session"]').click();
     await expect(page.locator('[data-browser-layer-panel="session"]')).toBeVisible();
 
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('--verify-files');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('?mode=broken');
+
     await page.goto('/lessons/playwright-browser-automation-and-verification/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('Playwright');
     await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('--verify-files');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('?mode=fixed');
   });
 
   test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {

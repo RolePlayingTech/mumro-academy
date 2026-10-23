@@ -560,24 +560,24 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           <span class="badge">{pl ? 'SZYBKA NAWIGACJA, ALE ŚLEPOTA NA ROZJECHANY CSS' : 'FAST NAVIGATION, BLIND TO BROKEN CSS'}</span>
           <p>
             {pl
-              ? 'Agent pobiera zwięzłe drzewo dostępności (`browser_snapshot` w `@playwright/mcp`): widzi role (`button`, `dialog`), nazwy i referencje `ref=e14`. Działa z każdym modelem tekstowym i bezbłędnie wypełnia formularze, ale nie zauważy, że na ekranie 390px modal wystaje poza kadr lub tekst nachodzi na sąsiednią plakietkę.'
-              : 'The agent fetches a compact accessibility tree (`browser_snapshot` in `@playwright/mcp`): it sees roles (`button`, `dialog`), accessible names, and `ref=e14` targets. It works with any text LLM and fills forms reliably, but cannot see that a 390px mobile modal overflows the viewport or clips a heading.'}
+              ? 'Agent pobiera zwięzłe drzewo dostępności (`playwright-cli snapshot` lub `browser_snapshot` w `@playwright/mcp`): widzi role (`button`, `dialog`), nazwy i efemeryczne uchwyty `[ref=e14]` ważne dla bieżącego zrzutu. Działa z każdym modelem tekstowym i bezbłędnie wypełnia formularze, ale nie zauważy, że na ekranie 390px modal wystaje poza kadr lub tekst nachodzi na sąsiednią plakietkę.'
+              : 'The agent fetches a compact accessibility tree (`playwright-cli snapshot` or `browser_snapshot` in `@playwright/mcp`): it sees roles (`button`, `dialog`), accessible names, and ephemeral `[ref=e14]` handles for the current snapshot. It works with any text LLM and fills forms reliably, but cannot see that a 390px mobile modal overflows the viewport or clips a heading.'}
           </p>
         </div>
         <div class="lab-card harness-panel" data-browser-panel="vision" hidden>
           <span class="badge signal">{pl ? 'WIDZI UKŁAD GRAFICZNY, ALE KLIKANIE PO (X, Y) JEST KRUCHE' : 'SEES VISUAL LAYOUT, BUT (X, Y) PIXEL CLICKING IS BRITTLE'}</span>
           <p>
             {pl
-              ? 'Agent robi zrzut ekranu po każdym kroku i zgaduje współrzędne `mouse.click(x, y)`. Wymaga modelu multimodalnego (VLM), zużywa tysiące tokenów na klatki obrazu, nie widzi ukrytego stanu DOM ani kolejek sieciowych, a drobna zmiana DPI lub paska przewijania powoduje kliknięcie obok przycisku.'
-              : 'The agent takes a screenshot after every step and guesses `mouse.click(x, y)` coordinates. It requires a vision-capable model (VLM), burns thousands of image tokens, cannot inspect network queues or hidden DOM attributes, and misses targets whenever viewport scaling or scroll offsets shift.'}
+              ? 'Agent robi zrzut ekranu po każdym kroku i zgaduje współrzędne `mouse.click(x, y)`. Wymaga modelu multimodalnego (VLM), zużywa tysiące tokenów na klatki obrazu, nie widzi ukrytego stanu DOM ani kolejek sieciowych, a drobna zmiana DPI lub paska przewijania powoduje kliknięcie obok przycisku (wyjątkiem są powierzchnie `<canvas>` / WebGL).'
+              : 'The agent takes a screenshot after every step and guesses `mouse.click(x, y)` coordinates. It requires a vision-capable model (VLM), burns thousands of image tokens, cannot inspect network queues or hidden DOM attributes, and misses targets whenever viewport scaling or scroll offsets shift (reserved only for `<canvas>` / WebGL surfaces).'}
           </p>
         </div>
         <div class="lab-card harness-panel" data-browser-panel="hybrid">
           <span class="badge sage">{pl ? 'SEMANTYCZNE AKCJE + GEOMETRIA DOM + CELOWANA OCENA WIZUALNA' : 'SEMANTIC ACTIONS + DOM GEOMETRY + TARGETED VISUAL AUDIT'}</span>
           <p>
             {pl
-              ? '95% nawigacji i kliknięć wykonują deterministyczne lokatory ARIA (`getByRole`, `ref=e14`). Twarde niezmienniki układu sprawdza kod (`scrollWidth <= innerWidth`, `boundingBox`), a w kluczowych punktach kontrolnych (390×844 i 1280×800) zrzut ekranu trafia do modelu VLM z konkretną rubryką oceny.'
-              : '95% of navigation and clicks use deterministic ARIA locators (`getByRole`, `ref=e14`). Hard layout invariants are asserted in code (`scrollWidth <= innerWidth`, `boundingBox`), while targeted screenshots at 390×844 and 1280×800 are reviewed by a VLM against an explicit visual rubric.'}
+              ? 'Wszystkie standardowe akcje DOM w plikach `.spec.ts` wykonują semantyczne lokatory ARIA (`getByRole`, `getByLabel`), a sesje interaktywne używają uchwytów `[ref=e14]`. Twarde niezmienniki układu sprawdza kod (`scrollWidth <= innerWidth`, `boundingBox`), a w kluczowych punktach kontrolnych (390×844 i 1280×800) zrzut ekranu wspiera przegląd wizualny (przez człowieka lub VLM) według jawnej rubryki.'
+              : 'All standard DOM actions in `.spec.ts` files use persistent semantic ARIA locators (`getByRole`, `getByLabel`), while interactive sessions use ephemeral `[ref=e14]` handles. Hard layout invariants are asserted in code (`scrollWidth <= innerWidth`, `boundingBox`), and targeted screenshots at 390×844 and 1280×800 support human or VLM visual review against an explicit rubric.'}
           </p>
         </div>
       </div>
@@ -611,11 +611,11 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           </p>
         </div>
         <div class="lab-card" data-browser-layer-panel="contract" hidden>
-          <span class="badge">{pl ? 'WARSTWA 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + BLOKADA SIECI `CONTEXT.ROUTE`' : 'LAYER 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + DEFAULT-DENY `CONTEXT.ROUTE`'}</span>
+          <span class="badge">{pl ? 'WARSTWA 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + `SERVICEWORKERS: BLOCK` + `CONTEXT.ROUTE`' : 'LAYER 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + `SERVICEWORKERS: BLOCK` + `CONTEXT.ROUTE`'}</span>
           <p>
             {pl
-              ? 'Testy `ui-contract` przechwytują cały ruch HTTP i domyślnie odrzucają każde nieobsłużone zapytanie. Pozwala to w ułamku sekundy zasymulować równoległe błędy `401`, limity `429` lub wolne odpowiedzi bez uruchamiania backendu i bez ryzyka dotknięcia zewnętrznych API.'
-              : '`ui-contract` tests intercept all HTTP traffic and fail closed on any unhandled request. This lets the suite simulate concurrent `401` expirations, `429` rate limits, or slow responses in milliseconds without booting a backend or touching live third-party APIs.'}
+              ? 'Testy `ui-contract` blokują rejestrację Service Workerów (`serviceWorkers: "block"`), przechwytują cały ruch HTTP oraz WebSocket i domyślnie odrzucają każde nieobsłużone zapytanie. Pozwala to w ułamku sekundy zasymulować równoległe błędy `401`, limity `429` lub błędy `503` bez uruchamiania backendu i bez ryzyka dotknięcia zewnętrznych API.'
+              : '`ui-contract` tests disable Service Workers (`serviceWorkers: "block"`), intercept all HTTP and WebSocket traffic, and fail closed on any unhandled request. This lets the suite simulate concurrent `401` expirations, `429` rate limits, or `503` errors in milliseconds without booting a backend or touching live third-party APIs.'}
           </p>
         </div>
         <div class="lab-card" data-browser-layer-panel="session" hidden>
@@ -630,8 +630,8 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           <span class="badge sage">{pl ? 'WARSTWA 4 · `SCROLLWIDTH <= INNERWIDTH` + `BOUNDINGBOX` + OCENA ZRZUTU PRZEZ VLM' : 'LAYER 4 · `SCROLLWIDTH <= INNERWIDTH` + `BOUNDINGBOX` + VLM SCREENSHOT AUDIT'}</span>
           <p>
             {pl
-              ? 'Test najpierw sprawdza twardą geometrię DOM na widoku mobilnym 390×844 (brak poziomego paska przewijania, przycisk zamknięcia w granicach ekranu), a następnie zapisuje celowany zrzut ekranu dla modelu multimodalnego i czyści artefakty sesji przed commitem.'
-              : 'The test first asserts hard DOM geometry on a 390×844 mobile viewport (zero horizontal overflow, close button inside viewport bounds), then captures a targeted screenshot for multimodal review and cleans up session artifacts before commit.'}
+              ? 'Test najpierw sprawdza twardą geometrię DOM na widoku mobilnym 390×844 (brak poziomego paska przewijania, przycisk zamknięcia w granicach ekranu), a następnie zapisuje celowany zrzut ekranu do oceny wizualnej i czyści artefakty sesji przed commitem.'
+              : 'The test first asserts hard DOM geometry on a 390×844 mobile viewport (zero horizontal overflow, close button inside viewport bounds), then captures a targeted screenshot for visual review and cleans up session artifacts before commit.'}
           </p>
         </div>
       </div>
@@ -643,8 +643,8 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           </span>
           <p>
             {pl
-              ? 'playwright-harness-kit zapisuje warstwy (`ui-contract`, `integrated`), identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`), politykę sesji przy rotacji tokenów i hybrydowe rubryki wizualne w .playwright-harness/spec.json, waliduje kontrakt w CI i generuje skille SKILL.md: explain → check → build.'
-              : 'playwright-harness-kit records tiers (`ui-contract`, `integrated`), scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session policy, and hybrid visual rubrics in .playwright-harness/spec.json, validates the contract in CI, and generates SKILL.md files: explain → check → build.'}
+              ? 'playwright-harness-kit zapisuje warstwy (`ui-contract`, `integrated`), identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`), politykę sesji przy rotacji tokenów i hybrydowe rubryki wizualne w .playwright-harness/spec.json, weryfikuje kontrakt oraz dowody w plikach repozytorium (`check --strict --verify-files`) i generuje skille SKILL.md z czyszczeniem sierot (`build --prune`).'
+              : 'playwright-harness-kit records tiers (`ui-contract`, `integrated`), scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session policy, and hybrid visual rubrics in .playwright-harness/spec.json, verifies the contract and repository file evidence (`check --strict --verify-files`), and generates SKILL.md files with orphan pruning (`build --prune`).'}
           </p>
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/playwright-harness-kit" target="_blank" rel="noopener">
