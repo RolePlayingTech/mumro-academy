@@ -187,6 +187,21 @@ const articleSchema = [
                 {sec.paragraphs.map((p) => (
                   <p><InlineText text={p} /></p>
                 ))}
+                {sec.resources && (
+                  <div class="resource-list" data-resource-list>
+                    {sec.resources.map((resource) => (
+                      <article class="reading-resource" data-reading-resource={resource.category}>
+                        <span class="resource-category">{resource.category}</span>
+                        <h3>
+                          <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                            {resource.title}<span aria-hidden="true"> ↗</span>
+                          </a>
+                        </h3>
+                        <p>{resource.description}</p>
+                      </article>
+                    ))}
+                  </div>
+                )}
                 {sec.callout && (
                   <blockquote class="editorial-callout">
                     <span class="eyebrow signal">{sec.callout.label}</span>
@@ -627,6 +642,46 @@ const articleSchema = [
     text-align: right;
   }
 
+  /* Further reading */
+  .resource-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 22px 0 4px;
+  }
+  .reading-resource {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--line);
+    background: var(--white);
+  }
+  .resource-category {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--signal);
+    font: 400 10px/1.4 var(--mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .reading-resource h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .reading-resource h3 a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 3px;
+  }
+  .reading-resource p {
+    margin: 9px 0 0;
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
   @media (max-width: 1024px) {
     .lesson-body-grid {
       grid-template-columns: 1fr;
@@ -636,6 +691,7 @@ const articleSchema = [
     }
   }
   @media (max-width: 680px) {
+    .resource-list,
     .pattern-contrast,
     .lesson-pagination {
       grid-template-columns: 1fr;
