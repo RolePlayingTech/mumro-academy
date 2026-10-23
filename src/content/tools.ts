@@ -12,7 +12,7 @@ export interface FeaturedLessonHighlight {
 }
 
 export interface OpenSourceToolCard {
-  id: 'agent-harness-kit' | 'mcp-surface-kit';
+  id: 'agent-harness-kit' | 'mcp-surface-kit' | 'playwright-harness-kit';
   badge: string;
   name: string;
   repoLabel: string;
@@ -50,10 +50,10 @@ export interface EcosystemContent {
 const en: EcosystemContent = {
   latestSection: {
     eyebrow: 'LATEST ADDITIONS · AGENTIC ENGINEERING',
-    title: 'New deep dives: coding-agent harnesses and MCP product surfaces.',
+    title: 'New deep dives: coding-agent harnesses, MCP product surfaces, and Playwright browser verification.',
     intro:
-      'Our newest lessons bridge repository-level coding agents and workspace-scoped product APIs — each paired with a zero-dependency open-source CLI kit you can run in your own stack.',
-    companionLabel: 'Companion open-source kit:',
+      'Our newest lessons bridge repository-level coding agents, workspace-scoped MCP APIs, and multimodal Playwright browser verification — paired with open-source kits and copy-ready contracts you can run in your own stack.',
+    companionLabel: 'Companion open-source kit / stack:',
     items: [
       {
         slug: 'ai-agent-harness-engineering',
@@ -77,13 +77,24 @@ const en: EcosystemContent = {
         companionPlaybookAnchor: '#mcp-surface-spec',
         readCta: 'Read Lesson 14',
       },
+      {
+        slug: 'playwright-browser-automation-and-verification',
+        badge: 'NEW · PLAYWRIGHT & MULTIMODAL QA',
+        valueSummary:
+          'From Selenium to Playwright and `@playwright/mcp`: why accessibility trees beat pixel-clicking for actions, when multimodal VLM screenshots are essential, and how MUMRO links GitHub Issues (`M-AUTH-01`, `M-UX-01`) to browser verification.',
+        companionToolName: 'playwright-harness-kit',
+        companionToolRepo: 'https://github.com/RolePlayingTech/playwright-harness-kit',
+        companionPlaybookNumber: 'PLAYBOOK 07',
+        companionPlaybookAnchor: '#playwright-verification-spec',
+        readCta: 'Read Lesson 15',
+      },
     ],
   },
   toolsSection: {
     eyebrow: 'OPEN-SOURCE ECOSYSTEM · ROLEPLAYINGTECH',
     title: 'Open-source CLI kits that turn Academy architecture into checkable specs.',
     intro:
-      'Every architectural rule in Track 04 has a matching open-source CLI maintained by RolePlayingTech. Use them to keep your repository harness (`AGENTS.md`) and your product MCP surface (`.mcp-surface/spec.json`) verified in CI.',
+      'Every architectural rule in Track 04 has a matching open-source CLI maintained by RolePlayingTech. Use them to keep your repository harness (`AGENTS.md`), your product MCP surface (`.mcp-surface/spec.json`), and your browser verification contract (`.playwright-harness/spec.json`) verified in CI.',
     items: [
       {
         id: 'agent-harness-kit',
@@ -139,6 +150,33 @@ $ npx github:RolePlayingTech/mcp-surface-kit build examples/content-workspace --
         githubCta: 'View on GitHub',
         lessonCta: 'Read Lesson 14',
       },
+      {
+        id: 'playwright-harness-kit',
+        badge: 'OPEN-SOURCE CLI · BROWSER VERIFICATION',
+        name: 'Playwright Harness Kit',
+        repoLabel: 'RolePlayingTech/playwright-harness-kit',
+        repoUrl: 'https://github.com/RolePlayingTech/playwright-harness-kit',
+        focusLabel: 'What it covers',
+        focus:
+          'Declarative Playwright & multimodal browser verification contracts (`.playwright-harness/spec.json`), repository file evidence checks (`--verify-files`), `ui-contract` vs. `integrated` tiers, scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session rules, and generated `SKILL.md` files.',
+        problemLabel: 'Problem it solves',
+        problemSolved:
+          'Prevents brittle `(x, y)` screenshot clicking, ungrounded visual checks without DOM geometry invariants, `401` session revocations from shared `storageState` under single-use refresh rotation, missing `.spec.ts` files, and orphaned generated skills.',
+        capabilities: [
+          'Validates URL-parsed `ui-contract` origins (`deny-unhandled`), semantic locator policies (`role-and-label-first`), token-rotation session safety, and repository file evidence (`check --strict --verify-files`).',
+          'Prints a full verification matrix of tiers, scenario IDs, locator strategies, visual viewports, and `declared / observed / not-verified` evidence states (`explain --verify-files`).',
+          'Generates conflict-aware `SKILL.md` browser verification workflows with SHA-256 ownership markers, unified diffs, and safe orphan cleanup (`build --dry-run --prune`).',
+        ],
+        cliCaption: 'Inspect, validate, and preview skills from a Playwright verification contract',
+        cliPreview: `$ npx github:RolePlayingTech/playwright-harness-kit explain examples/offline-ui --verify-files
+$ npx github:RolePlayingTech/playwright-harness-kit check examples/offline-ui --strict --verify-files
+$ npx github:RolePlayingTech/playwright-harness-kit build examples/offline-ui --dry-run --prune`,
+        relatedLessonSlug: 'playwright-browser-automation-and-verification',
+        relatedPlaybookAnchor: '#playwright-verification-spec',
+        relatedPlaybookLabel: 'Playbook 07: Playwright Contract',
+        githubCta: 'View on GitHub',
+        lessonCta: 'Read Lesson 15',
+      },
     ],
   },
 };
@@ -146,9 +184,9 @@ $ npx github:RolePlayingTech/mcp-surface-kit build examples/content-workspace --
 const pl: EcosystemContent = {
   latestSection: {
     eyebrow: 'NAJNOWSZE LEKCJE · INŻYNIERIA AGENTÓW AI',
-    title: 'Nowe opracowania: harness agenta kodującego i powierzchnie produktów MCP.',
+    title: 'Nowe opracowania: harness agenta kodującego, powierzchnie MCP i weryfikacja przeglądarkowa Playwright.',
     intro:
-      'Dwie najnowsze lekcje łączą świat agentów pracujących w repozytorium kodu z projektowaniem produktów sterowanych przez MCP — każda wraz z otwartym narzędziem CLI bez zewnętrznych zależności.',
+      'Najnowsze lekcje łączą świat agentów pracujących w repozytorium kodu, projektowanie produktów sterowanych przez MCP oraz weryfikację przeglądarkową Playwright i modeli multimodalnych — wraz z otwartymi narzędziami i gotowymi kontraktami.',
     companionLabel: 'Powiązane narzędzie open source:',
     items: [
       {
@@ -173,13 +211,24 @@ const pl: EcosystemContent = {
         companionPlaybookAnchor: '#mcp-surface-spec',
         readCta: 'Otwórz Lekcję 14',
       },
+      {
+        slug: 'playwright-browser-automation-and-verification',
+        badge: 'NOWOŚĆ · PLAYWRIGHT I WERYFIKACJA MULTIMODALNA',
+        valueSummary:
+          'Od Selenium do Playwrighta i `@playwright/mcp`: dlaczego drzewo dostępności ARIA wygrywa z klikaniem po pikselach, kiedy potrzebny jest zrzut ekranu dla modelu VLM i jak w MUMRO łączymy GitHub Issues (`M-AUTH-01`, `M-UX-01`) z testami przeglądarkowymi.',
+        companionToolName: 'playwright-harness-kit',
+        companionToolRepo: 'https://github.com/RolePlayingTech/playwright-harness-kit',
+        companionPlaybookNumber: 'PLAYBOOK 07',
+        companionPlaybookAnchor: '#playwright-verification-spec',
+        readCta: 'Otwórz Lekcję 15',
+      },
     ],
   },
   toolsSection: {
     eyebrow: 'EKOSYSTEM OPEN SOURCE · ROLEPLAYINGTECH',
     title: 'Otwarte narzędzia CLI zamieniające architekturę Akademii w sprawdzalne kontrakty.',
     intro:
-      'Każda zasada architektoniczna ze Ścieżki 04 ma odpowiadające narzędzie CLI rozwijane przez RolePlayingTech. Użyj ich, aby utrzymywać harness repozytorium (`AGENTS.md`) oraz kontrakt powierzchni MCP (`.mcp-surface/spec.json`) pod kontrolą w CI.',
+      'Każda zasada architektoniczna ze Ścieżki 04 ma odpowiadające narzędzie CLI rozwijane przez RolePlayingTech. Użyj ich, aby utrzymywać harness repozytorium (`AGENTS.md`), kontrakt powierzchni MCP (`.mcp-surface/spec.json`) oraz kontrakt weryfikacji przeglądarkowej (`.playwright-harness/spec.json`) pod kontrolą w CI.',
     items: [
       {
         id: 'agent-harness-kit',
@@ -234,6 +283,33 @@ $ npx github:RolePlayingTech/mcp-surface-kit build examples/content-workspace --
         relatedPlaybookLabel: 'Playbook 06: Kontrakt MCP',
         githubCta: 'Repozytorium GitHub',
         lessonCta: 'Czytaj Lekcję 14',
+      },
+      {
+        id: 'playwright-harness-kit',
+        badge: 'OPEN-SOURCE CLI · WERYFIKACJA PRZEGLĄDARKOWA',
+        name: 'Playwright Harness Kit',
+        repoLabel: 'RolePlayingTech/playwright-harness-kit',
+        repoUrl: 'https://github.com/RolePlayingTech/playwright-harness-kit',
+        focusLabel: 'Czego dotyczy',
+        focus:
+          'Deklaratywnych kontraktów weryfikacji przeglądarkowej i multimodalnej (`.playwright-harness/spec.json`), weryfikacji dowodów w plikach repozytorium (`--verify-files`), warstw `ui-contract` i `integrated`, identyfikatorów scenariuszy (`M-AUTH-01`, `M-UX-01`), polityki sesji przy rotacji tokenów oraz generowanych plików `SKILL.md`.',
+        problemLabel: 'Jaki problem rozwiązuje',
+        problemSolved:
+          'Eliminuje kruche klikanie po współrzędnych `(x, y)` ze zrzutu ekranu, ocenę wizualną bez twardych niezmienników geometrii DOM, błędy `401` z dzielenia `storageState` przy jednorazowych refresh tokenach, brakujące pliki `.spec.ts` oraz osierocone wygenerowane skille.',
+        capabilities: [
+          'Waliduje parsowane przez `URL` originy `ui-contract` (`deny-unhandled`), politykę semantycznych lokatorów (`role-and-label-first`), bezpieczeństwo sesji przy rotacji tokenów oraz dowody w plikach repozytorium (`check --strict --verify-files`).',
+          'Drukuje pełną matrycę weryfikacji: warstwy, identyfikatory scenariuszy, strategie lokatorów, rozdzielczości wizualne i stany dowodów `declared / observed / not-verified` (`explain --verify-files`).',
+          'Bezpiecznie generuje pliki `SKILL.md` dla weryfikacji przeglądarkowej ze znacznikami SHA-256, podglądem diff i bezpiecznym usuwaniem sierot (`build --dry-run --prune`).',
+        ],
+        cliCaption: 'Inspekcja, walidacja i podgląd generowanych skilli z kontraktu weryfikacji Playwright',
+        cliPreview: `$ npx github:RolePlayingTech/playwright-harness-kit explain examples/offline-ui --verify-files
+$ npx github:RolePlayingTech/playwright-harness-kit check examples/offline-ui --strict --verify-files
+$ npx github:RolePlayingTech/playwright-harness-kit build examples/offline-ui --dry-run --prune`,
+        relatedLessonSlug: 'playwright-browser-automation-and-verification',
+        relatedPlaybookAnchor: '#playwright-verification-spec',
+        relatedPlaybookLabel: 'Playbook 07: Kontrakt Playwright',
+        githubCta: 'Repozytorium GitHub',
+        lessonCta: 'Czytaj Lekcję 15',
       },
     ],
   },
