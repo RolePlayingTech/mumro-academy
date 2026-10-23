@@ -126,6 +126,7 @@ export const LESSON15_LAB_HTML_APP = `<!doctype html>
         event.preventDefault();
         const email = emailInput.value;
         if (mode === 'broken') {
+          // Bug 1a: prematurely clears the user's typed input before knowing if the server succeeded
           emailInput.value = '';
         }
         const response = await fetch('/api/auth/password/forgot', {
@@ -140,6 +141,7 @@ export const LESSON15_LAB_HTML_APP = `<!doctype html>
             response.status +
             '). Verify your email and try again when the recovery service is back.';
           if (mode === 'broken') {
+            // Bug 1b: unapproved automatic background retry on HTTP 503
             setTimeout(() => {
               fetch('/api/auth/password/forgot', {
                 method: 'POST',
@@ -154,41 +156,61 @@ export const LESSON15_LAB_HTML_APP = `<!doctype html>
   </body>
 </html>`;
 
-export const UI_CONTRACT_FIXTURE_CODE = `// examples/offline-ui/e2e/fixtures.ts (Self-contained ui-contract fixture)
-// Playwright config sets \`serviceWorkers: 'block'\` so Service Workers cannot bypass \`context.route()\`.
-// Note: Browser-level routing isolates the UI under test; it does NOT prove backend or OS egress isolation.
-import { readFileSync } from 'node:fs';
+export const UI_CONTRACT_FIXTURE_CODE = `import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test as base, expect } from '@playwright/test';
 
-const APP_HTML = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
+const here = dirname(fileURLToPath(import.meta.url));
+const APP_HTML = readFileSync(resolve(here, '../app/index.html'), 'utf8');
+
 export const ORIGIN = 'https://offline-ui-contract.invalid';
 
 export interface MockApiState {
   forgotPasswordCalls: number;
   blockedRequests: string[];
+  blockedWebSockets: string[];
   allowBlockedPatterns: RegExp[];
   bugMode: 'broken' | 'fixed';
 }
 
+/**
+ * Isolated ui-contract fixture:
+ * 1. Playwright config sets \`serviceWorkers: 'block'\` so Service Workers cannot bypass \`context.route()\`.
+ *    Note: Browser-level routing (\`context.route\` and \`context.routeWebSocket\`) isolates the frontend UI under test;
+ *    it never proves backend RBAC or OS-level egress isolation.
+ * 2. Every HTTP request outside \`https://offline-ui-contract.invalid\` (or unmocked \`/api/*\` route) and every
+ *    unmocked WebSocket connection is aborted/closed, recorded, and fails the test after \`use(state)\` unless
+ *    explicitly registered in \`allowBlockedPatterns\` by a negative boundary test.
+ */
 export const test = base.extend<{ mockApi: MockApiState }>({
   mockApi: async ({ context, page }, use) => {
     const state: MockApiState = {
       forgotPasswordCalls: 0,
       blockedRequests: [],
+      blockedWebSockets: [],
       allowBlockedPatterns: [],
       bugMode: process.env.UI_BUG_MODE === 'broken' ? 'broken' : 'fixed',
     };
+
     const pageErrors: string[] = [];
     page.on('pageerror', (err) => pageErrors.push(err.message));
 
-    await context.routeWebSocket(/.*/, (ws) => ws.close());
+    await context.routeWebSocket(/.*/, (ws) => {
+      const wsUrl = typeof ws.url === 'function' ? ws.url() : String(ws);
+      state.blockedWebSockets.push(wsUrl);
+      ws.close({ code: 1008, reason: 'Blocked by ui-contract networkPolicy: deny-unhandled' });
+    });
+
     await context.route('**/*', async (route) => {
       const req = route.request();
       const url = new URL(req.url());
+
       if (url.origin !== ORIGIN || url.username || url.password) {
         state.blockedRequests.push(req.url());
         return route.abort('blockedbyclient');
       }
+
       if (url.pathname === '/api/auth/password/forgot' && req.method() === 'POST') {
         state.forgotPasswordCalls += 1;
         return route.fulfill({
@@ -197,9 +219,15 @@ export const test = base.extend<{ mockApi: MockApiState }>({
           body: JSON.stringify({ error: 'service_unavailable' }),
         });
       }
+
       if (url.pathname === '/' || url.pathname === '/forgot-password') {
-        return route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: APP_HTML });
+        return route.fulfill({
+          status: 200,
+          contentType: 'text/html; charset=utf-8',
+          body: APP_HTML,
+        });
       }
+
       state.blockedRequests.push(req.url());
       return route.abort('blockedbyclient');
     });
@@ -207,63 +235,149 @@ export const test = base.extend<{ mockApi: MockApiState }>({
     await use(state);
 
     const unexpectedBlocked = state.blockedRequests.filter(
-      (u) => !state.allowBlockedPatterns.some((pattern) => pattern.test(u))
+      (blockedUrl) => !state.allowBlockedPatterns.some((pattern) => pattern.test(blockedUrl))
+    );
+    const unexpectedWebSockets = state.blockedWebSockets.filter(
+      (wsUrl) => !state.allowBlockedPatterns.some((pattern) => pattern.test(wsUrl))
     );
     expect(pageErrors, 'Uncaught pageerror exceptions must be 0').toEqual([]);
-    expect(unexpectedBlocked, 'Unmocked or external network requests must be 0').toEqual([]);
+    expect(unexpectedBlocked, 'Unmocked or external HTTP requests must be 0').toEqual([]);
+    expect(unexpectedWebSockets, 'Unmocked or external WebSocket connections must be 0').toEqual([]);
   },
 });
+
 export { expect };`;
 
-export const HYBRID_VERIFICATION_CODE = `// examples/offline-ui/e2e/ui-contract.spec.ts (Runnable M-AUTH-01 & M-UX-01 checks)
-import { test, expect, ORIGIN } from './fixtures';
+export const HYBRID_VERIFICATION_CODE = `import { test, expect, ORIGIN } from './fixtures';
 
-test('M-AUTH-01: password recovery HTTP 503 preserves typed email and makes zero background retries', async ({
-  page,
-  mockApi,
-}) => {
-  await page.goto(\`\${ORIGIN}/forgot-password?mode=\${mockApi.bugMode}\`);
+test.describe('Offline UI Contract Suite (DEMO-AUTH-01 & DEMO-UX-01)', () => {
+  test('DEMO-AUTH-01: password recovery HTTP 503 preserves typed email and makes zero background retries', async ({
+    page,
+    mockApi,
+  }) => {
+    await page.goto(\`\${ORIGIN}/forgot-password?mode=\${mockApi.bugMode}\`);
 
-  const emailInput = page.getByLabel('Email');
-  await emailInput.fill('qa-reset@example.invalid');
-  await page.getByRole('button', { name: 'Send reset link' }).click();
+    const emailInput = page.getByLabel('Email');
+    await emailInput.fill('qa-reset@example.invalid');
+    await page.getByRole('button', { name: 'Send reset link' }).click();
 
-  await expect(page.getByRole('alert')).toBeVisible();
-  await expect(emailInput, 'Typed email must remain in input after HTTP 503').toHaveValue(
-    'qa-reset@example.invalid'
-  );
-  await page.waitForTimeout(120);
-  expect(mockApi.forgotPasswordCalls, 'Must not auto-retry POST on HTTP 503').toBe(1);
-});
+    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('HTTP 503');
 
-test('M-UX-01: mobile release drawer fits 390x844 viewport without horizontal overflow or off-screen controls', async ({
-  page,
-  mockApi,
-}) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(\`\${ORIGIN}/forgot-password?mode=\${mockApi.bugMode}\`);
+    // In broken mode, the input was wiped to "" and a background retry fires after 50ms.
+    await expect(emailInput, 'Typed email must remain in input after HTTP 503').toHaveValue(
+      'qa-reset@example.invalid'
+    );
+    await page.waitForTimeout(120);
+    expect(mockApi.forgotPasswordCalls, 'Must not auto-retry POST on HTTP 503').toBe(1);
+  });
 
-  // 1. ARIA semantics: dialog and button are visible in the accessibility tree in BOTH broken and fixed modes
-  const closeBtn = page.getByRole('button', { name: 'Close drawer' });
-  await expect(page.getByRole('dialog', { name: 'Release schedule preview' })).toBeVisible();
-  await expect(closeBtn).toBeVisible();
+  test('DEMO-UX-01: mobile release drawer fits 390x844 viewport without horizontal overflow or off-screen controls', async ({
+    page,
+    mockApi,
+  }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(\`\${ORIGIN}/forgot-password?mode=\${mockApi.bugMode}\`);
 
-  // 2. Programmatic DOM geometry invariants catch the 540px overflow that ARIA-only checks miss
-  const { scrollWidth, innerWidth } = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    innerWidth: window.innerWidth,
-  }));
-  expect(scrollWidth, \`scrollWidth (\${scrollWidth}px) <= innerWidth (\${innerWidth}px)\`).toBeLessThanOrEqual(innerWidth);
+    // 1. ARIA semantics: the dialog and button exist in the accessibility tree in BOTH broken and fixed modes.
+    const dialog = page.getByRole('dialog', { name: 'Release schedule preview' });
+    const closeBtn = page.getByRole('button', { name: 'Close drawer' });
+    await expect(dialog).toBeVisible();
+    await expect(closeBtn).toBeVisible();
 
-  const closeBox = await closeBtn.boundingBox();
-  expect(closeBox!.x + closeBox!.width, 'Close button right edge inside 390px viewport').toBeLessThanOrEqual(390);
+    // 2. Targeted synthetic-data screenshot + structured review rubric (captured before geometry assertions
+    //    so both broken and fixed runs emit inspectable visual artifacts without any live session secrets).
+    //    Note: Screenshot review (by a human or optional VLM) is non-deterministic and complements—never
+    //    replaces—the deterministic DOM geometry assertions in step 3.
+    const screenshotPath = testInfo.outputPath(\`demo-ux-01-mobile-390x844-\${mockApi.bugMode}.png\`);
+    const screenshotBytes = await page.screenshot({ path: screenshotPath, fullPage: true });
+    expect(screenshotBytes.byteLength, 'Captured mobile screenshot must not be empty').toBeGreaterThan(0);
+    await testInfo.attach(\`demo-ux-01-mobile-390x844-\${mockApi.bugMode}\`, {
+      body: screenshotBytes,
+      contentType: 'image/png',
+    });
+    await testInfo.attach('demo-ux-01-visual-rubric', {
+      body: JSON.stringify(
+        {
+          scenarioId: 'DEMO-UX-01',
+          viewport: '390x844',
+          mode: mockApi.bugMode,
+          screenshotPath,
+          nonDeterministicNote:
+            'Visual screenshot review complements deterministic DOM geometry assertions; it never replaces scrollWidth/boundingBox checks.',
+          rubric: [
+            'Truncation: Heading and schedule row text remain uncut with no unplanned ellipsis',
+            'Occlusion: Close drawer button and status badge are not overlapped or clipped by adjacent elements',
+            'Alignment: Drawer header controls and schedule row align cleanly within the 390px card padding',
+            'Contrast: Alert banner (#991b1b on #fef2f2) and primary action button (#ffffff on #0f172a) remain legible',
+          ],
+        },
+        null,
+        2
+      ),
+      contentType: 'application/json',
+    });
+
+    // 3. Programmatic DOM geometry invariants catch the 540px mobile overflow that ARIA-only checks miss.
+    const dimensions = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      innerWidth: window.innerWidth,
+    }));
+    expect(
+      dimensions.scrollWidth,
+      \`Document scrollWidth (\${dimensions.scrollWidth}px) must not exceed mobile innerWidth (\${dimensions.innerWidth}px)\`
+    ).toBeLessThanOrEqual(dimensions.innerWidth);
+
+    const closeBox = await closeBtn.boundingBox();
+    expect(closeBox).not.toBeNull();
+    expect(
+      closeBox!.x + closeBox!.width,
+      'Dialog close button right edge must sit inside the 390px viewport'
+    ).toBeLessThanOrEqual(390);
+  });
+
+  test('Default-deny ui-contract guard aborts unmocked external HTTP and WebSocket connections', async ({
+    page,
+    mockApi,
+  }) => {
+    await page.goto(\`\${ORIGIN}/forgot-password?mode=fixed\`);
+
+    const httpRejected = await page.evaluate(async () => {
+      try {
+        await fetch('https://analytics.example.com/ping');
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(httpRejected).toBe(true);
+    expect(mockApi.blockedRequests).toEqual(['https://analytics.example.com/ping']);
+
+    const wsClosed = await page.evaluate(
+      () =>
+        new Promise<boolean>((resolvePromise) => {
+          const ws = new WebSocket('wss://realtime.example.com/socket');
+          ws.addEventListener('close', () => resolvePromise(true), { once: true });
+          ws.addEventListener('error', () => resolvePromise(true), { once: true });
+          ws.addEventListener('open', () => resolvePromise(false), { once: true });
+        })
+    );
+    expect(wsClosed).toBe(true);
+    expect(mockApi.blockedWebSockets).toEqual(['wss://realtime.example.com/socket']);
+
+    // Acknowledge both expected blocks so the fixture's post-test fail-closed assertion passes:
+    mockApi.allowBlockedPatterns.push(
+      /^https:\\/\\/analytics\\.example\\.com\\/ping$/,
+      /^wss:\\/\\/realtime\\.example\\.com\\/socket$/
+    );
+  });
 });`;
 
 export const LESSON15_MINI_LAB_WALKTHROUGH_CODE = `# 1. Clone or inspect the self-contained offline Playwright lab (no API keys or live servers required)
 $ git clone https://github.com/RolePlayingTech/playwright-harness-kit.git
 $ cd playwright-harness-kit
 
-# 2. Validate .playwright-harness/spec.json and verify repository files (.spec.ts, scenario IDs, npm scripts, .gitignore)
+# 2. Validate .playwright-harness/spec.json and verify repository files (.spec.ts, DEMO-* IDs, npm scripts, .gitignore)
 $ node bin/playwright-harness.mjs check examples/offline-ui --strict --verify-files
 PASS: Playwright verification spec and repository files verified (strict mode, 0 warnings).
 
@@ -280,17 +394,22 @@ Processed 2 skill file(s) (create: 2, update: 0, prune: 0, unchanged: 0):
   [create   ] .playwright-harness/skills/verify-browser-scenarios/SKILL.md
   [create   ] .claude/skills/verify-browser-scenarios/SKILL.md
 
-# 4. Run the Playwright suite against the BROKEN UI (?mode=broken) -> catches both bugs!
+# 4. Run the Playwright suite against the BROKEN UI (?mode=broken) and verify expected failures + attached screenshot
 $ cd examples/offline-ui && npm install && npx playwright install chromium
-$ npm run test:e2e:broken
-  1) M-AUTH-01: Typed email must remain in input after HTTP 503
-     Expected: "qa-reset@example.invalid" / Received: ""
-  2) M-UX-01: Document scrollWidth (540px) must not exceed mobile innerWidth (390px)
-     Expected: <= 390 / Received: 540
+$ npm run test:e2e:broken:verify
+  1) DEMO-AUTH-01: Typed email must remain in input after HTTP 503 (Expected: "qa-reset@example.invalid" / Received: "")
+  2) DEMO-UX-01: Document scrollWidth (556px) must not exceed mobile innerWidth (390px) (Expected: <= 390 / Received: 556)
+     -> Attached: demo-ux-01-mobile-390x844-broken.png + demo-ux-01-visual-rubric.json
+  3) Default-deny ui-contract guard aborts unmocked external HTTP and WebSocket connections: PASSED
+PASS: Verified broken-mode regressions (DEMO-AUTH-01 & DEMO-UX-01 failed for expected reasons with screenshot attached; HTTP+WS network guard passed).
 
 # 5. Run the Playwright suite against the REPAIRED UI (?mode=fixed) -> all 3 checks pass!
 $ npm run test:e2e:contract
-  3 passed (M-AUTH-01, M-UX-01, and default-deny outbound request guard)`;
+  3 passed (DEMO-AUTH-01, DEMO-UX-01 with demo-ux-01-mobile-390x844-fixed.png, and HTTP+WS default-deny guard)
+
+# 6. Visual rubric audit report on captured synthetic-data screenshots (human or optional VLM):
+#   - demo-ux-01-mobile-390x844-broken.png -> FAIL (Occlusion/Alignment: 540px drawer clips "Close drawer" past 390px edge)
+#   - demo-ux-01-mobile-390x844-fixed.png  -> PASS (Truncation: OK | Occlusion: OK | Alignment: OK | Contrast: OK)`;
 
 const en: LessonData = {
   slug: 'playwright-browser-automation-and-verification',
@@ -577,14 +696,14 @@ $ npx github:RolePlayingTech/playwright-harness-kit build --prune`,
       levelBadge: 'LEVEL 3 · HANDS-ON LAB',
       heading: '10. Hands-on lab: catch and fix a real mobile & HTTP 503 bug with Playwright and playwright-harness-kit',
       paragraphs: [
-        'You do not need access to MUMRO’s private repository or any paid LLM/VLM API key to run everything taught in this lesson. The companion repository `RolePlayingTech/playwright-harness-kit` ships a self-contained, offline mini-project in `examples/offline-ui/` (and this Academy’s own test suite in `tests/academy.spec.ts` runs the exact same broken-then-fixed flow on every build).',
-        'Here is how the 7-step lab works. **Step 1 (The Demo App):** `examples/offline-ui/app/index.html` renders a Workspace Password Recovery form (`M-AUTH-01`) and a Release Schedule Preview drawer (`M-UX-01`). When loaded with `?mode=broken`, it contains two realistic bugs: on HTTP `503` from `POST /api/auth/password/forgot`, it wipes the user’s typed email address and schedules an unapproved background retry; and on a `390×844` mobile screen, a rigid `min-width: 540px` rule on `.drawer-card` causes horizontal overflow and pushes the `Close drawer` button off-screen.',
-        '**Step 2 (Why ARIA-only inspection is not enough):** In `examples/offline-ui/e2e/ui-contract.spec.ts`, both `expect(page.getByRole("dialog")).toBeVisible()` and `expect(page.getByRole("button", { name: "Close drawer" })).toBeVisible()` pass even in `?mode=broken`! The elements are in the DOM and visible in the accessibility tree, proving why ARIA role assertions alone cannot catch CSS layout overflow. **Step 3 & 4 (Failing Playwright run):** When you run `npm run test:e2e:broken`, Playwright executes the fail-closed `ui-contract` fixture (`serviceWorkers: "block"`, `ORIGIN = "https://offline-ui-contract.invalid"`) and catches both bugs deterministically: `M-AUTH-01` fails because the email input is `""` instead of `"qa-reset@example.invalid"`, and `M-UX-01` fails because `document.documentElement.scrollWidth` is `540` (`> 390`) and the close button’s right edge is outside the `390px` viewport.',
-        '**Step 5, 6 & 7 (Repair, pass, and lock with `playwright-harness-kit`):** Running `npm run test:e2e:contract` (which loads the repaired default state `?mode=fixed`) passes `M-AUTH-01`, `M-UX-01`, and a third negative boundary test verifying that an unmocked `fetch("https://analytics.example.com/ping")` is aborted (`blockedbyclient`) by the default-deny `ui-contract` fixture. Finally, running `playwright-harness check examples/offline-ui --strict --verify-files` and `playwright-harness build examples/offline-ui --prune` verifies that `e2e/ui-contract.spec.ts`, `M-AUTH-01`, `M-UX-01`, `package.json` scripts, and `.gitignore` all match `.playwright-harness/spec.json` and generates `.claude/skills/verify-browser-scenarios/SKILL.md`.',
+        'You do not need access to MUMRO’s private repository or any paid LLM/VLM API key to run everything taught in this lesson. The companion repository `RolePlayingTech/playwright-harness-kit` ships a self-contained, offline mini-project in `examples/offline-ui/` (and this Academy’s own test suite in `tests/academy.spec.ts` runs the exact same broken-then-fixed flow on every build). To keep scenario catalogs unambiguous, MUMRO’s production workspace contract in Playbook 07 uses the `M-*` namespace (`M-AUTH-01` for concurrent 401 refresh single-flight, `M-UX-01` for mobile shell geometry), while the runnable offline demo uses its own dedicated `DEMO-*` namespace (`DEMO-AUTH-01` and `DEMO-UX-01`).',
+        'Here is how the 7-step lab works. **Step 1 (The Demo App):** `examples/offline-ui/app/index.html` renders a Workspace Password Recovery form (`DEMO-AUTH-01`) and a Release Schedule Preview drawer (`DEMO-UX-01`). When loaded with `?mode=broken`, it contains two realistic bugs: on HTTP `503` from `POST /api/auth/password/forgot`, it wipes the user’s typed email address and schedules an unapproved background retry; and on a `390×844` mobile screen, a rigid `min-width: 540px` rule on `.drawer-card` causes horizontal overflow and pushes the `Close drawer` button off-screen.',
+        '**Step 2 (ARIA + Synthetic Screenshot + DOM Geometry):** In `examples/offline-ui/e2e/ui-contract.spec.ts`, both `expect(page.getByRole("dialog")).toBeVisible()` and `expect(page.getByRole("button", { name: "Close drawer" })).toBeVisible()` pass even in `?mode=broken`! Next, `DEMO-UX-01` captures a synthetic-data screenshot (`demo-ux-01-mobile-390x844-${mode}.png`) and attaches a 4-point visual review rubric (**Truncation**, **Occlusion**, **Alignment**, **Contrast**) via `testInfo.attach()`. Screenshot inspection (by a human or optional VLM) is non-deterministic and complements—never replaces—deterministic DOM geometry assertions. **Step 3 & 4 (Failing Playwright run):** When you run `npm run test:e2e:broken:verify`, Playwright executes the fail-closed `ui-contract` fixture (`serviceWorkers: "block"`, `ORIGIN = "https://offline-ui-contract.invalid"`) and verifies that both regressions fail for their exact expected reasons: `DEMO-AUTH-01` fails because the email input is `""` instead of `"qa-reset@example.invalid"`, and `DEMO-UX-01` attaches the broken screenshot (`FAIL` on Occlusion/Alignment) and fails because `document.documentElement.scrollWidth` (`556px`) exceeds `window.innerWidth` (`390px`).',
+        '**Step 5, 6 & 7 (Repair, pass, and lock with `playwright-harness-kit`):** Running `npm run test:e2e:contract` (which loads the repaired default state `?mode=fixed`) passes `DEMO-AUTH-01`, `DEMO-UX-01` (with `demo-ux-01-mobile-390x844-fixed.png` passing all 4 visual rubric criteria: Truncation, Occlusion, Alignment, Contrast), and a third negative boundary test verifying that both an unmocked HTTP `fetch("https://analytics.example.com/ping")` and an unmocked `new WebSocket("wss://realtime.example.com/socket")` are blocked and recorded by the default-deny `ui-contract` fixture. Finally, running `playwright-harness check examples/offline-ui --strict --verify-files` and `playwright-harness build examples/offline-ui --prune` verifies `e2e/ui-contract.spec.ts`, `DEMO-AUTH-01`, `DEMO-UX-01`, `package.json` scripts, and `.gitignore` against `.playwright-harness/spec.json` and generates `.claude/skills/verify-browser-scenarios/SKILL.md`.',
       ],
       callout: {
         label: 'RUN THE COMPLETE LAB OFFLINE IN UNDER 2 MINUTES',
-        text: 'Clone `RolePlayingTech/playwright-harness-kit`, run `npm test` and `npm run check` at the root, then `cd examples/offline-ui` to run `npm run test:e2e:broken` (watch it fail on HTTP 503 input wipe and 540px mobile overflow) followed by `npm run test:e2e:contract` (watch all 3 contract checks pass).',
+        text: 'Clone `RolePlayingTech/playwright-harness-kit`, run `npm test` and `npm run check` at the root, then `cd examples/offline-ui` to run `npm run test:e2e:broken:verify` (watch it verify the HTTP 503 input wipe, 556px > 390px mobile overflow, and attached screenshot) followed by `npm run test:e2e:contract` (watch all 3 contract checks pass).',
       },
       codeBlock: {
         caption: 'End-to-end console walkthrough of the runnable examples/offline-ui lab',
@@ -954,14 +1073,14 @@ $ npx github:RolePlayingTech/playwright-harness-kit build --prune`,
       levelBadge: 'POZIOM 3 · PRAKTYCZNE LABORATORIUM',
       heading: '10. Praktyczne laboratorium: wykryj i napraw błąd mobile 390px oraz HTTP 503 w Playwright i playwright-harness-kit',
       paragraphs: [
-        'Nie potrzebujesz dostępu do prywatnego repozytorium MUMRO ani żadnego płatnego klucza API modelu LLM/VLM, aby własnoręcznie wykonać cały proces z tej lekcji. Repozytorium `RolePlayingTech/playwright-harness-kit` zawiera samodzielny, działający offline mikro-projekt w katalogu `examples/offline-ui/` (a zestaw testów tej Akademii w `tests/academy.spec.ts` uruchamia ten sam scenariusz broken → fixed przy każdym buildzie).',
-        'Tak przebiega 7 kroków laboratorium. **Krok 1 (Aplikacja demonstracyjna):** Plik `examples/offline-ui/app/index.html` renderuje formularz odzyskiwania hasła (`M-AUTH-01`) oraz panel podglądu harmonogramu wydania (`M-UX-01`). Po uruchomieniu z parametrem `?mode=broken` aplikacja ma dwa realistyczne błędy UI: przy odpowiedzi HTTP `503` z `POST /api/auth/password/forgot` czyści wpisany przez użytkownika adres e-mail i planuje w tle nieautoryzowane ponowienie żądania; a na ekranie mobilnym `390×844` sztywna reguła `min-width: 540px` na `.drawer-card` rozpycha układ w poziomie i wypycha przycisk `Close drawer` poza widoczny obszar ekranu.',
-        '**Krok 2 (Dlaczego samo drzewo ARIA nie wystarczy):** W pliku `examples/offline-ui/e2e/ui-contract.spec.ts` zarówno `expect(page.getByRole("dialog")).toBeVisible()`, jak i `expect(page.getByRole("button", { name: "Close drawer" })).toBeVisible()` przechodzą na zielono nawet w trybie `?mode=broken`! Elementy istnieją w DOM i są widoczne w drzewie dostępności — co dobitnie pokazuje, dlaczego same asercje ról ARIA nie wykryją rozjechanego CSS-a. **Krok 3 i 4 (Czerwony przebieg Playwrighta):** Gdy uruchomisz `npm run test:e2e:broken`, Playwright wykonuje izolowaną oprawę `ui-contract` (`serviceWorkers: "block"`, `ORIGIN = "https://offline-ui-contract.invalid"`) i deterministycznie łapie oba błędy: `M-AUTH-01` pada, ponieważ pole Email ma wartość `""` zamiast `"qa-reset@example.invalid"`, a `M-UX-01` pada, ponieważ `document.documentElement.scrollWidth` wynosi `540` (`> 390`), a prawa krawędź przycisku zamknięcia wystaje poza `390px`.',
-        '**Krok 5, 6 i 7 (Naprawa, zielony test i spięcie w `playwright-harness-kit`):** Uruchomienie `npm run test:e2e:contract` (w domyślnym, naprawionym trybie `?mode=fixed`) przechodzi wszystkie 3 testy: `M-AUTH-01`, `M-UX-01` oraz negatywny test granicy sieciowej potwierdzający, że niezamockowane wywołanie `fetch("https://analytics.example.com/ping")` zostaje zablokowane (`blockedbyclient`) przez oprawę `ui-contract`. Na koniec `playwright-harness check examples/offline-ui --strict --verify-files` oraz `playwright-harness build examples/offline-ui --prune` potwierdzają spójność `e2e/ui-contract.spec.ts`, identyfikatorów `M-AUTH-01`/`M-UX-01`, skryptów `package.json` i `.gitignore` z plikiem `.playwright-harness/spec.json` oraz generują `.claude/skills/verify-browser-scenarios/SKILL.md`.',
+        'Nie potrzebujesz dostępu do prywatnego repozytorium MUMRO ani żadnego płatnego klucza API modelu LLM/VLM, aby własnoręcznie wykonać cały proces z tej lekcji. Repozytorium `RolePlayingTech/playwright-harness-kit` zawiera samodzielny, działający offline mikro-projekt w katalogu `examples/offline-ui/` (a zestaw testów tej Akademii w `tests/academy.spec.ts` uruchamia ten sam scenariusz broken → fixed przy każdym buildzie). Aby katalogi scenariuszy były całkowicie jednoznaczne, produkcyjny kontrakt MUMRO w Playbooku 07 używa przestrzeni nazw `M-*` (`M-AUTH-01` dla wyścigu odświeżania sesji 401, `M-UX-01` dla geometrii powłoki mobilnej), natomiast uruchamialne laboratorium offline używa własnej przestrzeni nazw `DEMO-*` (`DEMO-AUTH-01` oraz `DEMO-UX-01`).',
+        'Tak przebiega 7 kroków laboratorium. **Krok 1 (Aplikacja demonstracyjna):** Plik `examples/offline-ui/app/index.html` renderuje formularz odzyskiwania hasła (`DEMO-AUTH-01`) oraz panel podglądu harmonogramu wydania (`DEMO-UX-01`). Po uruchomieniu z parametrem `?mode=broken` aplikacja ma dwa realistyczne błędy UI: przy odpowiedzi HTTP `503` z `POST /api/auth/password/forgot` czyści wpisany przez użytkownika adres e-mail i planuje w tle nieautoryzowane ponowienie żądania; a na ekranie mobilnym `390×844` sztywna reguła `min-width: 540px` na `.drawer-card` rozpycha układ w poziomie i wypycha przycisk `Close drawer` poza widoczny obszar ekranu.',
+        '**Krok 2 (ARIA + Syntetyczny Screenshot + Geometria DOM):** W pliku `examples/offline-ui/e2e/ui-contract.spec.ts` zarówno `expect(page.getByRole("dialog")).toBeVisible()`, jak i `expect(page.getByRole("button", { name: "Close drawer" })).toBeVisible()` przechodzą na zielono nawet w trybie `?mode=broken`! Następnie `DEMO-UX-01` wykonuje zrzut ekranu na danych syntetycznych (`demo-ux-01-mobile-390x844-${mode}.png`) i dołącza przez `testInfo.attach()` 4-punktową rubrykę oceny wizualnej (**Truncation**, **Occlusion**, **Alignment**, **Contrast**). Inspekcja zrzutu ekranu (przez człowieka lub opcjonalny model VLM) jest niedeterministyczna i uzupełnia — nigdy nie zastępuje — deterministycznych asercji geometrii DOM. **Krok 3 i 4 (Czerwony przebieg Playwrighta):** Gdy uruchomisz `npm run test:e2e:broken:verify`, Playwright wykonuje izolowaną oprawę `ui-contract` (`serviceWorkers: "block"`, `ORIGIN = "https://offline-ui-contract.invalid"`) i potwierdza, że obie regresje padają z dokładnie oczekiwanych powodów: `DEMO-AUTH-01` pada, ponieważ pole Email ma wartość `""` zamiast `"qa-reset@example.invalid"`, a `DEMO-UX-01` zapisuje zepsuty zrzut ekranu (`FAIL` dla Occlusion/Alignment) i pada, ponieważ `document.documentElement.scrollWidth` (`556px`) przekracza `window.innerWidth` (`390px`).',
+        '**Krok 5, 6 i 7 (Naprawa, zielony test i spięcie w `playwright-harness-kit`):** Uruchomienie `npm run test:e2e:contract` (w domyślnym, naprawionym trybie `?mode=fixed`) przechodzi wszystkie 3 testy: `DEMO-AUTH-01`, `DEMO-UX-01` (ze zrzutem `demo-ux-01-mobile-390x844-fixed.png` spełniającym wszystkie 4 kryteria rubryki wizualnej: Truncation, Occlusion, Alignment, Contrast) oraz negatywny test granicy sieciowej potwierdzający, że zarówno niezamockowane wywołanie HTTP `fetch("https://analytics.example.com/ping")`, jak i niezamockowane połączenie `new WebSocket("wss://realtime.example.com/socket")` zostają zablokowane i odnotowane przez oprawę `ui-contract`. Na koniec `playwright-harness check examples/offline-ui --strict --verify-files` oraz `playwright-harness build examples/offline-ui --prune` potwierdzają spójność `e2e/ui-contract.spec.ts`, identyfikatorów `DEMO-AUTH-01`/`DEMO-UX-01`, skryptów `package.json` i `.gitignore` z plikiem `.playwright-harness/spec.json` oraz generują `.claude/skills/verify-browser-scenarios/SKILL.md`.',
       ],
       callout: {
         label: 'URUCHOM CAŁE LABORATORIUM OFFLINE W MNIEJ NIŻ 2 MINUTY',
-        text: 'Sklonuj `RolePlayingTech/playwright-harness-kit`, uruchom `npm test` i `npm run check` w katalogu głównym, a następnie wejdź do `examples/offline-ui` i wykonaj `npm run test:e2e:broken` (zobacz, jak Playwright łapie skasowany e-mail po HTTP 503 i przepełnienie 540px na mobile) oraz `npm run test:e2e:contract` (wszystkie 3 testy przechodzą).',
+        text: 'Sklonuj `RolePlayingTech/playwright-harness-kit`, uruchom `npm test` i `npm run check` w katalogu głównym, a następnie wejdź do `examples/offline-ui` i wykonaj `npm run test:e2e:broken:verify` (zobacz weryfikację skasowanego e-maila po HTTP 503, przepełnienia 556px > 390px na mobile i załączonego zrzutu ekranu) oraz `npm run test:e2e:contract` (wszystkie 3 testy przechodzą).',
       },
       codeBlock: {
         caption: 'Pełny przebieg konsolowy uruchamialnego laboratorium examples/offline-ui',

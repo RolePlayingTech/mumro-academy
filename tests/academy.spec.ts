@@ -15,6 +15,7 @@ import {
 import {
   HYBRID_VERIFICATION_CODE,
   LESSON15_LAB_HTML_APP,
+  UI_CONTRACT_FIXTURE_CODE,
 } from '../src/content/lesson-playwright-browser-automation';
 import { playbooksContent } from '../src/content/playbooks';
 
@@ -130,6 +131,35 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     const cliBin = resolve(process.cwd(), 'node_modules/playwright-harness-kit/bin/playwright-harness.mjs');
     expect(existsSync(cliBin), `Expected pinned playwright-harness-kit CLI at ${cliBin}`).toBe(true);
 
+    // 0. Assert Lesson 15 code snippets stay byte-for-byte synced with `examples/offline-ui/` (Issue #15)
+    const offlineUiRoot = resolve(process.cwd(), 'node_modules/playwright-harness-kit/examples/offline-ui');
+    const normalizeLf = (text: string) => text.replace(/\r\n/g, '\n').trim();
+    expect(normalizeLf(LESSON15_LAB_HTML_APP)).toBe(
+      normalizeLf(readFileSync(join(offlineUiRoot, 'app/index.html'), 'utf8'))
+    );
+    expect(normalizeLf(UI_CONTRACT_FIXTURE_CODE)).toBe(
+      normalizeLf(readFileSync(join(offlineUiRoot, 'e2e/fixtures.ts'), 'utf8'))
+    );
+    expect(normalizeLf(HYBRID_VERIFICATION_CODE)).toBe(
+      normalizeLf(readFileSync(join(offlineUiRoot, 'e2e/ui-contract.spec.ts'), 'utf8'))
+    );
+
+    // Verify `check --verify-files --json` observes `DEMO-AUTH-01` & `DEMO-UX-01` in the runnable offline UI lab
+    // (Note: npm strips `.gitignore` inside `node_modules/`, so we assert `errors === []` and `scenarioSpecFiles`/`tierCommands` === `'observed'`)
+    const cliOfflineUi = spawnSync(
+      process.execPath,
+      [cliBin, 'check', offlineUiRoot, '--verify-files', '--json'],
+      { encoding: 'utf8' }
+    );
+    expect(cliOfflineUi.status).toBe(0);
+    const offlineUiReport = JSON.parse(cliOfflineUi.stdout);
+    expect(offlineUiReport.errors).toEqual([]);
+    const offlineUiEvidence = Object.fromEntries(
+      offlineUiReport.evidence.map((entry: { policy: string; status: string }) => [entry.policy, entry.status])
+    );
+    expect(offlineUiEvidence.scenarioSpecFiles).toBe('observed');
+    expect(offlineUiEvidence.tierCommands).toBe('observed');
+
     const playbook07 = playbooksContent.en.items.find((item) => item.id === 'playwright-verification-spec');
     expect(playbook07).toBeDefined();
     const validSpec = JSON.parse(playbook07!.templateCode);
@@ -194,6 +224,47 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(cliBuildPrune.stdout).toContain('[prune    ] .claude/skills/temporary-audit-skill/SKILL.md');
       expect(existsSync(join(workDir, '.claude/skills/temporary-audit-skill/SKILL.md'))).toBe(false);
 
+      // 3b. Issue #6 regression: tampered `.managed-manifest.json` with `README.md` or unmanaged `SKILL.md` must never be deleted by `build --prune --force`
+      writeFileSync(join(workDir, 'README.md'), '# Protected Repository Readme\n', 'utf8');
+      mkdirSync(join(workDir, '.claude/skills/manual-unmanaged'), { recursive: true });
+      writeFileSync(
+        join(workDir, '.claude/skills/manual-unmanaged/SKILL.md'),
+        '# Hand-authored unmanaged skill\n',
+        'utf8'
+      );
+      writeFileSync(
+        join(specDir, '.managed-manifest.json'),
+        JSON.stringify(
+          {
+            version: 1,
+            skillTargets: ['.playwright-harness/skills', '.claude/skills'],
+            managedFiles: [
+              '.playwright-harness/skills/verify-browser-scenarios/SKILL.md',
+              '.claude/skills/verify-browser-scenarios/SKILL.md',
+              'README.md',
+              '.claude/skills/manual-unmanaged/SKILL.md',
+            ],
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+      const cliTamperedPrune = spawnSync(
+        process.execPath,
+        [cliBin, 'build', workDir, '--prune', '--force'],
+        { encoding: 'utf8' }
+      );
+      expect(cliTamperedPrune.status).toBe(0);
+      expect(cliTamperedPrune.stdout).toContain('rejected untrusted entry "README.md"');
+      expect(cliTamperedPrune.stdout).toContain(
+        'ignoring unmanaged file ".claude/skills/manual-unmanaged/SKILL.md" (missing playwright-harness-kit ownership marker; refusing to delete even with --force)'
+      );
+      expect(readFileSync(join(workDir, 'README.md'), 'utf8')).toBe('# Protected Repository Readme\n');
+      expect(readFileSync(join(workDir, '.claude/skills/manual-unmanaged/SKILL.md'), 'utf8')).toBe(
+        '# Hand-authored unmanaged skill\n'
+      );
+
       const cliCheck = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
       expect(cliCheck.status).toBe(0);
       expect(cliCheck.stdout.trim()).toBe(
@@ -213,12 +284,12 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       mkdirSync(join(workDir, 'frontend/e2e/ui-contract'), { recursive: true });
       writeFileSync(
         join(workDir, 'frontend/e2e/ui-contract/auth-session.spec.ts'),
-        HYBRID_VERIFICATION_CODE,
+        `// M-AUTH-01\n${HYBRID_VERIFICATION_CODE}`,
         'utf8'
       );
       writeFileSync(
         join(workDir, 'frontend/e2e/ui-contract/ux-shell-mobile.spec.ts'),
-        HYBRID_VERIFICATION_CODE,
+        `// M-UX-01\n${HYBRID_VERIFICATION_CODE}`,
         'utf8'
       );
       writeFileSync(
@@ -278,7 +349,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     }
   });
 
-  test('Lesson 15 executable offline UI lab reproduces broken state and verifies fixed state under fail-closed ui-contract fixture', async ({ browser }) => {
+  test('Lesson 15 executable offline UI lab reproduces broken state and verifies fixed state under fail-closed ui-contract fixture', async ({ browser }, testInfo) => {
     const ORIGIN = 'https://offline-ui-contract.invalid';
     const context = await browser.newContext({
       baseURL: ORIGIN,
@@ -287,9 +358,11 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
     try {
       const blockedRequests: string[] = [];
+      const blockedWebSockets: string[] = [];
       let forgotPasswordCalls = 0;
 
       await context.routeWebSocket(/.*/, (ws) => {
+        blockedWebSockets.push(ws.url());
         ws.close({ code: 1008, reason: 'Blocked by ui-contract networkPolicy: deny-unhandled' });
       });
 
@@ -325,7 +398,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
       const page = await context.newPage();
 
-      // 1. BROKEN MODE (`/forgot-password?mode=broken`): reproduce both intentional bugs
+      // 1. BROKEN MODE (`/forgot-password?mode=broken`): reproduce both intentional bugs (DEMO-AUTH-01 & DEMO-UX-01)
       await page.goto(`${ORIGIN}/forgot-password?mode=broken`);
       const emailInput = page.getByLabel('Email');
       await emailInput.fill('qa-reset@example.invalid');
@@ -342,6 +415,13 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       // ARIA snapshot sees the dialog and button as visible, but DOM geometry catches the 540px overflow on 390px viewport
       await expect(drawer).toBeVisible();
       await expect(closeBtn).toBeVisible();
+
+      const brokenScreenshot = await page.screenshot({ fullPage: true });
+      await testInfo.attach('demo-ux-01-mobile-390x844-broken.png', {
+        body: brokenScreenshot,
+        contentType: 'image/png',
+      });
+
       const brokenOverflow = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,
         innerWidth: window.innerWidth,
@@ -351,7 +431,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(brokenCloseBox).not.toBeNull();
       expect(brokenCloseBox!.x + brokenCloseBox!.width).toBeGreaterThan(390);
 
-      // 2. FIXED MODE (`/forgot-password?mode=fixed`): verify M-AUTH-01 and M-UX-01 pass
+      // 2. FIXED MODE (`/forgot-password?mode=fixed`): verify DEMO-AUTH-01 and DEMO-UX-01 pass
       forgotPasswordCalls = 0;
       await page.goto(`${ORIGIN}/forgot-password?mode=fixed`);
       await emailInput.fill('qa-reset@example.invalid');
@@ -364,6 +444,32 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       await page.setViewportSize({ width: 390, height: 844 });
       await expect(drawer).toBeVisible();
       await expect(closeBtn).toBeVisible();
+
+      const fixedScreenshot = await page.screenshot({ fullPage: true });
+      expect(fixedScreenshot.byteLength).toBeGreaterThan(1000);
+      await testInfo.attach('demo-ux-01-mobile-390x844-fixed.png', {
+        body: fixedScreenshot,
+        contentType: 'image/png',
+      });
+      await testInfo.attach('demo-ux-01-visual-rubric-fixed.json', {
+        body: Buffer.from(
+          JSON.stringify(
+            {
+              scenarioId: 'DEMO-UX-01',
+              mode: 'fixed',
+              viewport: '390x844',
+              syntheticFixturesOnly: true,
+              nonDeterministicVisualComplement: true,
+              rubric4Point: ['Truncation', 'Occlusion', 'Alignment', 'Contrast'],
+            },
+            null,
+            2
+          ),
+          'utf8'
+        ),
+        contentType: 'application/json',
+      });
+
       const fixedOverflow = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,
         innerWidth: window.innerWidth,
@@ -374,10 +480,22 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(fixedCloseBox!.x).toBeGreaterThanOrEqual(0);
       expect(fixedCloseBox!.x + fixedCloseBox!.width).toBeLessThanOrEqual(390);
       expect(blockedRequests).toEqual([]);
+      expect(blockedWebSockets).toEqual([]);
 
-      // 3. NEGATIVE BOUNDARY TEST: unmocked third-party request is blocked by default-deny route
+      // 3. NEGATIVE BOUNDARY TEST: unmocked third-party HTTP request and WebSocket are both blocked by default-deny route
       await expect(page.evaluate(() => fetch('https://analytics.example.com/ping'))).rejects.toThrow();
+      const wsClose = await page.evaluate(
+        () =>
+          new Promise<{ code: number; wasClean: boolean }>((resolveWs) => {
+            const ws = new WebSocket('wss://realtime.example.com/socket');
+            ws.addEventListener('close', (event) => {
+              resolveWs({ code: event.code, wasClean: event.wasClean });
+            });
+          })
+      );
+      expect(wsClose.code).toBe(1008);
       expect(blockedRequests).toEqual(['https://analytics.example.com/ping']);
+      expect(blockedWebSockets).toEqual(['wss://realtime.example.com/socket']);
     } finally {
       await context.close();
     }
@@ -419,6 +537,8 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('[data-browser-layer-panel="session"]')).toBeVisible();
 
     await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-AUTH-01');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-UX-01');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('--verify-files');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('?mode=broken');
 
@@ -427,6 +547,8 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('h1')).toContainText('Playwright');
     await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
     await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-AUTH-01');
+    await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-UX-01');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('--verify-files');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('?mode=fixed');
   });
