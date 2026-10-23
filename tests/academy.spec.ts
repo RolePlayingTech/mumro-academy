@@ -170,7 +170,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     const cliBin = resolve(process.cwd(), 'node_modules/git-agent-workflow-kit/bin/git-agent.mjs');
     expect(existsSync(cliBin), `Expected pinned git-agent-workflow-kit CLI at ${cliBin}`).toBe(true);
 
-    const gitEnv = {
+    const gitEnv: NodeJS.ProcessEnv = {
       ...process.env,
       GIT_AUTHOR_DATE: '2026-10-20T11:00:00Z',
       GIT_COMMITTER_DATE: '2026-10-20T11:00:00Z',
@@ -179,6 +179,9 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       GIT_COMMITTER_NAME: 'MUMRO Academy Learner',
       GIT_COMMITTER_EMAIL: 'learner@academy.mumro.io',
     };
+
+    const childNodeEnv: NodeJS.ProcessEnv = { ...gitEnv };
+    delete childNodeEnv.NODE_TEST_CONTEXT;
 
     const runCli = (args: string[], cwd: string) =>
       spawnSync(process.execPath, [cliBin, ...args], {
@@ -192,6 +195,13 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
         cwd,
         encoding: 'utf8',
         env: gitEnv,
+      });
+
+    const runNodeTests = (cwd: string) =>
+      spawnSync(process.execPath, ['--test'], {
+        cwd,
+        encoding: 'utf8',
+        env: childNodeEnv,
       });
 
     const workDir = mkdtempSync(join(tmpdir(), 'academy-lesson16-lab-'));
@@ -208,6 +218,31 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(runGit(['switch', '-c', 'feat/session-expiry'], wsA).status).toBe(0);
       writeFileSync(join(wsA, '.gitignore'), 'node_modules/\ndist/\n.env\n.env.*\n!.env.example\n', 'utf8');
       writeFileSync(
+        join(wsA, 'tests/auth.test.js'),
+        [
+          "import test from 'node:test';",
+          "import assert from 'node:assert/strict';",
+          "import { verifySession } from '../src/auth.js';",
+          '',
+          "test('accepts session with userId', () => {",
+          "  const res = verifySession({ userId: 'usr_01', expiresAt: 2000, now: 1000 });",
+          '  assert.strictEqual(res.valid, true);',
+          '});',
+          '',
+          "test('rejects expired session', () => {",
+          "  const res = verifySession({ userId: 'usr_01', expiresAt: 1000, now: 1500 });",
+          '  assert.strictEqual(res.valid, false);',
+          "  assert.strictEqual(res.reason, 'expired');",
+          '});',
+          '',
+        ].join('\n'),
+        'utf8'
+      );
+
+      // Before fixing src/auth.js, the new session expiry test must fail
+      expect(runNodeTests(wsA).status).not.toBe(0);
+
+      writeFileSync(
         join(wsA, 'src/auth.js'),
         [
           'export function verifySession(session) {',
@@ -223,8 +258,12 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
         ].join('\n'),
         'utf8'
       );
+
+      // After fixing src/auth.js, both session tests must pass
+      expect(runNodeTests(wsA).status).toBe(0);
+
       writeFileSync(join(wsA, 'src/dashboard.js'), '// Accidental out-of-scope agent edit\n', 'utf8');
-      expect(runGit(['add', '.gitignore', 'src/auth.js', 'src/dashboard.js'], wsA).status).toBe(0);
+      expect(runGit(['add', '.gitignore', 'src/auth.js', 'tests/auth.test.js', 'src/dashboard.js'], wsA).status).toBe(0);
       expect(runGit(['commit', '-m', 'feat: check session expiry'], wsA).status).toBe(0);
 
       const prFailA = runCli(
@@ -269,12 +308,46 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       expect(docBConflict.status).toBe(1);
       expect(docBConflict.stdout.trim()).toBe(LAB_B_EXPECTED_CONFLICT_DOCTOR);
 
-      expect(runGit(['merge', '--abort'], wsB).status).toBe(0);
+      const recConflict = runCli(['recovery-plan', '.'], wsB);
+      expect(recConflict.status).toBe(0);
+      expect(recConflict.stdout).toContain('[conflict-in-progress]');
+
+      // Resolve conflict in src/auth.js keeping both auditedRole and unified v2 header, then commit the merge
+      writeFileSync(
+        join(wsB, 'src/auth.js'),
+        [
+          'export function authorizeRequest(req) {',
+          "  const role = req?.user?.role ?? 'guest';",
+          "  const header = 'X-App-Auth: v2-unified';",
+          "  if (role !== 'admin' && role !== 'editor') {",
+          '    return { status: 403, allowed: false, header, auditedRole: role };',
+          '  }',
+          '  return { status: 200, allowed: true, header, auditedRole: role };',
+          '}',
+          '',
+        ].join('\n'),
+        'utf8'
+      );
+      expect(runGit(['add', 'src/auth.js'], wsB).status).toBe(0);
+      expect(runGit(['commit', '-m', 'merge: combine agent-1 audit role and agent-2 dashboard cards'], wsB).status).toBe(0);
+      expect(runNodeTests(wsB).status).toBe(0);
+
       expect(runGit(['switch', 'agent-3/fix-tests'], wsB).status).toBe(0);
 
       const prFailB = runCli(['pr-ready', '.', '--base', 'main', '--allow', 'tests/**', '--strict'], wsB);
       expect(prFailB.status).toBe(1);
       expect(prFailB.stdout.trim()).toBe(LAB_B_EXPECTED_AGENT3_PR_FAIL);
+
+      // Simulate accidental merge of agent-3/fix-tests onto main and recover via git revert -m 1 HEAD
+      expect(runGit(['switch', 'main'], wsB).status).toBe(0);
+      expect(runGit(['merge', '--no-ff', '-X', 'theirs', 'agent-3/fix-tests', '-m', 'Merge agent-3/fix-tests'], wsB).status).toBe(0);
+      const recMerged = runCli(['recovery-plan', '.'], wsB);
+      expect(recMerged.status).toBe(0);
+      expect(recMerged.stdout).toContain('[bad-merge-on-main]');
+      expect(recMerged.stdout).toContain('git revert -m 1 ');
+
+      expect(runGit(['revert', '-m', '1', 'HEAD', '--no-edit'], wsB).status).toBe(0);
+      expect(runNodeTests(wsB).status).toBe(0);
 
       console.log(`PASS: Executed real git-agent-workflow-kit CLI (${cliBin}) for Lab A and Lab B contracts.`);
     } finally {

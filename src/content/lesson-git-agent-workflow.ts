@@ -22,28 +22,30 @@ Recommended next steps:
   -> Move uncommitted work off the default branch with "git switch -c feat/<task-name>" or shelve it with "git stash push -u -m \\"wip\\"".`;
 
 export const LAB_A_EXPECTED_PR_FAIL = `Git Agent PR Readiness: FAIL
-  Branch -> Base : feat/session-expiry (5ae6d88) -> main
+  Branch -> Base : feat/session-expiry (8e78bc5) -> main
   Commits        : 1 ahead, 0 behind
-  Diff summary   : 3 file(s) changed (+7 / -3)
+  Diff summary   : 4 file(s) changed (+13 / -3)
   Allowed scope  : src/auth.js, tests/auth.test.js, .gitignore (1 out-of-scope)
 
 Changed files:
   [M] .gitignore (+3/-0)
   [M] src/auth.js (+3/-0)
   [M] src/dashboard.js (+1/-3)
+  [M] tests/auth.test.js (+6/-0)
 
 Errors (must fix before PR):
   - Out-of-scope file modified: "src/dashboard.js" (allowed scope: src/auth.js, tests/auth.test.js, .gitignore).`;
 
 export const LAB_A_EXPECTED_PR_PASS = `Git Agent PR Readiness: PASS
-  Branch -> Base : feat/session-expiry (5fc71fa) -> main
+  Branch -> Base : feat/session-expiry (278f5ab) -> main
   Commits        : 1 ahead, 0 behind
-  Diff summary   : 2 file(s) changed (+6 / -0)
+  Diff summary   : 3 file(s) changed (+12 / -0)
   Allowed scope  : src/auth.js, tests/auth.test.js, .gitignore (all files in scope)
 
 Changed files:
   [M] .gitignore (+3/-0)
-  [M] src/auth.js (+3/-0)`;
+  [M] src/auth.js (+3/-0)
+  [M] tests/auth.test.js (+6/-0)`;
 
 export const LAB_B_EXPECTED_CONFLICT_DOCTOR = `Git Agent Doctor: FAIL
   Branch / HEAD : main (deb4395) [protected/shared]
@@ -70,7 +72,7 @@ Recommended next steps:
 
 export const LAB_B_EXPECTED_AGENT3_PR_FAIL = `Git Agent PR Readiness: FAIL
   Branch -> Base : agent-3/fix-tests (6ba5252) -> main
-  Commits        : 1 ahead, 1 behind
+  Commits        : 1 ahead, 3 behind
   Diff summary   : 2 file(s) changed (+2 / -3)
   Allowed scope  : tests/** (1 out-of-scope)
 
@@ -82,7 +84,7 @@ Errors (must fix before PR):
   - Out-of-scope file modified: "src/auth.js" (allowed scope: tests/**).
 
 Warnings (review carefully):
-  - Branch is 1 commit(s) behind "main".
+  - Branch is 3 commit(s) behind "main".
   - Suspicious test modification in "tests/auth.test.js": removed 2 assertion(s) vs 1 added; replaced strict assertion(s) with weak/tautological check.`;
 
 const THREE_TREES_DIAGRAM = `Working Tree (disk files)      Staging Area (Index)        Local Repository (.git)       Remote (GitHub origin)
@@ -133,18 +135,60 @@ $ cd ./lab-a/workspace
 $ npx github:RolePlayingTech/git-agent-workflow-kit doctor .
 ${LAB_A_EXPECTED_DOCTOR_FAIL}
 
-# 2. Switch off main, fix .gitignore, and commit session expiry (plus an accidental agent edit to src/dashboard.js):
+# 2. Switch off main, fix .gitignore, and write a failing test for expired sessions first:
 $ git switch -c feat/session-expiry
-$ git add .gitignore src/auth.js src/dashboard.js
+$ cat << 'EOF' > .gitignore
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+EOF
+$ cat << 'EOF' > tests/auth.test.js
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { verifySession } from '../src/auth.js';
+
+test('accepts session with userId', () => {
+  const res = verifySession({ userId: 'usr_01', expiresAt: 2000, now: 1000 });
+  assert.strictEqual(res.valid, true);
+});
+
+test('rejects expired session', () => {
+  const res = verifySession({ userId: 'usr_01', expiresAt: 1000, now: 1500 });
+  assert.strictEqual(res.valid, false);
+  assert.strictEqual(res.reason, 'expired');
+});
+EOF
+$ npm test
+# fail 1 (rejects expired session fails before src/auth.js checks expiresAt!)
+
+# 3. Implement expiry check in src/auth.js (plus simulate an accidental agent edit to src/dashboard.js):
+$ cat << 'EOF' > src/auth.js
+export function verifySession(session) {
+  if (!session || typeof session.userId !== 'string') {
+    return { valid: false, reason: 'missing-user' };
+  }
+  if (typeof session.expiresAt === 'number' && typeof session.now === 'number' && session.now >= session.expiresAt) {
+    return { valid: false, reason: 'expired' };
+  }
+  return { valid: true, userId: session.userId };
+}
+EOF
+$ printf '// Accidental out-of-scope agent edit\\n' > src/dashboard.js
+$ npm test
+# pass 2 / fail 0
+$ git add .gitignore src/auth.js src/dashboard.js tests/auth.test.js
 $ git commit -m "feat: check session expiry"
 
-# 3. Audit PR readiness against the allowed task scope:
+# 4. Audit PR readiness against the allowed task scope:
 $ npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore"
 ${LAB_A_EXPECTED_PR_FAIL}
 
-# 4. Restore the out-of-scope file from main, amend the local commit, and re-verify:
+# 5. Restore the out-of-scope file from main, amend the local commit, and re-verify:
 $ git restore --source=main --staged --worktree src/dashboard.js
 $ git commit --amend -m "feat: check session expiry"
+$ npm test
 $ npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore" --strict
 ${LAB_A_EXPECTED_PR_PASS}`;
 
@@ -161,14 +205,30 @@ Automatic merge failed; fix conflicts and then commit the result.
 $ npx github:RolePlayingTech/git-agent-workflow-kit doctor .
 ${LAB_B_EXPECTED_CONFLICT_DOCTOR}
 
-# 2. After resolving src/auth.js and committing, inspect Agent 3's "all tests green" branch before merging:
+# 2. Resolve the conflict in src/auth.js (keeping both auditedRole and unified v2 header), commit, and test:
+$ cat << 'EOF' > src/auth.js
+export function authorizeRequest(req) {
+  const role = req?.user?.role ?? 'guest';
+  const header = 'X-App-Auth: v2-unified';
+  if (role !== 'admin' && role !== 'editor') {
+    return { status: 403, allowed: false, header, auditedRole: role };
+  }
+  return { status: 200, allowed: true, header, auditedRole: role };
+}
+EOF
+$ git add src/auth.js
+$ git commit -m "merge: combine agent-1 audit role and agent-2 dashboard cards"
+$ npm test
+# pass 2 / fail 0
+
+# 3. Inspect Agent 3's "all tests green" branch before merging:
 $ git switch agent-3/fix-tests
 $ npm test
 # pass 2 / fail 0  <-- Tests are green! Now run pr-ready with scope & test-integrity checks:
 $ npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base main --allow "tests/**" --strict
 ${LAB_B_EXPECTED_AGENT3_PR_FAIL}
 
-# 3. If a faulty merge already landed on main, revert it safely without rewriting shared history:
+# 4. If a faulty merge already landed on main, revert it safely without rewriting shared history:
 $ git switch main
 $ git merge --no-ff -X theirs agent-3/fix-tests -m "Merge agent-3/fix-tests"
 $ npx github:RolePlayingTech/git-agent-workflow-kit recovery-plan .
@@ -445,8 +505,8 @@ $ git worktree remove ../app-auth`,
       paragraphs: [
         'In this first hands-on laboratory, you will run the complete single-agent workflow on a real local Git repository generated by `git-agent sandbox lab-a ./lab-a`. The sandbox creates both a bare remote (`./lab-a/origin.git`) and a cloned working repository (`./lab-a/workspace`) for a small session-verification module (`src/auth.js`, `src/dashboard.js`, `tests/auth.test.js`). Everything runs locally on your machine in under five minutes using Node.js 20+ and Git.',
         'Step 1 — **Run `doctor` before touching code.** Inside `./lab-a/workspace`, run `npx github:RolePlayingTech/git-agent-workflow-kit doctor .` (or `node bin/git-agent.mjs doctor .` from a local clone). The command exits with `FAIL` (`code 1`) and reveals two immediate hazards that a hasty `git add .` would have turned into a security incident: you are currently on the protected `main` branch (`dea0f6c`), and an untracked `.env.local` file sits in the directory while `.gitignore` does not ignore `.env` or `.env.*` (notice that `doctor` reports the filename `.env.local` without printing the secret inside it).',
-        'Step 2 — **Isolate a feature branch, fix `.gitignore`, and simulate an agent’s out-of-scope edit.** Run `git switch -c feat/session-expiry` to leave `main` untouched. Append `.env`, `.env.*`, and `!.env.example` to `.gitignore` so `.env.local` becomes ignored by Git. Next, add the session expiration check to `src/auth.js` — and to see how scope auditing works, also make an unrelated edit to `src/dashboard.js` (just as coding agents often do when “cleaning up” neighboring files). Stage and commit `.gitignore`, `src/auth.js`, and `src/dashboard.js`.',
-        'Step 3 — **Catch scope creep with `pr-ready` and repair the commit with `git restore`.** Run `git-agent pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore"`. The CLI exits with `FAIL` (`5ae6d88`), listing `Out-of-scope file modified: "src/dashboard.js"`. Instead of resetting your whole branch, restore that single file from `main` using `git restore --source=main --staged --worktree src/dashboard.js` and amend your local commit (`git commit --amend -m "feat: check session expiry"`). Re-run `pr-ready --strict`: it now reports `PASS` (`5fc71fa`) with `2 file(s) changed (+6 / -0)` and `all files in scope`. Finally, run `npm test`, switch to `main`, merge with `git merge --no-ff feat/session-expiry`, and push to the local `origin` remote (`git push origin main`).',
+        'Step 2 — **Isolate a feature branch, fix `.gitignore`, write a failing expiry test first, and simulate an agent’s out-of-scope edit.** Run `git switch -c feat/session-expiry` to leave `main` untouched. Append `.env`, `.env.*`, and `!.env.example` to `.gitignore` so `.env.local` becomes ignored by Git. Notice that the baseline `tests/auth.test.js` only checks a valid session (`expiresAt: 2000, now: 1000`), so `npm test` would pass even if expired sessions were never rejected! Add a second test (`rejects expired session` with `expiresAt: 1000, now: 1500` asserting `res.valid === false` and `res.reason === "expired"`) and run `npm test` to confirm it fails first. Next, add the session expiration check to `src/auth.js`, re-run `npm test` (both tests now pass!), and also make an unrelated edit to `src/dashboard.js` (just as coding agents often do when “cleaning up” neighboring files). Stage and commit `.gitignore`, `src/auth.js`, `src/dashboard.js`, and `tests/auth.test.js`.',
+        'Step 3 — **Catch scope creep with `pr-ready` and repair the commit with `git restore`.** Run `git-agent pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore"`. The CLI exits with `FAIL` (`8e78bc5`), listing `Out-of-scope file modified: "src/dashboard.js"`. Instead of resetting your whole branch, restore that single file from `main` using `git restore --source=main --staged --worktree src/dashboard.js` and amend your local commit (`git commit --amend -m "feat: check session expiry"`). Re-run `npm test` and `pr-ready --strict`: it now reports `PASS` (`278f5ab`) with `3 file(s) changed (+12 / -0)` and `all files in scope`. Finally, switch to `main`, merge with `git merge --no-ff feat/session-expiry`, and push to the local `origin` remote (`git push origin main`).',
       ],
       callout: {
         label: 'WHY GIT RESTORE --SOURCE=MAIN WORKS SO CLEANLY',
@@ -469,8 +529,8 @@ $ git worktree remove ../app-auth`,
         'Step 3 — **Simulate a bad merge on `main` and recover with `git revert -m 1`.** What if a teammate already merged `agent-3/fix-tests` into `main` before noticing the bug? Switch back to `main` and simulate that mistake with `git merge --no-ff -X theirs agent-3/fix-tests -m "Merge agent-3/fix-tests"`. Now `src/auth.js` on `main` is broken. Run `git-agent recovery-plan .`: it automatically detects `bad-merge-on-main` and instructs you **not** to run `git reset --hard HEAD~1` on a shared branch, but instead to run `git revert -m 1 HEAD --no-edit`. Execute `git revert -m 1 HEAD --no-edit`: Git creates a clean forward inverse commit that restores the strict `403` guard in `src/auth.js` and `assert.strictEqual(res.status, 403)` in `tests/auth.test.js` while keeping the entire commit history intact.',
       ],
       callout: {
-        label: 'EVERY OUTPUT IN LAB A AND LAB B IS VERIFIED IN CI',
-        text: 'The Academy’s automated Playwright test suite (`tests/academy.spec.ts`) executes `git-agent sandbox lab-a` and `lab-b` along with real `git` commands on every build, asserting that the CLI outputs match the exact blocks shown in Sections 8 and 9.',
+        label: 'HOW LAB A AND LAB B ARE VERIFIED IN CI',
+        text: 'Both `tests/academy.spec.ts` (in MUMRO Academy) and `tests/sandbox-labs.test.mjs` (in `RolePlayingTech/git-agent-workflow-kit`) execute the full Lab A and Lab B workflows on every build — including the failing-then-passing session expiry test, conflict resolution, `pr-ready` scope & test-weakening checks, and `git revert -m 1` recovery.',
       },
       codeBlock: {
         caption: 'Laboratory B — Three parallel agents, conflict diagnosis, test-weakening detection, and git revert -m 1',
@@ -826,8 +886,8 @@ $ git worktree remove ../app-auth`,
       paragraphs: [
         'W pierwszym laboratorium przećwiczysz pełny proces pracy pojedynczego agenta na prawdziwym lokalnym repozytorium Git wygenerowanym poleceniem `git-agent sandbox lab-a ./lab-a`. Generator tworzy zarówno lokalne repozytorium zdalne (`./lab-a/origin.git`), jak i sklonowane repozytorium robocze (`./lab-a/workspace`) dla niewielkiego modułu weryfikacji sesji (`src/auth.js`, `src/dashboard.js`, `tests/auth.test.js`). Całe ćwiczenie wykonasz lokalnie w mniej niż pięć minut, używając wyłącznie Node.js 20+ oraz Gita.',
         'Krok 1 — **Uruchom `doctor`, zanim dotkniesz kodu.** Wewnątrz `./lab-a/workspace` wykonaj `npx github:RolePlayingTech/git-agent-workflow-kit doctor .` (lub `node bin/git-agent.mjs doctor .` z lokalnego klonu). Narzędzie kończy się statusem `FAIL` (`kod 1`) i natychmiast wykrywa dwa zagrożenia, które przy bezrefleksyjnym `git add .` skończyłyby się wyciekiem danych: znajdujesz się bezpośrednio na chronionej gałęzi `main` (`dea0f6c`), a w katalogu leży nieśledzony plik `.env.local`, podczas gdy `.gitignore` nie ignoruje wzorców `.env` ani `.env.*` (zwróć uwagę, że `doctor` raportuje nazwę pliku `.env.local`, nigdy nie wypisując zawartości sekretu na ekran).',
-        'Krok 2 — **Załóż gałąź zadaniową, napraw `.gitignore` i zasymuluj wyjście agenta poza zakres zadania.** Wykonaj `git switch -c feat/session-expiry`, aby zostawić `main` w czystym stanie. Dopisz `.env`, `.env.*` oraz `!.env.example` do `.gitignore`, dzięki czemu `.env.local` zostanie zignorowany przez Gita. Następnie dodaj sprawdzanie wygasania sesji w `src/auth.js` — a żeby zobaczyć w akcji kontrolę zakresu zmian, wprowadź też niezwiązaną z zadaniem zmianę w `src/dashboard.js` (dokładnie tak, jak często robią agenci AI „przy okazji porządkowania kodu”). Dodaj do poczekalni i zacommituj `.gitignore`, `src/auth.js` oraz `src/dashboard.js`.',
-        'Krok 3 — **Wykryj wyjście poza zakres za pomocą `pr-ready` i napraw commit przez `git restore`.** Uruchom `git-agent pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore"`. Narzędzie zwraca `FAIL` (`5ae6d88`), wskazując `Out-of-scope file modified: "src/dashboard.js"`. Zamiast resetować całą gałąź, przywróć ten jeden plik do wersji z `main` poleceniem `git restore --source=main --staged --worktree src/dashboard.js` i popraw lokalny commit (`git commit --amend -m "feat: check session expiry"`). Ponowne uruchomienie `pr-ready --strict` zwraca `PASS` (`5fc71fa`) z wynikiem `2 file(s) changed (+6 / -0)` oraz `all files in scope`. Na koniec uruchom `npm test`, przełącz się na `main`, scal zmianę przez `git merge --no-ff feat/session-expiry` i wypchnij do lokalnego `origin` (`git push origin main`).',
+        'Krok 2 — **Załóż gałąź zadaniową, napraw `.gitignore`, napisz najpierw czerwony test wygasania sesji i zasymuluj wyjście agenta poza zakres zadania.** Wykonaj `git switch -c feat/session-expiry`, aby zostawić `main` w czystym stanie. Dopisz `.env`, `.env.*` oraz `!.env.example` do `.gitignore`, dzięki czemu `.env.local` zostanie zignorowany przez Gita. Zauważ, że bazowy plik `tests/auth.test.js` testuje wyłącznie aktywną sesję (`expiresAt: 2000, now: 1000`), więc `npm test` przechodziłby nawet wtedy, gdyby wygasłe sesje nigdy nie były odrzucane! Dopisz drugi test (`rejects expired session` z `expiresAt: 1000, now: 1500` sprawdzający `res.valid === false` i `res.reason === "expired"`) i uruchom `npm test`, aby potwierdzić, że przed implementacją test świeci na czerwono. Następnie dodaj sprawdzanie wygasania sesji w `src/auth.js`, uruchom ponownie `npm test` (oba testy przechodzą!) oraz wprowadź niezwiązaną z zadaniem zmianę w `src/dashboard.js` (jak często robią agenci AI „przy okazji porządkowania kodu”). Dodaj do poczekalni i zacommituj `.gitignore`, `src/auth.js`, `src/dashboard.js` oraz `tests/auth.test.js`.',
+        'Krok 3 — **Wykryj wyjście poza zakres za pomocą `pr-ready` i napraw commit przez `git restore`.** Uruchom `git-agent pr-ready . --base main --allow "src/auth.js" --allow "tests/auth.test.js" --allow ".gitignore"`. Narzędzie zwraca `FAIL` (`8e78bc5`), wskazując `Out-of-scope file modified: "src/dashboard.js"`. Zamiast resetować całą gałąź, przywróć ten jeden plik do wersji z `main` poleceniem `git restore --source=main --staged --worktree src/dashboard.js` i popraw lokalny commit (`git commit --amend -m "feat: check session expiry"`). Ponowne uruchomienie `npm test` oraz `pr-ready --strict` zwraca `PASS` (`278f5ab`) z wynikiem `3 file(s) changed (+12 / -0)` oraz `all files in scope`. Na koniec przełącz się na `main`, scal zmianę przez `git merge --no-ff feat/session-expiry` i wypchnij do lokalnego `origin` (`git push origin main`).',
       ],
       callout: {
         label: 'DLACZEGO GIT RESTORE --SOURCE=MAIN JEST TAK SKUTECZNE',
@@ -850,8 +910,8 @@ $ git worktree remove ../app-auth`,
         'Krok 3 — **Zasymuluj błędny merge na `main` i odzyskaj sprawną aplikację przez `git revert -m 1`.** Co zrobić, jeśli ktoś z zespołu zdążył już scalić `agent-3/fix-tests` do `main` przed zauważeniem błędu? Wróć na `main` i zasymuluj ten błąd poleceniem `git merge --no-ff -X theirs agent-3/fix-tests -m "Merge agent-3/fix-tests"`. Teraz autoryzacja na `main` jest dziurawa. Uruchom `git-agent recovery-plan .`: narzędzie automatycznie rozpoznaje scenariusz `bad-merge-on-main` i instruuje, by **nie** używać `git reset --hard HEAD~1` na wspólnej gałęzi, lecz wykonać `git revert -m 1 HEAD --no-edit`. Uruchom `git revert -m 1 HEAD --no-edit`: Git tworzy nowy commit odwracający błędny merge, przywraca blokadę `403` w `src/auth.js` oraz ścisłe asercje w `tests/auth.test.js`, zachowując pełną, czytelną historię repozytorium.',
       ],
       callout: {
-        label: 'KAŻDY WYNIK Z LABORATORIUM A I B JEST WERYFIKOWANY W CI',
-        text: 'Automatyczny zestaw testów MUMRO Academy (`tests/academy.spec.ts`) podczas każdego buildu uruchamia `git-agent sandbox lab-a` oraz `lab-b` wraz z prawdziwymi komendami `git` i sprawdza, że wyjście CLI zgadza się co do znaku z blokami pokazanymi w Sekcjach 8 i 9.',
+        label: 'JAK LABORATORIUM A I B SĄ WERYFIKOWANE W CI',
+        text: 'Zarówno `tests/academy.spec.ts` (w MUMRO Academy), jak i `tests/sandbox-labs.test.mjs` (w `RolePlayingTech/git-agent-workflow-kit`) podczas każdego buildu wykonują pełne scenariusze Lab A i Lab B — w tym test wygasania sesji (czerwony przed poprawką, zielony po poprawce), rozwiązanie konfliktu, audyt `pr-ready` oraz odzyskanie `main` przez `git revert -m 1`.',
       },
       codeBlock: {
         caption: 'Laboratorium B — Trzech agentów, diagnostyka konfliktu, wykrycie osłabionego testu i bezpieczny git revert -m 1',
