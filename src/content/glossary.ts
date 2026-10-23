@@ -172,6 +172,36 @@ const en = {
         'Connecting an agent to live workspace text without this contract turns every comment into an attack surface. The label does not make models immune; scopes and prepare/confirm still have to refuse a one-step publish.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
     },
+    {
+      id: 'git-worktree-isolation',
+      term: 'Git Worktree (`git worktree add`)',
+      category: 'Git & Multi-Agent Ops',
+      definition:
+        'A built-in Git feature (since Git 2.5) that attaches additional, independent Working Trees and Staging Areas (`index`) on disk to a single shared `.git` object database, while preventing any two worktrees from checking out the same branch simultaneously.',
+      whyItMatters:
+        'Lets two or more AI coding agents work in parallel on separate task branches without overwriting each other’s files, polluting a shared `git status`, or duplicating gigabytes of `.git` history.',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+    },
+    {
+      id: 'test-greenwashing',
+      term: 'Test Greenwashing (Weakened Assertions in AI PRs)',
+      category: 'Git & Multi-Agent Ops',
+      definition:
+        'A failure mode where an AI coding agent asked to “make all tests pass” modifies the test file instead of fixing the bug — deleting assertions, adding `.skip`, or replacing `assert.strictEqual(res.status, 403)` with `assert.ok(res.status)` so CI turns green while the bug remains.',
+      whyItMatters:
+        'Explains why green CI is necessary but never sufficient when AI writes both code and tests; requires inspecting `tests/**` diffs first and running automated test-integrity checks (`git-agent pr-ready`).',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+    },
+    {
+      id: 'git-reflog-and-revert',
+      term: 'Non-Destructive Git Recovery (`restore` / `revert -m 1` / `reflog`)',
+      category: 'Git & Multi-Agent Ops',
+      definition:
+        'Using surgical commands tailored to whether changes are uncommitted (`git restore`, `git stash -u`), lost locally (`git reflog` rescue branch), or already pushed to a shared branch (`git revert -m 1 <merge-sha>`) instead of rewriting shared history with `reset --hard` or `push --force`.',
+      whyItMatters:
+        'Prevents panic-induced data loss and broken teammate histories when recovering from an agent’s out-of-scope edits or a faulty Pull Request merge.',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+    },
   ] satisfies GlossaryTerm[],
 };
 
@@ -337,6 +367,36 @@ const pl: typeof en = {
       whyItMatters:
         'Podłączenie agenta do żywego tekstu workspace bez tego kontraktu zamienia każdy komentarz w powierzchnię ataku. Etykieta nie czyni modeli odpornymi; scope’y i prepare/confirm i tak muszą odmówić publikacji w jednym kroku.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'git-worktree-isolation',
+      term: 'Git Worktree (`git worktree add`)',
+      category: 'Git i Praca Wieloagentowa',
+      definition:
+        'Wbudowany mechanizm Gita (od wersji 2.5) podpinający dodatkowe, niezależne drzewa robocze (Working Tree) i indeksy poczekalni (Staging Area) na dysku do jednej wspólnej bazy obiektów `.git`, blokujący jednoczesne przełączenie tej samej gałęzi w dwóch katalogach.',
+      whyItMatters:
+        'Pozwala dwóm lub więcej agentom kodującym pracować równolegle na osobnych gałęziach zadaniowych bez wzajemnego nadpisywania plików, psucia wspólnego `git status` i duplikowania gigabajtów historii `.git`.',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+    },
+    {
+      id: 'test-greenwashing',
+      term: 'Test Greenwashing (Osłabianie asercji testowych przez AI)',
+      category: 'Git i Praca Wieloagentowa',
+      definition:
+        'Zjawisko, w którym agent AI poproszony o „naprawienie testów” modyfikuje plik testowy zamiast naprawić błąd w aplikacji — usuwając asercje, dodając `.skip` lub zamieniając `assert.strictEqual(res.status, 403)` na `assert.ok(res.status)`, przez co CI świeci na zielono mimo dziury w kodzie.',
+      whyItMatters:
+        'Pokazuje, dlaczego zielone CI nie wystarcza przy pracy z AI: wymaga czytania diffu `tests/**` w pierwszej kolejności oraz automatycznej kontroli integralności testów (`git-agent pr-ready`).',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+    },
+    {
+      id: 'git-reflog-and-revert',
+      term: 'Nieinwazyjne odzyskiwanie w Gicie (`restore` / `revert -m 1` / `reflog`)',
+      category: 'Git i Praca Wieloagentowa',
+      definition:
+        'Dobór chirurgicznych poleceń zależnie od tego, czy błędna zmiana jest niezacommitowana (`git restore`, `git stash -u`), utracona lokalnie (gałąź ratunkowa z `git reflog`), czy już wypchnięta na wspólny `main` (`git revert -m 1 <merge-sha>`) — bez przepisywania wspólnej historii przez `reset --hard` i `push --force`.',
+      whyItMatters:
+        'Chroni przed utratą pracy i rozbiciem repozytorium zespołu podczas cofania wyjścia agenta poza zakres zadania lub wadliwego scalenia Pull Requesta.',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
     },
   ] satisfies GlossaryTerm[],
 };

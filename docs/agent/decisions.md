@@ -4,6 +4,10 @@ Durable agreements for this project, newest first. Read before changing architec
 
 Entry format: a heading `## YYYY-MM-DD: decision`, then one to three lines on why.
 
+## 2026-10-23: Lesson 16 companion is git-agent-workflow-kit
+Lesson 16 (Git & GitHub workflows for AI coding agents) pairs with `RolePlayingTech/git-agent-workflow-kit`: a zero-dependency Node CLI (`git-agent doctor`, `pr-ready`, `recovery-plan`, `skills`, `sandbox`) and five portable Agent Skills (`SKILL.md`).
+Like `agent-harness-kit` and `mcp-surface-kit`, `git-agent-workflow-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/git-agent-workflow-kit#6de9ae662cdb596c2c3853b8b7886049af62ffb2`) so `tests/academy.spec.ts` unconditionally executes the real `git-agent` CLI and real `git` commands against Lesson 16's Lab A and Lab B sandboxes locally and in CI.
+
 ## 2026-10-22: Ecosystem tools and dynamic homepage counters
 Homepage sections for Latest Additions (`#latest-lessons`) and Open-Source Tools (`#open-source-tools`) live in `src/content/tools.ts` with `assertLocaleParity`. Lesson metadata (number, title, reading time) and track/catalog counts are derived from source arrays and formatted via `formatTrackLessonsHeading` / `formatTrackBadgeCount` in `src/lib/contracts.ts`.
 
