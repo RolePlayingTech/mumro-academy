@@ -12,29 +12,31 @@ import {
   MINI_LAB_EXPECTED_SKILL_MD,
   MINI_LAB_FIXED_SPEC,
 } from '../src/content/lesson-mcp-tools-skills';
+import { playbooksContent } from '../src/content/playbooks';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
-  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 14-lesson catalog', async ({ page }) => {
+  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 15-lesson catalog', async ({ page }) => {
     await page.goto('/?lang=en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('living brand systems');
 
     const lessonCards = page.locator('[data-lesson-card]');
-    await expect(lessonCards).toHaveCount(14);
+    await expect(lessonCards).toHaveCount(15);
 
-    // Latest Additions (Lessons 13 & 14) and Open-Source CLI Tools
-    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
-    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    // Latest Additions (Lessons 13, 14 & 15) and Open-Source CLI Tools
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(3);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(3);
     await expect(page.locator('[data-open-source-tool="agent-harness-kit"]')).toContainText('RolePlayingTech/agent-harness-kit');
     await expect(page.locator('[data-open-source-tool="mcp-surface-kit"]')).toContainText('RolePlayingTech/mcp-surface-kit');
+    await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).toContainText('RolePlayingTech/playwright-harness-kit');
 
-    // Dynamic lesson counts per track (3 vs 5)
+    // Dynamic lesson counts per track (3 vs 6)
     await expect(page.locator('#tracks')).toContainText('Lessons in this track (3):');
-    await expect(page.locator('#tracks')).toContainText('Lessons in this track (5):');
+    await expect(page.locator('#tracks')).toContainText('Lessons in this track (6):');
 
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
-    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(5);
+    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(6);
 
     // Filter by search keyword
     await page.locator('[data-track-filter="all"]').click();
@@ -50,11 +52,11 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.goto('/pl/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
-    await expect(page.locator('[data-lesson-card]')).toHaveCount(14);
-    await expect(page.locator('[data-latest-lesson]')).toHaveCount(2);
-    await expect(page.locator('[data-open-source-tool]')).toHaveCount(2);
+    await expect(page.locator('[data-lesson-card]')).toHaveCount(15);
+    await expect(page.locator('[data-latest-lesson]')).toHaveCount(3);
+    await expect(page.locator('[data-open-source-tool]')).toHaveCount(3);
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
-    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (5 lekcji):');
+    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (6 lekcji):');
 
     await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
@@ -120,6 +122,62 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     }
   });
 
+  test('Lesson 15 companion contract executes real playwright-harness-kit CLI (check --strict, build, and SHA-256 verification)', () => {
+    const cliBin = resolve(process.cwd(), 'node_modules/playwright-harness-kit/bin/playwright-harness.mjs');
+    expect(existsSync(cliBin), `Expected pinned playwright-harness-kit CLI at ${cliBin}`).toBe(true);
+
+    const playbook07 = playbooksContent.en.items.find((item) => item.id === 'playwright-verification-spec');
+    expect(playbook07).toBeDefined();
+    const validSpec = JSON.parse(playbook07!.templateCode);
+
+    const workDir = mkdtempSync(join(tmpdir(), 'academy-lesson15-lab-'));
+    try {
+      const specDir = join(workDir, '.playwright-harness');
+      mkdirSync(specDir, { recursive: true });
+
+      // 1. Broken spec with allowSharedStorageState=true under single-use refresh rotation must fail `check --strict`
+      const brokenSpec = {
+        ...validSpec,
+        authSessionPolicy: {
+          ...validSpec.authSessionPolicy,
+          allowSharedStorageState: true,
+        },
+      };
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(brokenSpec, null, 2), 'utf8');
+      const cliBroken = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliBroken.status).toBe(1);
+      expect(cliBroken.stdout).toContain('allowSharedStorageState cannot be true when singleUseRefreshRotation is true');
+
+      // 2. Valid Playbook 07 browser verification spec must pass `build` and `check --strict`
+      writeFileSync(join(specDir, 'spec.json'), JSON.stringify(validSpec, null, 2), 'utf8');
+      const cliBuild = spawnSync(process.execPath, [cliBin, 'build', workDir], { encoding: 'utf8' });
+      expect(cliBuild.status).toBe(0);
+
+      const cliCheck = spawnSync(process.execPath, [cliBin, 'check', workDir, '--strict'], { encoding: 'utf8' });
+      expect(cliCheck.status).toBe(0);
+      expect(cliCheck.stdout.trim()).toBe(
+        'PASS: Playwright verification spec is internally consistent (strict mode, 0 warnings).'
+      );
+
+      const builtSkill = readFileSync(join(workDir, '.claude/skills/verify-browser-scenarios/SKILL.md'), 'utf8');
+      const markerMatch = builtSkill.match(/<!-- playwright-harness-kit:managed sha256=([a-f0-9]{64}) -->/);
+      expect(markerMatch).not.toBeNull();
+      const recordedDigest = markerMatch![1];
+      const zeroedSkill = builtSkill.replace(
+        `<!-- playwright-harness-kit:managed sha256=${recordedDigest} -->`,
+        `<!-- playwright-harness-kit:managed sha256=${'0'.repeat(64)} -->`
+      );
+      const computedDigest = createHash('sha256').update(zeroedSkill, 'utf8').digest('hex');
+      expect(computedDigest).toBe(recordedDigest);
+
+      console.log(
+        `PASS: Executed real playwright-harness-kit CLI (${cliBin}) against Playbook 07 / Lesson 15 spec (sha256=${recordedDigest}).`
+      );
+    } finally {
+      rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
   test('Lesson 14 (MCP tools & skills) renders the product-surface simulator and hands-on mini-lab in PL and EN', async ({ page }) => {
     await page.goto('/pl/lessons/mcp-tools-skills-and-product-surfaces/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
@@ -141,6 +199,24 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('#hands-on-mini-lab')).toContainText(
       '<!-- mcp-surface-kit:managed sha256=fc3052dd77ffb6e8b9a7a33c38b03f55a442ca2063641c4a99af713527cfc3d4 -->'
     );
+  });
+
+  test('Lesson 15 (Playwright & Multimodal Browser Verification) renders browser modality simulator in PL and EN', async ({ page }) => {
+    await page.goto('/pl/lessons/playwright-browser-automation-and-verification/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('h1')).toContainText('Playwright');
+
+    await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
+    await page.locator('[data-browser-mode="aria"]').click();
+    await expect(page.locator('[data-browser-panel="aria"]')).toBeVisible();
+
+    await page.locator('[data-browser-layer-trigger="session"]').click();
+    await expect(page.locator('[data-browser-layer-panel="session"]')).toBeVisible();
+
+    await page.goto('/lessons/playwright-browser-automation-and-verification/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('h1')).toContainText('Playwright');
+    await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
   });
 
   test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {

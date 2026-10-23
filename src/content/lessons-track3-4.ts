@@ -2,6 +2,7 @@ import { assertLocaleParity } from '../lib/contracts';
 import type { LessonData } from './lessons-types';
 import { harnessLesson } from './lesson-harness-engineering';
 import { mcpSurfaceLesson } from './lesson-mcp-tools-skills';
+import { playwrightBrowserLesson } from './lesson-playwright-browser-automation';
 
 const en: LessonData[] = [
   {
@@ -713,6 +714,7 @@ const en: LessonData[] = [
   },
   harnessLesson.en,
   mcpSurfaceLesson.en,
+  playwrightBrowserLesson.en,
 ];
 
 const pl: LessonData[] = [
@@ -1425,6 +1427,7 @@ const pl: LessonData[] = [
   },
   harnessLesson.pl,
   mcpSurfaceLesson.pl,
+  playwrightBrowserLesson.pl,
 ];
 
 export const lessonsTrack3And4 = assertLocaleParity({ en, pl }, 'lessonsTrack3And4');
