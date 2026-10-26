@@ -202,7 +202,7 @@ const en: LessonData = {
   trackId: 'agents-mcp-governance',
   difficulty: 'Foundations',
   difficultyLabel: 'From basics → Product',
-  readingTimeMinutes: 35,
+  readingTimeMinutes: 40,
   title: 'MCP, Tools and Skills: Why Agent-Operable Products Will Win',
   subtitle: 'How Model Context Protocol, typed tools and on-demand skills fit together — and why the quality of that surface will decide which products agents (and their users) actually choose.',
   metaDescription:
@@ -543,10 +543,10 @@ Host approval / policy gate    yes (when enforced)     n/a`,
       levelBadge: 'LEVEL 3 · HANDS-ON LAB',
       heading: '10. Hands-on mini-lab: from a broken 3-tool spec to a passing surface and generated SKILL.md',
       paragraphs: [
-        'Before running this 10-minute exercise, make sure you have Node.js 20+ installed and a local checkout of `RolePlayingTech/mcp-surface-kit` (`git clone https://github.com/RolePlayingTech/mcp-surface-kit.git && cd mcp-surface-kit`). If you jumped straight to Lesson 14, keep the eight core terms in mind (or review Lessons 11?13 and Playbook 06 at `/playbooks/#mcp-surface-spec`): the **Host** is the AI application running the session; the **MCP Client** is the per-server protocol connector inside the host; a **Tool** is a typed JSON-RPC operation exposed by the server; a **Skill** (`SKILL.md`) is an on-demand workflow file loaded by the host; a **Scope** is a permission boundary on the token (`read ? drafts ? publish`); a **Tenant** is the isolated workspace bound to the credential; an **Idempotency Key** is a caller token that prevents duplicate writes on retry; and **Open World** (`openWorldHint: true`) warns the host that a tool reaches systems outside the closed tenant.',
-        'Step 1 ? Author a deliberately broken 3-tool contract and watch `check --strict` fail. Inside your `mcp-surface-kit` directory, create `sandbox/field-notes/.mcp-surface/spec.json` (a relative path that works identically on Linux, macOS, and Windows). The kit reads top-level `name`, `purpose`, `scopeModel`, `scopes`, `untrustedFields`, `tools`, and `skills` ? and rejects unknown or misspelled properties (such as a nested `product` wrapper, `untrustedContent`, `requiresIdempotencyKey`, or `skills[].steps`). Define `list_notes` (`read`), `create_note_draft` (`draft`), and a naive `publish_note` (`mutate`) that goes live in one call (`"liveInOneCall": true`), uses `scope: "drafts"`, and omits `prepare`/`confirm` pairing ? while `create_note_draft` mistakenly uses `scope: "read"` and `list_notes` omits `openWorldHint`. Run `node bin/mcp-surface.mjs check sandbox/field-notes --strict`. The validator exits with code `1`, flagging five hard errors plus one strict-mode warning because MCP defaults omitted `openWorldHint` to `true` even on a read tool.',
-        'Step 2 ? Replace `spec.json` with the repaired contract and run `build`. Set `"openWorldHint": false` on `list_notes` (it only reads closed tenant rows), move `create_note_draft` to `scope: "drafts"`, and split `publish_note` into a reciprocal pair (`prepare_note_publish` with `phase: "prepare"` and `confirm_note_publish` with `phase: "confirm"`, both on `scope: "publish"`). Update `skills[0].uses` so `prepare_note_publish` precedes `confirm_note_publish`. Re-run `node bin/mcp-surface.mjs check sandbox/field-notes --strict` (`PASS`, 0 warnings) and `node bin/mcp-surface.mjs build sandbox/field-notes`. Inspect the generated `sandbox/field-notes/.mcp-surface/skills/publish-notes/SKILL.md`: the kit embeds a `<!-- mcp-surface-kit:managed sha256=... -->` ownership header, lists `untrustedFields` (`note_markdown, reader_comment`), renders a `## Responsibility boundary` section, and synthesizes the numbered `## Workflow` steps directly from `skills[].uses` and each referenced tool?s tier, phase, scope, and description.',
-        'Step 3 ? Check your understanding with three boundary questions. First: why can a tool have `readOnlyHint: true` and still have `openWorldHint: true`? Because reading without mutating state (for example, web search or fetching public feeds) can still talk to untrusted external systems, which is why MCP defaults `openWorldHint` to `true` until you set `false`. Second: where does indirect prompt injection cross a trust boundary? When untrusted text returned by `list_notes` enters the host context and convinces the model to emit a `tools/call` for a mutating tool ? which is why the lock must live in the server?s `confirm_*` handler, not only in the skill text. Third: why is `prepare ? confirm` with a server-side payload fingerprint stronger than asking ?Are you sure?? in a second prompt? A second prompt stays inside the model?s conversation and cannot detect if the model altered arguments or hallucinated consent; a server-side gate binds `action_id` to a hash of the exact prepared payload and rejects `confirm_*` if any field changed or expired.',
+        "Before running this 10-minute exercise, make sure Node.js 20+ is installed and you have a local checkout of `RolePlayingTech/mcp-surface-kit` (`git clone https://github.com/RolePlayingTech/mcp-surface-kit.git && cd mcp-surface-kit`). If you jumped straight to Lesson 14, review the eight core terms or revisit Lessons 11–13 and Playbook 06 at `/playbooks/#mcp-surface-spec`: the **Host** is the AI application running the session; the **MCP Client** is the per-server protocol connector inside the host; a **Tool** is a typed JSON-RPC operation exposed by the server; a **Skill** (`SKILL.md`) is an on-demand workflow file loaded by the host; a **Scope** is a permission boundary on the token (`read → drafts → publish`); a **Tenant** is the isolated workspace bound to the credential; an **Idempotency Key** prevents duplicate writes on retry; and **Open World** (`openWorldHint: true`) warns that a tool reaches systems outside the closed tenant.",
+        "Step 1 — Author a deliberately broken 3-tool contract and watch `check --strict` fail. Inside your `mcp-surface-kit` directory, create `sandbox/field-notes/.mcp-surface/spec.json` (a relative path that works identically on Linux, macOS and Windows). The kit reads top-level `name`, `purpose`, `scopeModel`, `scopes`, `untrustedFields`, `tools` and `skills`, and rejects unknown or misspelled properties such as a nested `product` wrapper, `untrustedContent`, `requiresIdempotencyKey` or `skills[].steps`. Define `list_notes` (`read`), `create_note_draft` (`draft`) and a naive `publish_note` (`mutate`) that goes live in one call (`\"liveInOneCall\": true`), uses `scope: \"drafts\"` and omits the `prepare`/`confirm` pair, while `create_note_draft` mistakenly uses `scope: \"read\"` and `list_notes` omits `openWorldHint`. Run `node bin/mcp-surface.mjs check sandbox/field-notes --strict`. The validator exits with code `1`, flagging five hard errors plus one strict-mode warning because MCP defaults omitted `openWorldHint` to `true`, even on a read tool.",
+        "Step 2 — Replace `spec.json` with the repaired contract and run `build`. Set `\"openWorldHint\": false` on `list_notes` (it only reads closed tenant rows), move `create_note_draft` to `scope: \"drafts\"`, and split `publish_note` into a reciprocal pair (`prepare_note_publish` with `phase: \"prepare\"` and `confirm_note_publish` with `phase: \"confirm\"`, both on `scope: \"publish\"`). Update `skills[0].uses` so `prepare_note_publish` comes before `confirm_note_publish`. Re-run `node bin/mcp-surface.mjs check sandbox/field-notes --strict` (`PASS`, 0 warnings) and `node bin/mcp-surface.mjs build sandbox/field-notes`. Inspect the generated `sandbox/field-notes/.mcp-surface/skills/publish-notes/SKILL.md`: the kit embeds a `<!-- mcp-surface-kit:managed sha256=... -->` ownership header, lists `untrustedFields` (`note_markdown, reader_comment`), renders `## Responsibility boundary`, and builds the numbered `## Workflow` steps from `skills[].uses` and each referenced tool’s tier, phase, scope and description.",
+        "Step 3 — Check your understanding with three boundary questions. First: why can a tool have both `readOnlyHint: true` and `openWorldHint: true`? Reading without mutating state (for example, web search or fetching public feeds) can still contact untrusted external systems, so MCP defaults `openWorldHint` to `true` until you set it to `false`. Second: where can indirect prompt injection cross the boundary from data into action? When untrusted text returned by `list_notes` enters the host context and persuades the model to emit `tools/call` for a mutating tool — which is why the server’s `confirm_*` handler must enforce the gate, not just the skill text. Third: why is `prepare → confirm` with a server-side payload fingerprint stronger than asking “Are you sure?” in a second prompt? A second prompt remains inside the model conversation and cannot detect changed arguments or hallucinated consent; a server-side gate binds `action_id` to a hash of the exact prepared payload and rejects `confirm_*` if any field changes or the confirmation expires.",
       ],
       callout: {
         label: 'WHAT THE LAB PROVES (AND WHAT IT DOES NOT)',
@@ -557,6 +557,149 @@ Host approval / policy gate    yes (when enforced)     n/a`,
         language: 'text',
         code: MINI_LAB_COMMANDS,
       },
+    },
+    {
+      id: 'further-reading',
+      levelBadge: "SOURCES · FURTHER READING",
+      heading: "11. Further reading: primary sources on modern agent product design",
+      paragraphs: [
+        "The references below are primary sources from MCP maintainers and teams building major agent platforms. Start with the current specification, then read the design, context, skills and security material that applies to your workload.",
+        "Research reviewed on 23 October 2026. MCP is moving quickly: older tutorials may describe the previous session model or features that have since been deprecated. Before copying an example into production, check the source date, protocol version, and SDK/host compatibility; feature availability differs across platforms.",
+      ],
+      resources: [
+        {
+          "category": "Protocol",
+          "title": "MCP maintainers — The 2026-07-28 Specification",
+          "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/",
+          "description": "Start here for the stateless protocol core, multi-round-trip requests, header-based routing, cacheable list results, authorization hardening, extensions and deprecations. This is the version baseline used in this lesson."
+        },
+        {
+          "category": "Protocol",
+          "title": "MCP maintainers — The New MCP Roadmap (Aug 2026)",
+          "url": "https://blog.modelcontextprotocol.io/posts/mcp-roadmap/",
+          "description": "Explains the direction of protocol work after the July release. Useful when deciding what to adopt now and what to keep behind compatibility layers."
+        },
+        {
+          "category": "Product UI",
+          "title": "MCP Apps — Interactive UI extension",
+          "url": "https://apps.extensions.modelcontextprotocol.io/",
+          "description": "Shows how an MCP tool can provide a sandboxed interactive UI inside a compatible host. Useful when a workflow needs more than plain text or a confirmation modal."
+        },
+        {
+          "category": "Long-running workflows",
+          "title": "MCP Tasks extension — Specification (2026-07-28)",
+          "url": "https://tasks.extensions.modelcontextprotocol.io/specification/2026-07-28/tasks",
+          "description": "Defines task handles, polling, updates and cancellation for work that continues beyond one tool response. Check this before inventing a proprietary async-job protocol."
+        },
+        {
+          "category": "OpenAI · Integration",
+          "title": "OpenAI — MCP servers",
+          "url": "https://developers.openai.com/api/docs/guides/tools-connectors-mcp",
+          "description": "Practical remote MCP integration with approval controls, allowed tools, prompt-injection risks, logging and third-party data-retention considerations."
+        },
+        {
+          "category": "OpenAI · Tool design",
+          "title": "OpenAI — Using tools",
+          "url": "https://developers.openai.com/api/docs/guides/tools",
+          "description": "Compares function calling, remote MCP, tool search, programmatic tool calling and skills. Read it before deciding whether a capability belongs in a local function, a remote server or a deferred tool."
+        },
+        {
+          "category": "OpenAI · Example",
+          "title": "OpenAI — Docs MCP server",
+          "url": "https://developers.openai.com/learn/docs-mcp",
+          "description": "A concrete example of a narrow, read-only MCP surface for developer documentation. Notice how it differs from exposing an entire API as a generic tool wrapper."
+        },
+        {
+          "category": "OpenAI · Product UI",
+          "title": "OpenAI — Build with the Apps SDK",
+          "url": "https://developers.openai.com/plugins/build/app-quickstart",
+          "description": "Introduces building ChatGPT apps with MCP-backed logic and an interactive interface. Useful for thinking about the product experience around tools, not just the protocol endpoint."
+        },
+        {
+          "category": "Google · Scaling",
+          "title": "Google Developers Blog — Scaling AI Agent Infrastructure with MCP Stateless updates (Aug 2026)",
+          "url": "https://developers.googleblog.com/scaling-ai-agent-infrastructure-with-the-mcp-stateless-updates/",
+          "description": "Explains why stateful MCP sessions can become an operational bottleneck and how stateless protocol design fits ordinary cloud load-balanced infrastructure."
+        },
+        {
+          "category": "Google · Integration",
+          "title": "Google AI for Developers — Function calling and remote MCP",
+          "url": "https://ai.google.dev/gemini-api/docs/function-calling/",
+          "description": "Shows remote MCP support in the Gemini API and its practical constraints. Helpful for cross-provider interoperability and for understanding which capabilities depend on a particular host."
+        },
+        {
+          "category": "Cloudflare · Tool design",
+          "title": "Cloudflare — MCP tools and design best practices",
+          "url": "https://developers.cloudflare.com/agents/model-context-protocol/protocol/tools/",
+          "description": "Practical guidance to design tools around user goals instead of wrapping every API endpoint, narrow permission scopes, write useful descriptions and run evaluations after changes."
+        },
+        {
+          "category": "Cloudflare · Security",
+          "title": "Cloudflare — MCP authorization",
+          "url": "https://developers.cloudflare.com/agents/model-context-protocol/protocol/authorization/",
+          "description": "Explains authentication versus authorization and OAuth-based access to a user’s resources. A useful reference for avoiding shared, over-privileged API credentials."
+        },
+        {
+          "category": "Microsoft · Case study",
+          "title": "Microsoft Engineering — How we built the Microsoft Learn MCP Server (Feb 2026)",
+          "url": "https://devblogs.microsoft.com/engineering-at-microsoft/how-we-built-the-microsoft-learn-mcp-server/",
+          "description": "A production case study on exposing trusted documentation through Streamable HTTP MCP while reusing an existing knowledge service instead of maintaining a separate data pipeline."
+        },
+        {
+          "category": "Microsoft · Agent platform",
+          "title": "Microsoft Foundry — Discovery to Execution: Toolboxes and Routines (Jun 2026)",
+          "url": "https://devblogs.microsoft.com/foundry/toolbox-build-26/",
+          "description": "Looks at tool discovery, reusable skills and governed execution as enterprise agents grow beyond a small set of tools."
+        },
+        {
+          "category": "Microsoft · Integration",
+          "title": "Microsoft Learn — Azure MCP Server overview",
+          "url": "https://learn.microsoft.com/azure/developer/azure-mcp-server/overview",
+          "description": "A practical reference for an MCP server that operates on real cloud resources, including Entra ID authentication and reusable Azure skills."
+        },
+        {
+          "category": "Anthropic · Tool design",
+          "title": "Anthropic — Writing effective tools for agents (Sep 2025)",
+          "url": "https://www.anthropic.com/research/writing-tools-for-agents",
+          "description": "Covers clear names and descriptions, strict input/output contracts, useful tool results, token efficiency and evaluation-driven iteration on tool quality."
+        },
+        {
+          "category": "Anthropic · Tool discovery",
+          "title": "Anthropic — Advanced tool use (Nov 2025)",
+          "url": "https://www.anthropic.com/research/advanced-tool-use",
+          "description": "Explains on-demand tool discovery, programmatic orchestration and examples that teach correct usage beyond what JSON Schema alone can express. Especially relevant when many MCP servers are connected."
+        },
+        {
+          "category": "Anthropic · Context",
+          "title": "Anthropic — Effective context engineering for AI agents (Sep 2025)",
+          "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents",
+          "description": "Explains why reliable agents need deliberate curation of instructions, tools, retrieved data and conversation history—not just a better system prompt."
+        },
+        {
+          "category": "Skills · Standard",
+          "title": "Agent Skills — Open specification and documentation",
+          "url": "https://github.com/agentskills/agentskills",
+          "description": "The portable skill format: SKILL.md, metadata, optional scripts and references, plus progressive disclosure. Use the specification rather than relying on one vendor’s examples."
+        },
+        {
+          "category": "Skills · Examples",
+          "title": "OpenAI — Skills catalog for Codex",
+          "url": "https://github.com/openai/skills",
+          "description": "A practical collection of skills and packaging examples. Compare their activation instructions and directory structure with the open Agent Skills format."
+        },
+        {
+          "category": "Security · Threat model",
+          "title": "OWASP — MCP Top 10",
+          "url": "https://owasp.org/projects/mcp-top-10",
+          "description": "A threat taxonomy covering token exposure, scope creep, tool poisoning, supply-chain attacks, command injection, prompt injection, weak authorization, missing audit trails and over-sharing."
+        },
+        {
+          "category": "Security · Checklist",
+          "title": "OWASP — Securely using third-party MCP servers",
+          "url": "https://genai.owasp.org/resource/cheatsheet-a-practical-guide-for-securely-using-third-party-mcp-servers-1-0/",
+          "description": "A practical review checklist for external MCP servers, including authentication, least privilege, sandboxing, safe discovery, governance and human oversight."
+        }
+      ],
     },
   ],
   comparisonTable: {
@@ -616,7 +759,7 @@ const pl: LessonData = {
   trackId: 'agents-mcp-governance',
   difficulty: 'Foundations',
   difficultyLabel: 'Od podstaw → Produkt',
-  readingTimeMinutes: 35,
+  readingTimeMinutes: 40,
   title: 'MCP, narzędzia i skille: dlaczego wygrają produkty, których da się używać przez agenta',
   subtitle:
     'Jak Model Context Protocol, typowane narzędzia i skille na żądanie układają się w jedną powierzchnię — i dlaczego jej jakość zdecyduje, które produkty agenci (i ich użytkownicy) naprawdę wybiorą.',
@@ -959,10 +1102,10 @@ Zgoda hosta / polityka        tak (gdy egzekwowana)           n/d`,
       levelBadge: 'POZIOM 3 · MINI-LABORATORIUM',
       heading: '10. Praktyczne mini-laboratorium: od błędnej specyfikacji 3 narzędzi do zielonego kontraktu i wygenerowanego SKILL.md',
       paragraphs: [
-        'Przed uruchomieniem tego 10-minutowego ?wiczenia upewnij si?, ?e masz Node.js 20+ oraz lokaln? kopi? `RolePlayingTech/mcp-surface-kit` (`git clone https://github.com/RolePlayingTech/mcp-surface-kit.git && cd mcp-surface-kit`). Je?li zacz??e? lektur? od lekcji 14, przypomnij sobie osiem poj?? bazowych (lub zajrzyj do lekcji 11?13 oraz Playbooka 06 pod `/pl/playbooks/#mcp-surface-spec`): **Host** to aplikacja AI prowadz?ca sesj?; **Klient MCP** to ??cznik protoko?u dla danego serwera wewn?trz hosta; **Narz?dzie (Tool)** to typowana operacja JSON-RPC wystawiona przez serwer; **Skill** (`SKILL.md`) to ?adowany na ??danie plik procedury po stronie hosta; **Scope** to zakres uprawnie? na tokenie (`read ? drafts ? publish`); **Tenant** to odizolowany workspace przypisany do po?wiadczenia; **Klucz idempotentno?ci (Idempotency Key)** to token wywo?uj?cego chroni?cy przed duplikatami przy ponowieniu; a **Open World** (`openWorldHint: true`) ostrzega hosta, ?e narz?dzie si?ga do system?w poza zamkni?tym tenantem.',
-        'Krok 1 ? Zapisz celowo b??dny kontrakt 3 narz?dzi i zobacz, jak `check --strict` go odrzuca. Wewn?trz katalogu `mcp-surface-kit` utw?rz `sandbox/field-notes/.mcp-surface/spec.json` (?cie?ka wzgl?dna dzia?a identycznie na Linuksie, macOS i Windows). Kit czyta pola najwy?szego poziomu `name`, `purpose`, `scopeModel`, `scopes`, `untrustedFields`, `tools` oraz `skills` ? i odrzuca nieznane lub b??dnie nazwane w?a?ciwo?ci (takie jak zagnie?d?ony obiekt `product`, `untrustedContent`, `requiresIdempotencyKey` czy `skills[].steps`). Zdefiniuj `list_notes` (`read`), `create_note_draft` (`draft`) oraz naiwne `publish_note` (`mutate`), kt?re publikuje na ?ywo w jednym wywo?aniu (`"liveInOneCall": true`), u?ywa `scope: "drafts"` i pomija par? `prepare`/`confirm` ? podczas gdy `create_note_draft` b??dnie u?ywa `scope: "read"`, a `list_notes` pomija `openWorldHint`. Uruchom `node bin/mcp-surface.mjs check sandbox/field-notes --strict`. Walidator ko?czy z kodem `1`, wskazuj?c pi?? twardych b??d?w kontraktu oraz jedno ostrze?enie trybu ?cis?ego, bo MCP domy?lnie przyjmuje `openWorldHint: true` nawet na narz?dziu odczytu.',
-        'Krok 2 ? Zast?p `spec.json` naprawionym kontraktem i uruchom `build`. Ustaw `"openWorldHint": false` na `list_notes` (czyta wy??cznie zamkni?te dane tenanta), przenie? `create_note_draft` na `scope: "drafts"`, a `publish_note` rozdziel na wzajemn? par? (`prepare_note_publish` z `phase: "prepare"` oraz `confirm_note_publish` z `phase: "confirm"`, oba na `scope: "publish"`). Zaktualizuj `skills[0].uses`, tak aby `prepare_note_publish` poprzedza?o `confirm_note_publish`. Ponownie uruchom `node bin/mcp-surface.mjs check sandbox/field-notes --strict` (`PASS`, 0 ostrze?e?) oraz `node bin/mcp-surface.mjs build sandbox/field-notes`. Otw?rz wygenerowany `sandbox/field-notes/.mcp-surface/skills/publish-notes/SKILL.md`: kit osadza nag??wek w?asno?ci `<!-- mcp-surface-kit:managed sha256=... -->`, wypisuje `untrustedFields` (`note_markdown, reader_comment`), generuje sekcj? `## Responsibility boundary` oraz syntetyzuje numerowane kroki w `## Workflow` bezpo?rednio z `skills[].uses` i poziomu, fazy, scope?u oraz opisu ka?dego narz?dzia.',
-        'Krok 3 ? Sprawd? zrozumienie trzema pytaniami kontrolnymi. Pierwsze: dlaczego narz?dzie mo?e mie? jednocze?nie `readOnlyHint: true` i `openWorldHint: true`? Bo sam odczyt bez zmiany stanu (np. wyszukiwanie w sieci WWW albo pobranie publicznego feedu) nadal komunikuje si? z niezaufanym ?wiatem zewn?trznym ? dlatego MCP domy?lnie ustawia `openWorldHint: true`, dop?ki jawnie nie zadeklarujesz `false`. Drugie: na kt?rej granicy po?rednia injekcja promptu przechodzi z danych w dzia?anie? Gdy niezaufany tekst zwr?cony przez `list_notes` trafia do kontekstu hosta i przekonuje model do wys?ania `tools/call` dla narz?dzia mutuj?cego ? dlatego zamek musi sta? w serwerowym handlerze `confirm_*`, a nie wy??cznie w tre?ci skilla. Trzecie: dlaczego `prepare ? confirm` z serwerowym odciskiem payloadu daje wi?cej ni? pytanie ?Czy na pewno?? w drugim prompcie? Drugi prompt ?yje wy??cznie w rozmowie modelu i nie wykryje, ?e model po cichu podmieni? argumenty albo zhalucynowa? zgod?; bramka serwerowa wi??e `action_id` ze skr?tem dok?adnego przygotowanego payloadu i odrzuca `confirm_*`, je?li jakiekolwiek pole uleg?o zmianie lub wygas?o.',
+        "Przed uruchomieniem tego 10-minutowego ćwiczenia upewnij się, że masz Node.js 20+ oraz lokalną kopię `RolePlayingTech/mcp-surface-kit` (`git clone https://github.com/RolePlayingTech/mcp-surface-kit.git && cd mcp-surface-kit`). Jeśli zaczynasz od lekcji 14, przypomnij sobie osiem pojęć bazowych lub zajrzyj do lekcji 11–13 oraz Playbooka 06 pod `/pl/playbooks/#mcp-surface-spec`: **Host** to aplikacja AI prowadząca sesję; **Klient MCP** to łącznik protokołu dla danego serwera wewnątrz hosta; **Narzędzie (Tool)** to typowana operacja JSON-RPC wystawiona przez serwer; **Skill** (`SKILL.md`) to ładowany na żądanie plik procedury po stronie hosta; **Scope** to zakres uprawnień tokenu (`read → drafts → publish`); **Tenant** to odizolowany workspace przypisany do poświadczenia; **Klucz idempotentności (Idempotency Key)** chroni przed duplikatami przy ponowieniu; a **Open World** (`openWorldHint: true`) ostrzega hosta, że narzędzie sięga do systemów poza zamkniętym tenantem.",
+        "Krok 1 — Zapisz celowo błędny kontrakt 3 narzędzi i zobacz, jak `check --strict` go odrzuca. W katalogu `mcp-surface-kit` utwórz `sandbox/field-notes/.mcp-surface/spec.json` (ścieżka względna działa identycznie na Linuksie, macOS i Windows). Kit czyta pola najwyższego poziomu `name`, `purpose`, `scopeModel`, `scopes`, `untrustedFields`, `tools` oraz `skills` i odrzuca nieznane lub błędnie nazwane właściwości (np. zagnieżdżony obiekt `product`, `untrustedContent`, `requiresIdempotencyKey` czy `skills[].steps`). Zdefiniuj `list_notes` (`read`), `create_note_draft` (`draft`) oraz naiwny `publish_note` (`mutate`), który publikuje na żywo w jednym wywołaniu (`\"liveInOneCall\": true`), używa `scope: \"drafts\"` i pomija parę `prepare`/`confirm` — podczas gdy `create_note_draft` błędnie używa `scope: \"read\"`, a `list_notes` pomija `openWorldHint`. Uruchom `node bin/mcp-surface.mjs check sandbox/field-notes --strict`. Walidator kończy z kodem `1`, wskazując pięć twardych błędów kontraktu oraz jedno ostrzeżenie trybu ścisłego, bo MCP domyślnie przyjmuje `openWorldHint: true` nawet dla narzędzia odczytu.",
+        "Krok 2 — Zastąp `spec.json` poprawionym kontraktem i uruchom `build`. Ustaw `\"openWorldHint\": false` na `list_notes` (czyta wyłącznie zamknięte dane tenanta), przenieś `create_note_draft` do `scope: \"drafts\"`, a `publish_note` rozdziel na wzajemną parę (`prepare_note_publish` z `phase: \"prepare\"` oraz `confirm_note_publish` z `phase: \"confirm\"`, oba ze `scope: \"publish\"`). Zaktualizuj `skills[0].uses`, aby `prepare_note_publish` poprzedzało `confirm_note_publish`. Ponownie uruchom `node bin/mcp-surface.mjs check sandbox/field-notes --strict` (`PASS`, 0 ostrzeżeń) oraz `node bin/mcp-surface.mjs build sandbox/field-notes`. Otwórz wygenerowany `sandbox/field-notes/.mcp-surface/skills/publish-notes/SKILL.md`: kit osadza nagłówek własności `<!-- mcp-surface-kit:managed sha256=... -->`, wypisuje `untrustedFields` (`note_markdown, reader_comment`), generuje sekcję `## Responsibility boundary` oraz tworzy numerowane kroki `## Workflow` bezpośrednio z `skills[].uses` i poziomu, fazy, scope’u oraz opisu każdego narzędzia.",
+        "Krok 3 — Sprawdź zrozumienie trzema pytaniami kontrolnymi. Po pierwsze: dlaczego narzędzie może mieć jednocześnie `readOnlyHint: true` i `openWorldHint: true`? Bo sam odczyt bez zmiany stanu (np. wyszukiwanie w sieci lub pobranie publicznego feedu) nadal komunikuje się z niezaufanym światem zewnętrznym — dlatego MCP domyślnie ustawia `openWorldHint: true`, dopóki jawnie nie zadeklarujesz `false`. Po drugie: na której granicy pośrednia injekcja promptu przechodzi z danych w działanie? Gdy niezaufany tekst zwrócony przez `list_notes` trafia do kontekstu hosta i przekonuje model do wysłania `tools/call` dla narzędzia mutującego — dlatego blokada musi być w serwerowym handlerze `confirm_*`, a nie wyłącznie w treści skilla. Po trzecie: dlaczego `prepare → confirm` z serwerowym odciskiem payloadu daje więcej niż pytanie „Czy na pewno?” w drugim prompcie? Drugi prompt pozostaje częścią rozmowy modelu i nie wykryje, że model zmienił argumenty albo zmyślił zgodę; bramka serwerowa wiąże `action_id` ze skrótem dokładnego przygotowanego payloadu i odrzuca `confirm_*`, jeśli dowolne pole się zmieniło lub potwierdzenie wygasło.",
       ],
       callout: {
         label: 'CZEGO DOWODZI LABORATORIUM (A CZEGO NIE)',
@@ -973,6 +1116,149 @@ Zgoda hosta / polityka        tak (gdy egzekwowana)           n/d`,
         language: 'text',
         code: MINI_LAB_COMMANDS,
       },
+    },
+    {
+      id: 'further-reading',
+      levelBadge: "ŹRÓDŁA · DALSZA LEKTURA",
+      heading: "11. Co warto przeczytać dalej: źródła o projektowaniu produktów dla agentów",
+      paragraphs: [
+        "Poniższe materiały to źródła pierwotne od twórców MCP i zespołów budujących duże platformy agentowe. Zacznij od bieżącej specyfikacji, a potem przejdź do projektowania narzędzi, kontekstu, skilli i bezpieczeństwa.",
+        "Stan researchu: 23 października 2026 r. MCP szybko się zmienia: starsze poradniki mogą opisywać poprzedni model sesji lub funkcje, które zostały zdeprecjonowane. Przed skopiowaniem przykładu do produkcji sprawdź datę źródła, wersję protokołu oraz zgodność SDK i hosta; dostępność funkcji może różnić się między platformami.",
+      ],
+      resources: [
+        {
+          "category": "Protokół",
+          "title": "Twórcy MCP — specyfikacja z 28.07.2026",
+          "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/",
+          "description": "Punkt startowy: bezstanowy rdzeń protokołu, wieloetapowe żądania, routing po nagłówkach, cache’owanie list, wzmocnienie autoryzacji, rozszerzenia i deprecacje. To wersja bazowa użyta w tej lekcji."
+        },
+        {
+          "category": "Protokół",
+          "title": "Twórcy MCP — nowa mapa drogowa (sierpień 2026)",
+          "url": "https://blog.modelcontextprotocol.io/posts/mcp-roadmap/",
+          "description": "Pokazuje kierunek rozwoju protokołu po lipcowym wydaniu. Przydatne przy decyzji, co wdrażać już teraz, a co ukryć za warstwą zgodności."
+        },
+        {
+          "category": "Interfejs produktu",
+          "title": "MCP Apps — rozszerzenie interaktywnych interfejsów",
+          "url": "https://apps.extensions.modelcontextprotocol.io/",
+          "description": "Pokazuje, jak narzędzie MCP może udostępnić interaktywny interfejs w piaskownicy wewnątrz zgodnego hosta. Przydatne, gdy workflow wymaga czegoś więcej niż tekstu lub modala potwierdzenia."
+        },
+        {
+          "category": "Długie workflow",
+          "title": "Rozszerzenie MCP Tasks — specyfikacja (2026-07-28)",
+          "url": "https://tasks.extensions.modelcontextprotocol.io/specification/2026-07-28/tasks",
+          "description": "Definiuje identyfikatory zadań, odpytywanie o status, aktualizacje i anulowanie pracy trwającej dłużej niż pojedyncza odpowiedź narzędzia. Warto sprawdzić przed stworzeniem własnego protokołu zadań asynchronicznych."
+        },
+        {
+          "category": "OpenAI · Integracja",
+          "title": "OpenAI — serwery MCP",
+          "url": "https://developers.openai.com/api/docs/guides/tools-connectors-mcp",
+          "description": "Praktyczna integracja zdalnego MCP, ustawienia zatwierdzania, dozwolone narzędzia, ryzyko prompt injection, logowanie i kwestie retencji danych przez zewnętrzne serwery."
+        },
+        {
+          "category": "OpenAI · Projektowanie narzędzi",
+          "title": "OpenAI — korzystanie z narzędzi",
+          "url": "https://developers.openai.com/api/docs/guides/tools",
+          "description": "Porównuje function calling, zdalne MCP, wyszukiwanie narzędzi, programistyczne wywoływanie narzędzi i skille. Warto przeczytać przed wyborem między lokalną funkcją, zdalnym serwerem a narzędziem ładowanym na żądanie."
+        },
+        {
+          "category": "OpenAI · Przykład",
+          "title": "OpenAI — serwer MCP z dokumentacją",
+          "url": "https://developers.openai.com/learn/docs-mcp",
+          "description": "Konkretny przykład wąskiej, tylko do odczytu powierzchni MCP dla dokumentacji technicznej. Zwróć uwagę, czym różni się od wystawienia całego API jako ogólnego wrappera."
+        },
+        {
+          "category": "OpenAI · Interfejs produktu",
+          "title": "OpenAI — tworzenie aplikacji za pomocą Apps SDK",
+          "url": "https://developers.openai.com/plugins/build/app-quickstart",
+          "description": "Wprowadzenie do budowania aplikacji ChatGPT z logiką opartą na MCP i interaktywnym interfejsem. Przydatne przy projektowaniu doświadczenia produktu wokół narzędzi, nie tylko endpointu protokołu."
+        },
+        {
+          "category": "Google · Skalowanie",
+          "title": "Google Developers Blog — skalowanie infrastruktury agentów dzięki bezstanowemu MCP (sierpień 2026)",
+          "url": "https://developers.googleblog.com/scaling-ai-agent-infrastructure-with-the-mcp-stateless-updates/",
+          "description": "Wyjaśnia, dlaczego sesje MCP ze stanem mogą ograniczać skalowanie i jak bezstanowy protokół pasuje do zwykłej infrastruktury chmurowej z load balancingiem."
+        },
+        {
+          "category": "Google · Integracja",
+          "title": "Google AI for Developers — function calling i zdalne MCP",
+          "url": "https://ai.google.dev/gemini-api/docs/function-calling/",
+          "description": "Opisuje obsługę zdalnego MCP w Gemini API i praktyczne ograniczenia. Pomaga zrozumieć interoperacyjność między dostawcami oraz zależności od konkretnego hosta."
+        },
+        {
+          "category": "Cloudflare · Projektowanie narzędzi",
+          "title": "Cloudflare — narzędzia MCP i dobre praktyki projektowe",
+          "url": "https://developers.cloudflare.com/agents/model-context-protocol/protocol/tools/",
+          "description": "Praktyczne wskazówki: projektuj narzędzia wokół celów użytkownika zamiast opakowywać każdy endpoint API, zawężaj uprawnienia, pisz użyteczne opisy i uruchamiaj ewaluacje po zmianach."
+        },
+        {
+          "category": "Cloudflare · Bezpieczeństwo",
+          "title": "Cloudflare — autoryzacja MCP",
+          "url": "https://developers.cloudflare.com/agents/model-context-protocol/protocol/authorization/",
+          "description": "Wyjaśnia różnicę między uwierzytelnianiem a autoryzacją oraz dostęp do zasobów użytkownika przez OAuth. Pomaga unikać współdzielonych, nadmiernie uprzywilejowanych kluczy API."
+        },
+        {
+          "category": "Microsoft · Studium przypadku",
+          "title": "Microsoft Engineering — jak zbudowaliśmy Microsoft Learn MCP Server (luty 2026)",
+          "url": "https://devblogs.microsoft.com/engineering-at-microsoft/how-we-built-the-microsoft-learn-mcp-server/",
+          "description": "Studium produkcyjnego rozwiązania udostępniającego wiarygodną dokumentację przez Streamable HTTP MCP i korzystającego z istniejącej usługi wiedzy zamiast utrzymywania osobnego potoku danych."
+        },
+        {
+          "category": "Microsoft · Platforma agentowa",
+          "title": "Microsoft Foundry — od odkrywania do wykonania: Toolboxes i Routines (czerwiec 2026)",
+          "url": "https://devblogs.microsoft.com/foundry/toolbox-build-26/",
+          "description": "Omawia odkrywanie narzędzi, wielokrotnego użytku skille i kontrolowane wykonanie, gdy korporacyjne agenty wychodzą poza mały zestaw narzędzi."
+        },
+        {
+          "category": "Microsoft · Integracja",
+          "title": "Microsoft Learn — przegląd Azure MCP Server",
+          "url": "https://learn.microsoft.com/azure/developer/azure-mcp-server/overview",
+          "description": "Praktyczny przykład serwera MCP obsługującego prawdziwe zasoby chmurowe, z uwierzytelnianiem Entra ID i zestawem wielokrotnego użytku skilli Azure."
+        },
+        {
+          "category": "Anthropic · Projektowanie narzędzi",
+          "title": "Anthropic — projektowanie skutecznych narzędzi dla agentów (wrzesień 2025)",
+          "url": "https://www.anthropic.com/research/writing-tools-for-agents",
+          "description": "Omawia jasne nazwy i opisy, ścisłe kontrakty wejścia i wyjścia, użyteczne wyniki, oszczędzanie tokenów oraz poprawianie jakości narzędzi na podstawie ewaluacji."
+        },
+        {
+          "category": "Anthropic · Odkrywanie narzędzi",
+          "title": "Anthropic — zaawansowane użycie narzędzi (listopad 2025)",
+          "url": "https://www.anthropic.com/research/advanced-tool-use",
+          "description": "Wyjaśnia odkrywanie narzędzi na żądanie, programistyczną orkiestrację i przykłady uczące poprawnego użycia poza tym, co opisze samo JSON Schema. Szczególnie przydatne przy wielu serwerach MCP."
+        },
+        {
+          "category": "Anthropic · Kontekst",
+          "title": "Anthropic — skuteczne zarządzanie kontekstem agentów AI (wrzesień 2025)",
+          "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents",
+          "description": "Wyjaśnia, dlaczego niezawodny agent potrzebuje świadomego doboru instrukcji, narzędzi, pobranych danych i historii rozmowy, a nie tylko lepszego promptu systemowego."
+        },
+        {
+          "category": "Skille · Standard",
+          "title": "Agent Skills — otwarta specyfikacja i dokumentacja",
+          "url": "https://github.com/agentskills/agentskills",
+          "description": "Przenośny format skilli: SKILL.md, metadane, opcjonalne skrypty i referencje oraz stopniowe ujawnianie instrukcji. Sprawdzaj specyfikację zamiast polegać na przykładach jednego dostawcy."
+        },
+        {
+          "category": "Skille · Przykłady",
+          "title": "OpenAI — katalog skilli dla Codex",
+          "url": "https://github.com/openai/skills",
+          "description": "Praktyczny katalog skilli i przykładów ich pakowania. Porównaj instrukcje aktywacji i strukturę katalogów z otwartym formatem Agent Skills."
+        },
+        {
+          "category": "Bezpieczeństwo · Model zagrożeń",
+          "title": "OWASP — MCP Top 10",
+          "url": "https://owasp.org/projects/mcp-top-10",
+          "description": "Lista zagrożeń obejmująca ujawnienie tokenów, rozszerzanie scope’ów, tool poisoning, ataki na łańcuch dostaw, command injection, prompt injection, słabą autoryzację, brak audytu i nadmierne udostępnianie danych."
+        },
+        {
+          "category": "Bezpieczeństwo · Checklista",
+          "title": "OWASP — bezpieczne korzystanie z zewnętrznych serwerów MCP",
+          "url": "https://genai.owasp.org/resource/cheatsheet-a-practical-guide-for-securely-using-third-party-mcp-servers-1-0/",
+          "description": "Praktyczna lista kontrolna do przeglądu zewnętrznych serwerów MCP: uwierzytelnianie, minimalne uprawnienia, sandboxing, bezpieczne odkrywanie serwerów, nadzór i zgoda człowieka."
+        }
+      ],
     },
   ],
   comparisonTable: {
