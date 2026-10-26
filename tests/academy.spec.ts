@@ -58,7 +58,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (5 lekcji):');
 
-    await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
+    await page.locator('#tracks a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
     await expect(page.locator('h1')).toContainText('Model Context Protocol (MCP) w praktyce');
   });
