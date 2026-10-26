@@ -4,6 +4,9 @@ Durable agreements for this project, newest first. Read before changing architec
 
 Entry format: a heading `## YYYY-MM-DD: decision`, then one to three lines on why.
 
+## 2026-10-23: Lesson 15 companion is playwright-harness-kit
+Lesson 15 (`playwright-browser-automation-and-verification`) and Playbook 07 (`playwright-verification-spec`) complete the Track 04 three-harness stack alongside `agent-harness-kit` (Lesson 13) and `mcp-surface-kit` (Lesson 14). The open-source companion lives in `RolePlayingTech/playwright-harness-kit` (pinned in `devDependencies` at `github:RolePlayingTech/playwright-harness-kit#badf916591d66222586961e8998ea20d3b21d77f` and verified in `tests/academy.spec.ts`): a zero-dependency Node CLI that explains, validates declarative contracts and repository file evidence (`check --strict --verify-files`), and builds `.claude/skills/verify-browser-scenarios/SKILL.md` with orphan pruning (`build --prune`) from `.playwright-harness/spec.json`, paired with a runnable offline UI lab executed in `tests/academy.spec.ts`.
+
 ## 2026-10-22: Ecosystem tools and dynamic homepage counters
 Homepage sections for Latest Additions (`#latest-lessons`) and Open-Source Tools (`#open-source-tools`) live in `src/content/tools.ts` with `assertLocaleParity`. Lesson metadata (number, title, reading time) and track/catalog counts are derived from source arrays and formatted via `formatTrackLessonsHeading` / `formatTrackBadgeCount` in `src/lib/contracts.ts`.
 
