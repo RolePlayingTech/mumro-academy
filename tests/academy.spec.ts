@@ -252,7 +252,7 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
       });
     }
     en.forEach((journey, index) => {
-      expect(journey.lessonSlugs).toEqual(pl[index].lessonSlugs);
+      expect(journey.lessonSlugs).toEqual(pl[index]!.lessonSlugs);
     });
   });
 
@@ -269,7 +269,7 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
       await expect(cards.nth(1).locator('a.journey-start')).toHaveAttribute(
         'href', root + 'lessons/evidence-led-research-pipelines/'
       );
-      const firstId = await page.locator('#learning-routes').evaluate((el) => el.compareDocumentPosition(document.querySelector('#latest-lessons')));
+      const firstId = await page.locator('#learning-routes').evaluate((el) => el.compareDocumentPosition(document.querySelector('#latest-lessons')!));
       expect(firstId & 4).toBe(4);
     }
   });
