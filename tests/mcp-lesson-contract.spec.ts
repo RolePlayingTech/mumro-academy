@@ -30,15 +30,21 @@ test('Lesson 14 teaches an honest authorization boundary in EN and PL', () => {
 test('Lesson 14 sidebar TOC avoids duplicate numbering and scrollable code/reading elements meet accessibility requirements', async ({
   page,
 }) => {
-  for (const route of [
-    '/lessons/mcp-tools-skills-and-product-surfaces/',
-    '/pl/lessons/mcp-tools-skills-and-product-surfaces/',
-  ]) {
+  for (const locale of ['en', 'pl'] as const) {
+    const route =
+      locale === 'pl'
+        ? '/pl/lessons/mcp-tools-skills-and-product-surfaces/'
+        : '/lessons/mcp-tools-skills-and-product-surfaces/';
     await page.goto(route);
-    const tocTexts = await page.locator('.toc-card ol li a').allTextContents();
-    for (const text of tocTexts) {
-      expect(text.trim()).not.toMatch(/^\d+\.\s/);
-    }
+    const lesson = mcpSurfaceLesson[locale];
+    const tocTexts = (await page.locator('.toc-card .toc-list > li > a').allTextContents()).map((text) =>
+      text.trim()
+    );
+    expect(tocTexts[0]).toBe(lesson.problemStatement.heading);
+    expect(tocTexts.slice(1, 1 + lesson.sections.length)).toEqual(
+      lesson.sections.map((section) => section.heading)
+    );
+    await expect(page.locator('.toc-card .toc-list')).toHaveCSS('list-style-type', 'none');
     const preCount = await page.locator('.code-container pre[tabindex="0"]').count();
     expect(preCount).toBe(10);
     await expect(page.locator('#comparison-matrix .table-wrap')).toHaveAttribute('tabindex', '0');
