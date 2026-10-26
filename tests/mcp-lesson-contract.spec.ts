@@ -23,6 +23,6 @@ test('Lesson 14 teaches an honest authorization boundary in EN and PL', () => {
     expect(injection?.paragraphs.join(' ')).toMatch(/confirmation phrase|frazę|frazy/);
     expect(injection?.paragraphs.join(' ')).toContain('host');
     expect(product?.paragraphs.length).toBe(5);
-    expect(lab?.callout.text).toMatch(/host|hosta/);
+    expect(lab?.callout?.text).toMatch(/host|hosta/);
   }
 });
