@@ -46,9 +46,17 @@ test('Lesson 16 GitHub review section renders every paragraph with balanced inli
     const paragraphs = page.locator('#github-work-governance-and-pr-review > p');
     await expect(paragraphs).toHaveCount(4);
 
-    for (const rendered of await paragraphs.allTextContents()) {
-      expect(rendered).not.toContain('**');
-      expect(rendered).not.toContain('`');
+    // Ignore legitimate Markdown-looking glob strings inside <code>, e.g. tests/**.
+    // Only unparsed markup left in plain text nodes is an actual rendering defect.
+    for (const paragraph of await paragraphs.all()) {
+      const plainText = await paragraph.evaluate((node) =>
+        Array.from(node.childNodes)
+          .filter((child) => child.nodeType === Node.TEXT_NODE)
+          .map((child) => child.textContent ?? '')
+          .join('')
+      );
+      expect(plainText).not.toContain('**');
+      expect(plainText).not.toContain('`');
     }
 
     const review = paragraphs.last();
