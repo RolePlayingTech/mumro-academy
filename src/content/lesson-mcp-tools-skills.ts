@@ -611,7 +611,7 @@ Human / approved_strategy     yes                     n/a`,
         {
           "category": "OpenAI · Product UI",
           "title": "OpenAI — Build with the Apps SDK",
-          "url": "https://help.openai.com/en/articles/12515353-build-with-the-apps-sdk",
+          "url": "https://developers.openai.com/plugins/build/app-quickstart",
           "description": "Introduces building ChatGPT apps with MCP-backed logic and an interactive interface. Useful for thinking about the product experience around tools, not just the protocol endpoint."
         },
         {
@@ -659,7 +659,7 @@ Human / approved_strategy     yes                     n/a`,
         {
           "category": "Anthropic · Tool design",
           "title": "Anthropic — Writing effective tools for agents (Sep 2025)",
-          "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+          "url": "https://www.anthropic.com/research/writing-tools-for-agents",
           "description": "Covers clear names and descriptions, strict input/output contracts, useful tool results, token efficiency and evaluation-driven iteration on tool quality."
         },
         {
@@ -1169,7 +1169,7 @@ Człowiek / approved_strategy  tak                            n/d`,
         {
           "category": "OpenAI · Interfejs produktu",
           "title": "OpenAI — tworzenie aplikacji za pomocą Apps SDK",
-          "url": "https://help.openai.com/en/articles/12515353-build-with-the-apps-sdk",
+          "url": "https://developers.openai.com/plugins/build/app-quickstart",
           "description": "Wprowadzenie do budowania aplikacji ChatGPT z logiką opartą na MCP i interaktywnym interfejsem. Przydatne przy projektowaniu doświadczenia produktu wokół narzędzi, nie tylko endpointu protokołu."
         },
         {
@@ -1217,7 +1217,7 @@ Człowiek / approved_strategy  tak                            n/d`,
         {
           "category": "Anthropic · Projektowanie narzędzi",
           "title": "Anthropic — projektowanie skutecznych narzędzi dla agentów (wrzesień 2025)",
-          "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+          "url": "https://www.anthropic.com/research/writing-tools-for-agents",
           "description": "Omawia jasne nazwy i opisy, ścisłe kontrakty wejścia i wyjścia, użyteczne wyniki, oszczędzanie tokenów oraz poprawianie jakości narzędzi na podstawie ewaluacji."
         },
         {

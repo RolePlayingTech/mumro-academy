@@ -158,6 +158,19 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     );
   });
 
+  test('llms-full.txt includes Lesson 14 bilingual primary sources', async ({ request }) => {
+    const response = await request.get('/llms-full.txt');
+    expect(response.ok()).toBe(true);
+    const body = await response.text();
+    const anthro = 'https://www.anthropic.com/research/writing-tools-for-agents';
+    const openai = 'https://developers.openai.com/plugins/build/app-quickstart';
+    expect(body.split(anthro).length - 1).toBe(2);
+    expect(body.split(openai).length - 1).toBe(2);
+    expect(body).not.toContain('https://www.anthropic.com/engineering/writing-tools-for-agents');
+    expect(body).not.toContain('https://help.openai.com/en/articles/12515353-build-with-the-apps-sdk');
+    expect(body).toContain('OWASP — MCP Top 10');
+  });
+
   test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {
     await page.goto('/pl/lessons/ai-agent-harness-engineering/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
