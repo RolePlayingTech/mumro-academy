@@ -443,6 +443,7 @@ const articleSchema = [
 
   .lesson-content {
     display: grid;
+    min-width: 0;
     gap: 44px;
   }
   .level-badge {
@@ -454,6 +455,7 @@ const articleSchema = [
     margin: 8px 0 16px;
   }
   .content-block p {
+    overflow-wrap: anywhere;
     font-size: 16px;
     line-height: 1.72;
     color: var(--ink);
