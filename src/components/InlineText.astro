@@ -16,7 +16,7 @@ function parseTextWithStrong(value: string): Segment[] {
   for (const match of value.matchAll(pattern)) {
     const index = match.index ?? 0;
     if (index > cursor) result.push({ kind: 'text', value: value.slice(cursor, index) });
-    result.push({ kind: 'strong', value: match[1] });
+    result.push({ kind: 'strong', value: match[1] ?? '' });
     cursor = index + match[0].length;
   }
   if (cursor < value.length) result.push({ kind: 'text', value: value.slice(cursor) });
