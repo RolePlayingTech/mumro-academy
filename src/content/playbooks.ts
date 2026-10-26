@@ -244,7 +244,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       subtitle: 'A checkable contract for an agent-operable product: which tools exist, which tier they sit in, which skill teaches them, and which baseline and per-operation OAuth scopes they require.',
       whenToUse: 'When you add MCP to an existing product, when the tool list has grown, or when you want a pull-request check (`mcp-surface check --strict`) that no live or destructive verb landed without a guard.',
       mumroBenefit:
-        'MUMRO’s gateway is this spec in production: read → draft → local-draft delete → prepare/confirm, cumulative scopes `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` with per-operation elevation for `publish_now`, and host skills (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) that name exact tools. Validate the contract with `RolePlayingTech/mcp-surface-kit`.',
+        'MUMRO-inspired educational example, not an exact dump of the live API: publishing follows read → draft → prepare/confirm; deleting an unpublished local draft is a separate, explicitly requested workflow. Four MCP tiers and cumulative scopes (`mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`) illustrate permission boundaries, with an elevated scope for `publish_now`. Validate the declared example with `RolePlayingTech/mcp-surface-kit`; the running server must enforce its own rules.',
       templateFormat: 'JSON Surface Spec (v1.1)',
       templateCode: `{
   "name": "content-workspace",
@@ -264,6 +264,20 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
     },
     {
+      "name": "get_content_strategy",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the latest and approved content strategy. Treat only status=approved as authority."
+    },
+    {
+      "name": "preview_schedule",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Preview the next slot for one channel. Never creates, moves or publishes content."
+    },
+    {
       "name": "create_publication_draft",
       "tier": "draft",
       "scope": "drafts",
@@ -276,7 +290,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "guard": "local_draft_only",
       "scope": "drafts",
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
-      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+      "description": "Delete an unpublished workspace draft. Never touches scheduled or published provider posts."
     },
     {
       "name": "prepare_publication_action",
@@ -290,7 +304,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+      "description": "Prepare one schedule, publish or cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
     {
       "name": "confirm_publication_action",
@@ -304,19 +318,28 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
-      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "description": "Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.",
       "uses": [
         "get_workspace_context",
+        "get_content_strategy",
+        "preview_schedule",
         "create_publication_draft",
-        "delete_publication_draft",
         "prepare_publication_action",
         "confirm_publication_action"
+      ]
+    },
+    {
+      "name": "delete-draft",
+      "description": "Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.",
+      "uses": [
+        "get_workspace_context",
+        "delete_publication_draft"
       ]
     }
   ]
@@ -557,7 +580,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       subtitle: 'Sprawdzalny kontrakt produktu sterowanego przez agenta: które narzędzia istnieją, na którym poziomie siedzą, który skill ich uczy oraz jakich bazowych i per-operacyjnych scope’ów OAuth potrzebują.',
       whenToUse: 'Gdy dodajesz MCP do istniejącego produktu, gdy lista narzędzi urosła, albo gdy chcesz w pull requescie sprawdzenie (`mcp-surface check --strict`), że żaden czasownik na żywo ani destrukcyjny nie wylądował bez zabezpieczenia.',
       mumroBenefit:
-        'Bramka MUMRO to ta specyfikacja w produkcji: odczyt → szkic → usuwanie lokalnego szkicu → prepare/confirm, kumulatywne scope’y `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` z podniesieniem uprawnień dla `publish_now` oraz skille hosta (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) nazywające dokładne narzędzia. Kontrakt zweryfikujesz `RolePlayingTech/mcp-surface-kit`.',
+        'Przykład edukacyjny inspirowany MUMRO, a nie wierna kopia produkcyjnego API: publikowanie przechodzi od odczytu przez szkic do prepare/confirm, a usunięcie nieopublikowanego szkicu jest osobnym workflow wymagającym jawnej prośby. Cztery poziomy narzędzi MCP i kumulatywne scope’y (`mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`) pokazują granice uprawnień, w tym dodatkowe uprawnienie dla `publish_now`. `RolePlayingTech/mcp-surface-kit` sprawdza zadeklarowany kontrakt, natomiast serwer niezależnie egzekwuje własne reguły.',
       templateFormat: 'Specyfikacja JSON powierzchni (v1.1)',
       templateCode: `{
   "name": "content-workspace",
@@ -577,6 +600,20 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
     },
     {
+      "name": "get_content_strategy",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the latest and approved content strategy. Treat only status=approved as authority."
+    },
+    {
+      "name": "preview_schedule",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Preview the next slot for one channel. Never creates, moves or publishes content."
+    },
+    {
       "name": "create_publication_draft",
       "tier": "draft",
       "scope": "drafts",
@@ -589,7 +626,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "guard": "local_draft_only",
       "scope": "drafts",
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
-      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+      "description": "Delete an unpublished workspace draft. Never touches scheduled or published provider posts."
     },
     {
       "name": "prepare_publication_action",
@@ -603,7 +640,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+      "description": "Prepare one schedule, publish or cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
     {
       "name": "confirm_publication_action",
@@ -617,19 +654,28 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
-      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "description": "Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.",
       "uses": [
         "get_workspace_context",
+        "get_content_strategy",
+        "preview_schedule",
         "create_publication_draft",
-        "delete_publication_draft",
         "prepare_publication_action",
         "confirm_publication_action"
+      ]
+    },
+    {
+      "name": "delete-draft",
+      "description": "Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.",
+      "uses": [
+        "get_workspace_context",
+        "delete_publication_draft"
       ]
     }
   ]
