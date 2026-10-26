@@ -1,0 +1,70 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { mcpSurfaceLesson, SURFACE_COMMANDS } from '../src/content/lesson-mcp-tools-skills';
+
+test('Lesson 14 teaches an honest authorization boundary in EN and PL', () => {
+  for (const locale of ['en', 'pl'] as const) {
+    const lesson = mcpSurfaceLesson[locale];
+    const design = lesson.sections.find((section) => section.id === 'designing-the-surface');
+    const mumro = lesson.sections.find((section) => section.id === 'how-mumro-built-it');
+    const injection = lesson.sections.find((section) => section.id === 'untrusted-data-and-isolation');
+    const product = lesson.sections.find((section) => section.id === 'mcp-as-product-quality');
+    const lab = lesson.sections.find((section) => section.id === 'hands-on-mini-lab');
+
+    expect(lesson.metaDescription).not.toMatch(/three-tier|trójpoziomowa/);
+    expect(lesson.problemStatement.connectedPattern).not.toMatch(/three-tier|trójpoziomowa/);
+    expect(lesson.problemStatement.connectedPattern).toMatch(/four-tier|czteropoziomowa/);
+
+    expect(design?.paragraphs.join(' ')).toContain('https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization');
+    expect(design?.paragraphs.join(' ')).toContain('publish_now');
+    expect(design?.paragraphs.join(' ')).toContain('mumro:publish');
+
+    expect(mumro?.paragraphs.join(' ')).toContain('confirmation_mode=user');
+    expect(injection?.paragraphs.join(' ')).toContain('action_id');
+    expect(injection?.paragraphs.join(' ')).toMatch(/confirmation phrase|frazę|frazy/);
+    expect(injection?.paragraphs.join(' ')).toContain('host');
+    expect(product?.paragraphs.length).toBe(5);
+    expect(lab?.callout?.text).toMatch(/host|hosta/);
+  }
+});
+
+test('Lesson 14 sidebar TOC avoids duplicate numbering and scrollable code/reading elements meet accessibility requirements', async ({
+  page,
+}) => {
+  for (const locale of ['en', 'pl'] as const) {
+    const route =
+      locale === 'pl'
+        ? '/pl/lessons/mcp-tools-skills-and-product-surfaces/'
+        : '/lessons/mcp-tools-skills-and-product-surfaces/';
+    await page.goto(route);
+    const lesson = mcpSurfaceLesson[locale];
+    const tocTexts = (await page.locator('.toc-card .toc-list > li > a').allTextContents()).map((text) =>
+      text.trim()
+    );
+    expect(tocTexts[0]).toBe(lesson.problemStatement.heading);
+    expect(tocTexts.slice(1, 1 + lesson.sections.length)).toEqual(
+      lesson.sections.map((section) => section.heading)
+    );
+    await expect(page.locator('.toc-card .toc-list')).toHaveCSS('list-style-type', 'none');
+    const preCount = await page.locator('.code-container pre[tabindex="0"]').count();
+    expect(preCount).toBe(10);
+    await expect(page.locator('#comparison-matrix .table-wrap')).toHaveAttribute('tabindex', '0');
+    const categoryColor = await page
+      .locator('#further-reading .resource-category')
+      .first()
+      .evaluate((el) => getComputedStyle(el).color);
+    expect(categoryColor).toBe('rgb(182, 49, 19)');
+  }
+});
+
+test('Lesson 14 tutorial uses the same pinned mcp-surface-kit revision as its dependency', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8'));
+  const pin = pkg.devDependencies['mcp-surface-kit'];
+  const sha = pin.match(/#([a-f0-9]{40})$/)?.[1];
+
+  expect(sha).toBeTruthy();
+  expect(SURFACE_COMMANDS).toContain(`git -c advice.detachedHead=false checkout -q ${sha}`);
+  expect(lock.packages[''].devDependencies['mcp-surface-kit']).toBe(pin);
+  expect(lock.packages['node_modules/mcp-surface-kit'].resolved).toContain(`#${sha}`);
+});
