@@ -1,4 +1,4 @@
-import { assertLocaleParity, lessonSlugs, type LessonSlug, type Locale } from '../lib/contracts';
+import { assertLocaleParity, lessonSlugs, type LessonSlug } from '../lib/contracts';
 
 export interface LearningJourney {
   id: 'brand-content' | 'agent-ops' | 'agent-engineering';
@@ -17,8 +17,7 @@ export interface LessonPractice {
 }
 
 /** Curated role-based routes across the existing tracks; lesson numbers and URLs remain stable. */
-export const learningJourneys = assertLocaleParity({
-  en: [
+const enJourneys: LearningJourney[] = [
   {
     "id": "brand-content",
     "title": "Brand & content strategy",
@@ -65,8 +64,8 @@ export const learningJourneys = assertLocaleParity({
       "autonomy-levels-and-guardrails"
     ]
   }
-],
-  pl: [
+];
+const plJourneys: LearningJourney[] = [
   {
     "id": "brand-content",
     "title": "Strategia marki i content",
@@ -113,11 +112,10 @@ export const learningJourneys = assertLocaleParity({
       "autonomy-levels-and-guardrails"
     ]
   }
-],
-}, 'learningJourneys');
+];
+export const learningJourneys = assertLocaleParity({ en: enJourneys, pl: plJourneys }, 'learningJourneys');
 
-export const lessonPractice = assertLocaleParity({
-  en: {
+const enPractice: Record<LessonSlug, LessonPractice> = {
   "versioned-brand-strategy": {
     "objective": "Define an executable brand strategy.",
     "assignment": "Write a one-page strategy contract: audience, three pillars, channel roles and a 30-day hypothesis.",
@@ -227,8 +225,8 @@ export const lessonPractice = assertLocaleParity({
       "mcp-for-marketing-and-content-systems"
     ]
   }
-},
-  pl: {
+};
+const plPractice: Record<LessonSlug, LessonPractice> = {
   "versioned-brand-strategy": {
     "objective": "Zdefiniuj strategię marki, którą da się stosować.",
     "assignment": "Spisz jednostronicowy kontrakt: odbiorcy, trzy filary, role kanałów i hipoteza na 30 dni.",
@@ -338,8 +336,8 @@ export const lessonPractice = assertLocaleParity({
       "mcp-for-marketing-and-content-systems"
     ]
   }
-},
-} satisfies Record<Locale, Record<LessonSlug, LessonPractice>>, 'lessonPractice');
+};
+export const lessonPractice = assertLocaleParity({ en: enPractice, pl: plPractice }, 'lessonPractice');
 
 // The parity helper checks shapes; these checks also protect canonical identifiers and route order.
 for (const locale of ['en', 'pl'] as const) {
