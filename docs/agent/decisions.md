@@ -9,7 +9,7 @@ Homepage sections for Latest Additions (`#latest-lessons`) and Open-Source Tools
 
 ## 2026-10-22: Lesson 14 companion is mcp-surface-kit
 Lesson 14 (MCP, tools, skills) needed a checkable product-side spec, the way Lesson 13 uses agent-harness-kit for the coding harness. The companion lives in `RolePlayingTech/mcp-surface-kit`: a Node CLI with no dependencies that explains, checks and generates SKILL.md from `.mcp-surface/spec.json`.
-Like `agent-harness-kit`, `mcp-surface-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/mcp-surface-kit#5575474301a8095e99148d0acede35744364678a`) so `tests/academy.spec.ts` unconditionally runs the real `mcp-surface` CLI (`check --strict` and `build`) against Lesson 14's exported mini-lab fixtures locally and in CI.
+Like `agent-harness-kit`, `mcp-surface-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/mcp-surface-kit#669de9c7d785a3b1a0c4d03a241cf8fc795fdebf`) so `tests/academy.spec.ts` unconditionally runs the real `mcp-surface` CLI (`check --strict` and `build`) against Lesson 14's exported mini-lab fixtures locally and in CI.
 
 ## 2026-10-21: Agent harness adopted
 Rigor standard, memory handoff, agents cursor, claude. The reasoning for each part is printed by `npx agent-harness explain`; the decisions themselves live in `.harness/spec.json`.

@@ -389,21 +389,23 @@ const en: LessonData[] = [
         codeBlock: {
           caption: 'Canonical MCP Agent Session: Reading Context → Inspecting Schedule → Creating a Draft',
           language: 'json',
-          code: `// Step 1: Agent reads active workspace context & strategy
-{ "tool": "get_workspace_context", "arguments": { "workspace": "fieldwork" } }
-{ "tool": "get_content_strategy", "arguments": { "workspace": "fieldwork" } }
+          code: `// Workspace is bound to the credential on the server; never pass workspace_id from the model.
+// Step 1: Agent reads active workspace context & approved strategy (mumro:read)
+{ "tool": "get_workspace_context", "arguments": {} }
+{ "tool": "get_content_strategy", "arguments": { "account_id": 42 } }
 
-// Step 2: Agent checks upcoming publishing slots to avoid collisions
-{ "tool": "preview_schedule", "arguments": { "channel": "instagram", "horizonDays": 7 } }
+// Step 2: Agent checks upcoming publishing slots to avoid collisions (mumro:read)
+{ "tool": "preview_schedule", "arguments": { "account_id": 42, "content_type": "post" } }
 
-// Step 3: Agent creates a visible draft grounded in Strategy v2 & Brand Voice
+// Step 3: Agent creates a visible draft grounded in Strategy v2 & Brand Voice (mumro:drafts)
 {
   "tool": "create_publication_draft",
   "arguments": {
-    "workspace": "fieldwork",
-    "channel": "instagram",
+    "targets": [{ "account_id": 42, "platform": "instagram" }],
+    "publication_type": "post",
     "caption": "Two days. Four litres.\\n\\nJacket, snacks and a repair kit. On your bars, instead of your back.\\n\\nSee the full packing layout in our guide.",
-    "sourceRef": "art_drift4l_packing_guide"
+    "media_asset_ids": [901],
+    "idempotency_key": "fieldwork-drift4l-2026-11-05-thu-18-01"
   }
 }`,
         },
@@ -439,7 +441,7 @@ const en: LessonData[] = [
       context: 'An operator asks their MCP-connected agent to prepare the Thursday evening Instagram post for the DRIFT 4L campaign based on the active strategy.',
       executionSteps: [
         'Agent calls `get_workspace_context` and reads Strategy v2 + Brand Voice boundaries.',
-        'Agent creates a structured draft and previews the Thursday Oct 11 · 18:00 slot.',
+        'Agent creates a structured draft and previews the Thursday Nov 5 · 18:00 CET slot.',
         'After explicit confirmation, the exact post appears in the MUMRO publishing plan.',
       ],
       resultNote: 'Zero copy-pasting, full tool contract visibility, and immediate synchronization with the workspace plan.',
@@ -494,7 +496,7 @@ const en: LessonData[] = [
         heading: '1. Mechanics of the Two-Phase Prepare → Confirm Gate',
         paragraphs: [
           'The Prepare → Confirm pattern adapts database two-phase commit principles to human-AI collaboration. When an agent wants to schedule, move, retry, or publish a post (or publish an article or reply to a comment), it must first call `prepare_publication_action`.',
-          'During the `prepare` phase, the server validates channel capabilities, checks workspace autonomy rules and quiet hours, computes the exact preview diff (channel, caption, media, target slot), and returns a short-lived `confirmationToken` without touching any external social network.',
+          'During the `prepare` phase, the server validates channel capabilities, checks workspace autonomy rules and quiet hours, computes the exact preview diff (channel, caption, media, target slot), and returns a short-lived `action_id` and `confirmation_phrase` without touching any external social network.',
         ],
         callout: {
           label: 'INVARIANT OF AGENT SAFETY',
@@ -503,33 +505,35 @@ const en: LessonData[] = [
         codeBlock: {
           caption: 'Two-Phase MCP Mutation Handshake (`prepare_publication_action` → `confirm_publication_action`)',
           language: 'json',
-          code: `// PHASE 1: Prepare (Dry-run validation + human-readable preview)
+          code: `// PHASE 1: Prepare (Dry-run validation + human-readable preview, mumro:schedule)
 {
   "tool": "prepare_publication_action",
   "arguments": {
-    "draftId": "draft_drift4l_ig_01",
-    "action": "schedule",
-    "channel": "instagram",
-    "scheduledAt": "2026-10-11T18:00:00Z"
+    "publication_id": 1881,
+    "operation": "schedule_draft",
+    "scheduled_at": "2026-11-05T17:00:00Z",
+    "idempotency_key": "fieldwork-drift4l-2026-11-05-prepare"
   }
 }
 // Server Response:
 {
   "status": "prepared_awaiting_confirmation",
+  "action_id": 554,
+  "confirmation_mode": "user",
   "preview": {
-    "workspace": "fieldwork",
     "channel": "Instagram (@fieldwork)",
-    "scheduledLocal": "Oct 11 · 18:00",
+    "scheduledLocal": "Thu Nov 5 · 18:00 CET",
     "captionPreview": "Two days. Four litres. Jacket, snacks and a repair kit..."
   },
-  "confirmationToken": "cfm_9f82a1b4c7e0_exp15m"
+  "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
 }
 
-// PHASE 2: Confirm (Executed only after explicit human approval or policy check)
+// PHASE 2: Confirm (Executed only after independent host/user approval or server-verified policy)
 {
   "tool": "confirm_publication_action",
   "arguments": {
-    "confirmationToken": "cfm_9f82a1b4c7e0_exp15m"
+    "action_id": 554,
+    "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
   }
 }`,
         },
@@ -562,10 +566,10 @@ const en: LessonData[] = [
     caseStudy: {
       brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
       scenarioTitle: 'Inspecting the MCP Preview Before Adding the DRIFT 4L Post to the Plan',
-      context: 'In the MUMRO interactive MCP flow, the agent prepares the DRIFT 4L post for Oct 11 · 18:00 and pauses in the `review` state.',
+      context: 'In the MUMRO interactive MCP flow, the agent prepares the DRIFT 4L post for Thu Nov 5 · 18:00 CET and pauses in the `review` state.',
       executionSteps: [
         'Agent reads context, generates the draft, and invokes the schedule preview.',
-        'The operator inspects the exact caption, target channel (Instagram), and slot (Oct 11 · 18:00).',
+        'The operator inspects the exact caption, target channel (Instagram), and slot (Thu Nov 5 · 18:00 CET).',
         'Only after clicking the explicit confirmation button does the item enter the FIELDWORK publishing plan, with a direct link to focus that exact row.',
       ],
       resultNote: 'Fast agentic preparation paired with 100% deterministic human sign-off.',
@@ -1101,21 +1105,23 @@ const pl: LessonData[] = [
         codeBlock: {
           caption: 'Przykładowa sesja agenta MCP: Odczyt kontekstu → Podgląd harmonogramu → Zapis szkicu',
           language: 'json',
-          code: `// Krok 1: Agent odczytuje aktywny kontekst workspace’u i strategię marki
-{ "tool": "get_workspace_context", "arguments": { "workspace": "fieldwork" } }
-{ "tool": "get_content_strategy", "arguments": { "workspace": "fieldwork" } }
+          code: `// Workspace jest przypisany do poświadczenia na serwerze; nigdy nie przekazuj workspace_id z modelu.
+// Krok 1: Agent odczytuje aktywny kontekst workspace’u i zatwierdzoną strategię (mumro:read)
+{ "tool": "get_workspace_context", "arguments": {} }
+{ "tool": "get_content_strategy", "arguments": { "account_id": 42 } }
 
-// Krok 2: Agent sprawdza wolne okna w harmonogramie publikacji
-{ "tool": "preview_schedule", "arguments": { "channel": "instagram", "horizonDays": 7 } }
+// Krok 2: Agent sprawdza wolne okna w harmonogramie publikacji (mumro:read)
+{ "tool": "preview_schedule", "arguments": { "account_id": 42, "content_type": "post" } }
 
-// Krok 3: Agent tworzy widoczny szkic oparty na Strategii v2 i Brand Voice
+// Krok 3: Agent tworzy widoczny szkic oparty na Strategii v2 i Brand Voice (mumro:drafts)
 {
   "tool": "create_publication_draft",
   "arguments": {
-    "workspace": "fieldwork",
-    "channel": "instagram",
+    "targets": [{ "account_id": 42, "platform": "instagram" }],
+    "publication_type": "post",
     "caption": "Dwa dni. Cztery litry.\\n\\nKurtka, przekąski i zestaw naprawczy. Na kierownicy, zamiast na plecach.\\n\\nZobacz pełny układ pakowania w poradniku na stronie.",
-    "sourceRef": "art_drift4l_packing_guide_pl"
+    "media_asset_ids": [901],
+    "idempotency_key": "fieldwork-drift4l-2026-11-05-thu-18-01"
   }
 }`,
         },
@@ -1151,7 +1157,7 @@ const pl: LessonData[] = [
       context: 'Redaktor zleca agentowi MCP przygotowanie czwartkowego posta na Instagram dla kampanii DRIFT 4L zgodnie z aktualną strategią.',
       executionSteps: [
         'Agent odczytuje kontekst marki, Strategię v2 oraz zasady Brand Voice.',
-        'Agent przygotowuje szkic i pobiera podgląd terminu (11 paź · 18:00).',
+        'Agent przygotowuje szkic i pobiera podgląd terminu (czw. 5 lis · 18:00 CET).',
         'Po osobnej zgodzie człowieka post trafia bezpośrednio do planu publikacji MUMRO.',
       ],
       resultNote: 'Brak ręcznego przeklejania, jawny kontrakt narzędzi i natychmiastowe odzwierciedlenie w planie.',
@@ -1206,7 +1212,7 @@ const pl: LessonData[] = [
         heading: '1. Mechanika dwufazowej bramki Prepare → Confirm',
         paragraphs: [
           'Wzorzec Prepare → Confirm przenosi ideę transakcji dwufazowych (two-phase commit) do współpracy człowieka z agentem AI. Gdy agent chce zaplanować, przesunąć, ponowić lub opublikować materiał, musi najpierw wywołać narzędzie `prepare_publication_action`.',
-          'W fazie `prepare` serwer sprawdza możliwości techniczne kanału, weryfikuje poziom autonomii workspace’u oraz godziny ciszy, buduje dokładny podgląd (kanał, treść, media, slot czasowy) i zwraca krótkotrwały `confirmationToken` — bez wykonywania żadnego ruchu na zewnętrznej platformie.',
+          'W fazie `prepare` serwer sprawdza możliwości techniczne kanału, weryfikuje poziom autonomii workspace’u oraz godziny ciszy, buduje dokładny podgląd (kanał, treść, media, slot czasowy) i zwraca krótkotrwałe `action_id` oraz `confirmation_phrase` — bez wykonywania żadnego ruchu na zewnętrznej platformie.',
         ],
         callout: {
           label: 'NIEZMIENNIK BEZPIECZEŃSTWA AGENTA',
@@ -1215,33 +1221,35 @@ const pl: LessonData[] = [
         codeBlock: {
           caption: 'Dwufazowy protokół mutacji MCP (`prepare_publication_action` → `confirm_publication_action`)',
           language: 'json',
-          code: `// FAZA 1: Prepare (Walidacja reguł i czytelny podgląd do zatwierdzenia)
+          code: `// FAZA 1: Prepare (Walidacja reguł i czytelny podgląd do zatwierdzenia, mumro:schedule)
 {
   "tool": "prepare_publication_action",
   "arguments": {
-    "draftId": "draft_drift4l_ig_01",
-    "action": "schedule",
-    "channel": "instagram",
-    "scheduledAt": "2026-10-11T18:00:00Z"
+    "publication_id": 1881,
+    "operation": "schedule_draft",
+    "scheduled_at": "2026-11-05T17:00:00Z",
+    "idempotency_key": "fieldwork-drift4l-2026-11-05-prepare"
   }
 }
 // Odpowiedź serwera:
 {
   "status": "prepared_awaiting_confirmation",
+  "action_id": 554,
+  "confirmation_mode": "user",
   "preview": {
-    "workspace": "fieldwork",
     "channel": "Instagram (@fieldwork)",
-    "scheduledLocal": "11 paź · 18:00",
+    "scheduledLocal": "czw. 5 lis · 18:00 CET",
     "captionPreview": "Dwa dni. Cztery litry. Kurtka, przekąski i zestaw naprawczy..."
   },
-  "confirmationToken": "cfm_9f82a1b4c7e0_exp15m"
+  "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
 }
 
-// FAZA 2: Confirm (Wywoływana wyłącznie po jawnej zgodzie człowieka lub zgodnie z polityką)
+// FAZA 2: Confirm (Wywoływana wyłącznie po niezależnej zgodzie hosta/użytkownika lub zweryfikowanej polityce)
 {
   "tool": "confirm_publication_action",
   "arguments": {
-    "confirmationToken": "cfm_9f82a1b4c7e0_exp15m"
+    "action_id": 554,
+    "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
   }
 }`,
         },
@@ -1274,10 +1282,10 @@ const pl: LessonData[] = [
     caseStudy: {
       brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
       scenarioTitle: 'Weryfikacja podglądu MCP przed dodaniem posta DRIFT 4L do planu publikacji',
-      context: 'W interaktywnym pokazie MCP agent przygotowuje post DRIFT 4L na 11 paź · 18:00 i zatrzymuje proces w stanie oczekiwania na decyzję (`review`).',
+      context: 'W interaktywnym pokazie MCP agent przygotowuje post DRIFT 4L na czw. 5 lis · 18:00 CET i zatrzymuje proces w stanie oczekiwania na decyzję (`review`).',
       executionSteps: [
         'Agent odczytuje kontekst, tworzy szkic i wywołuje podgląd terminu.',
-        'Użytkownik sprawdza dokładny tekst podpisu, kanał (Instagram) oraz godzinę (11 paź · 18:00).',
+        'Użytkownik sprawdza dokładny tekst podpisu, kanał (Instagram) oraz godzinę (czw. 5 lis · 18:00 CET).',
         'Dopiero po kliknięciu osobnej zgody wpis trafia do planu Wypraw Rowerowych, a link „Zobacz ten post w planie MUMRO” podświetla dodany wiersz.',
       ],
       resultNote: 'Błyskawiczna praca agenta połączona ze 100% kontrolą człowieka nad momentem publikacji.',
