@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 const distRoot = new URL('../dist/', import.meta.url);
 
-const expectedSlugs = [
+export const expectedSlugs = [
   'versioned-brand-strategy',
   'brand-voice-architecture',
   'evidence-led-research-pipelines',
@@ -19,7 +19,18 @@ const expectedSlugs = [
   'ai-agent-harness-engineering',
   'mcp-tools-skills-and-product-surfaces',
   'playwright-browser-automation-and-verification',
+  'git-and-github-for-ai-coding-agents',
 ];
+
+const contractsSource = await readFile(new URL('../src/lib/contracts.ts', import.meta.url), 'utf8');
+const contractsSlugArrayMatch = contractsSource.match(/export const lessonSlugs = \[([\s\S]*?)\] as const;/);
+assert.ok(contractsSlugArrayMatch, 'src/lib/contracts.ts must export lessonSlugs');
+const contractsSlugs = Array.from(contractsSlugArrayMatch[1].matchAll(/'([^']+)'/g), (m) => m[1]);
+assert.deepEqual(
+  expectedSlugs,
+  contractsSlugs,
+  'expectedSlugs in verify-build.mjs must match authoritative lessonSlugs in src/lib/contracts.ts'
+);
 
 const expectedTracks = [
   'brand-systems',
@@ -70,8 +81,10 @@ for (const [relPath, lang, canonicalUrl] of routePairs) {
 // Check 404, sitemap.xml, robots.txt, llms.txt, RSS feeds, and share images
 await readFile(new URL('404.html', distRoot), 'utf8');
 const sitemap = await readFile(new URL('sitemap.xml', distRoot), 'utf8');
-assert.ok(sitemap.includes('https://academy.mumro.io/lessons/mcp-for-marketing-and-content-systems/'));
-assert.ok(sitemap.includes('https://academy.mumro.io/pl/lessons/mcp-for-marketing-and-content-systems/'));
+for (const slug of expectedSlugs) {
+  assert.ok(sitemap.includes(`https://academy.mumro.io/lessons/${slug}/`), `sitemap.xml missing EN lesson ${slug}`);
+  assert.ok(sitemap.includes(`https://academy.mumro.io/pl/lessons/${slug}/`), `sitemap.xml missing PL lesson ${slug}`);
+}
 
 const robots = await readFile(new URL('robots.txt', distRoot), 'utf8');
 assert.ok(robots.includes('Sitemap: https://academy.mumro.io/sitemap.xml'));

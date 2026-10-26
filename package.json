@@ -34,6 +34,7 @@
     "@types/node": "22.20.5",
     "agent-harness-kit": "github:RolePlayingTech/agent-harness-kit#489c0b958b24ea62b810158146bd004db4ad08cb",
     "axe-core": "4.14.0",
+    "git-agent-workflow-kit": "github:RolePlayingTech/git-agent-workflow-kit#ecfaa9236f42d3f2728c6ef94237836ae13d88fd",
     "mcp-surface-kit": "github:RolePlayingTech/mcp-surface-kit#669de9c7d785a3b1a0c4d03a241cf8fc795fdebf",
     "playwright-harness-kit": "github:RolePlayingTech/playwright-harness-kit#badf916591d66222586961e8998ea20d3b21d77f",
     "typescript": "6.0.3"

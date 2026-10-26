@@ -25,7 +25,7 @@ A good lesson changes what someone can **decide, make, verify or safely operate*
 | --- | --- | --- |
 | Brand & content strategy | 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 | Strategy-to-evidence-to-publishing loop with a measurable revision |
 | AI agents for content operations | 03 → 10 → 11 → 12 → 14 | Source-aware agents, explicit approval and bounded mutation policy |
-| AI product & coding-agent engineering | 13 → 10 → 14 → 11 → 12 → 15 | Harness, MCP tool surface, authorization/refusal contract and browser verification |
+| AI product & coding-agent engineering | 13 → 10 → 14 → 11 → 12 → 15 → 16 | Harness, MCP tool surface, authorization/refusal contract, browser verification and multi-agent Git workflow |
 
 Journeys intentionally overlap. The first journey goes deep on brand/content outcomes; the second and third use different entry points into the agent material. Lesson 14 can be useful in both, despite different motivations.
 
@@ -55,7 +55,7 @@ Score each lesson 0–2 for **goal clarity, factual/evidence quality, runnable e
 1. **Fact-check and copy-edit 01–15.** Revisit unsupported blanket claims (for instance fixed lifetimes of social posts), remove product-first language where it substitutes for teaching, and verify each linked technical resource and external feature assertion.
 2. **Add an actual worked answer + rubric to each new practice assignment.** The current per-lesson tasks set the target, but do not pretend the old sections already provide graded solutions.
 3. **Tame jargon & variation in depth.** Consolidate recurring “source → draft → approve” explanations through cross-links; give short primers before deep OAuth/MCP/Harness material.
-4. **Plan incoming lessons deliberately.** Lesson 15 (Playwright/browser verification) is now part of the engineering journey; a draft PR for Git/multi-agent workflows (16) exists independently. After its integration, place it in the *engineering* journey where its prerequisites and portfolio outputs make sense, and update both locales and tests together.
+4. **Plan incoming lessons deliberately.** Lesson 15 (Playwright/browser verification) and Lesson 16 (Git/multi-agent workflows) are now part of the engineering journey with explicit prerequisites and portfolio outputs in both locales and tests.
 5. **Avoid hard-coded counts.** The existing README and some copy fields still have static counts even though other counters are dynamic. Before merging more lessons, migrate remaining static counts to count-aware rendering.
 
 ## Release safeguards

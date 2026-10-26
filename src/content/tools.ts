@@ -12,7 +12,7 @@ export interface FeaturedLessonHighlight {
 }
 
 export interface OpenSourceToolCard {
-  id: 'agent-harness-kit' | 'mcp-surface-kit' | 'playwright-harness-kit';
+  id: 'agent-harness-kit' | 'mcp-surface-kit' | 'playwright-harness-kit' | 'git-agent-workflow-kit';
   badge: string;
   name: string;
   repoLabel: string;
@@ -50,9 +50,9 @@ export interface EcosystemContent {
 const en: EcosystemContent = {
   latestSection: {
     eyebrow: 'LATEST ADDITIONS · AGENTIC ENGINEERING',
-    title: 'New deep dives: coding-agent harnesses, MCP product surfaces, and Playwright browser verification.',
+    title: 'New deep dives: coding-agent harnesses, MCP product surfaces, Playwright verification, and multi-agent Git workflows.',
     intro:
-      'Our newest lessons bridge repository-level coding agents, workspace-scoped MCP APIs, and multimodal Playwright browser verification — paired with open-source kits and copy-ready contracts you can run in your own stack.',
+      'Our newest lessons bridge repository-level coding agents, workspace-scoped MCP APIs, multimodal Playwright browser verification, and parallel Git worktree workflows — paired with four open-source CLI kits and copy-ready contracts you can run in your own stack.',
     companionLabel: 'Companion open-source kit / stack:',
     items: [
       {
@@ -88,13 +88,24 @@ const en: EcosystemContent = {
         companionPlaybookAnchor: '#playwright-verification-spec',
         readCta: 'Read Lesson 15',
       },
+      {
+        slug: 'git-and-github-for-ai-coding-agents',
+        badge: 'NEW · GIT & MULTI-AGENT WORKFLOWS',
+        valueSummary:
+          'Why Git is not a Save button: Three Trees, branches, `git worktree` isolation for parallel agents, catching scope creep and weakened tests in PR review, non-destructive recovery, and two hands-on labs.',
+        companionToolName: 'git-agent-workflow-kit',
+        companionToolRepo: 'https://github.com/RolePlayingTech/git-agent-workflow-kit',
+        companionPlaybookNumber: 'PLAYBOOK 08',
+        companionPlaybookAnchor: '#git-agent-workflow-spec',
+        readCta: 'Read Lesson 16',
+      },
     ],
   },
   toolsSection: {
     eyebrow: 'OPEN-SOURCE ECOSYSTEM · ROLEPLAYINGTECH',
     title: 'Open-source CLI kits that turn Academy architecture into checkable specs.',
     intro:
-      'Every architectural rule in Track 04 has a matching open-source CLI maintained by RolePlayingTech. Use them to keep your repository harness (`AGENTS.md`), your product MCP surface (`.mcp-surface/spec.json`), and your browser verification contract (`.playwright-harness/spec.json`) verified in CI.',
+      'Every architectural rule in Track 04 has a matching open-source CLI maintained by RolePlayingTech. Use them to keep your repository harness (`AGENTS.md`), your product MCP surface (`.mcp-surface/spec.json`), your browser verification contract (`.playwright-harness/spec.json`), and your multi-agent Git hygiene (`git-agent doctor` / `pr-ready`) verified in CI.',
     items: [
       {
         id: 'agent-harness-kit',
@@ -177,6 +188,33 @@ $ npx github:RolePlayingTech/playwright-harness-kit build examples/offline-ui --
         githubCta: 'View on GitHub',
         lessonCta: 'Read Lesson 15',
       },
+      {
+        id: 'git-agent-workflow-kit',
+        badge: 'OPEN-SOURCE CLI · GIT & PR HYGIENE',
+        name: 'Git Agent Workflow Kit',
+        repoLabel: 'RolePlayingTech/git-agent-workflow-kit',
+        repoUrl: 'https://github.com/RolePlayingTech/git-agent-workflow-kit',
+        focusLabel: 'What it covers',
+        focus:
+          'Read-only repository health diagnostics (`doctor`), pre-PR scope and test-integrity audits (`pr-ready`), non-destructive recovery plans (`recovery-plan`), 5 portable Agent Skills (`SKILL.md`), and local Git lab sandboxes (`sandbox`).',
+        problemLabel: 'Problem it solves',
+        problemSolved:
+          'Stops coding agents from committing on `main`, leaking unignored `.env` secrets, modifying files outside task scope, turning failing tests green by weakening assertions, or running destructive `reset --hard` commands.',
+        capabilities: [
+          'Audits active branch, `git worktree` topology, halted merges/rebases, leftover conflict markers, and `.gitignore` secret hygiene (`doctor`).',
+          'Verifies PR diffs against `--allow` file globs, flags high-risk paths, and detects deleted or weakened assertions in `tests/**` (`pr-ready`).',
+          'Generates step-by-step non-destructive recovery plans (`recovery-plan`), installs 5 `SKILL.md` playbooks (`skills`), and builds offline Lab A & B sandboxes (`sandbox`).',
+        ],
+        cliCaption: 'Diagnose repo state, verify PR scope & test integrity, and list Git agent skills',
+        cliPreview: `$ npx github:RolePlayingTech/git-agent-workflow-kit doctor .
+$ npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base origin/main --allow "src/auth/**" --strict
+$ npx github:RolePlayingTech/git-agent-workflow-kit skills list`,
+        relatedLessonSlug: 'git-and-github-for-ai-coding-agents',
+        relatedPlaybookAnchor: '#git-agent-workflow-spec',
+        relatedPlaybookLabel: 'Playbook 08: Git Agent Workflow Spec',
+        githubCta: 'View on GitHub',
+        lessonCta: 'Read Lesson 16',
+      },
     ],
   },
 };
@@ -184,9 +222,9 @@ $ npx github:RolePlayingTech/playwright-harness-kit build examples/offline-ui --
 const pl: EcosystemContent = {
   latestSection: {
     eyebrow: 'NAJNOWSZE LEKCJE · INŻYNIERIA AGENTÓW AI',
-    title: 'Nowe opracowania: harness agenta kodującego, powierzchnie MCP i weryfikacja przeglądarkowa Playwright.',
+    title: 'Nowe opracowania: harness agenta, powierzchnie MCP, weryfikacja Playwright i wieloagentowy Git.',
     intro:
-      'Najnowsze lekcje łączą świat agentów pracujących w repozytorium kodu, projektowanie produktów sterowanych przez MCP oraz weryfikację przeglądarkową Playwright i modeli multimodalnych — wraz z otwartymi narzędziami i gotowymi kontraktami.',
+      'Najnowsze lekcje łączą świat agentów pracujących w repozytorium kodu, projektowanie produktów sterowanych przez MCP, weryfikację przeglądarkową Playwright i modeli multimodalnych oraz izolację równoległych agentów w `git worktree` — wraz z czterema otwartymi narzędziami CLI i gotowymi kontraktami.',
     companionLabel: 'Powiązane narzędzie open source:',
     items: [
       {
@@ -222,13 +260,24 @@ const pl: EcosystemContent = {
         companionPlaybookAnchor: '#playwright-verification-spec',
         readCta: 'Otwórz Lekcję 15',
       },
+      {
+        slug: 'git-and-github-for-ai-coding-agents',
+        badge: 'NOWOŚĆ · GIT I PRACA WIELOAGENTOWA',
+        valueSummary:
+          'Dlaczego Git to nie przycisk „Zapisz”: trzy obszary robocze, gałęzie, izolacja równoległych agentów przez `git worktree`, wykrywanie wyjścia poza zakres i osłabionych testów w PR review, bezpieczne odzyskiwanie oraz dwa laboratoria.',
+        companionToolName: 'git-agent-workflow-kit',
+        companionToolRepo: 'https://github.com/RolePlayingTech/git-agent-workflow-kit',
+        companionPlaybookNumber: 'PLAYBOOK 08',
+        companionPlaybookAnchor: '#git-agent-workflow-spec',
+        readCta: 'Otwórz Lekcję 16',
+      },
     ],
   },
   toolsSection: {
     eyebrow: 'EKOSYSTEM OPEN SOURCE · ROLEPLAYINGTECH',
     title: 'Otwarte narzędzia CLI zamieniające architekturę Akademii w sprawdzalne kontrakty.',
     intro:
-      'Każda zasada architektoniczna ze Ścieżki 04 ma odpowiadające narzędzie CLI rozwijane przez RolePlayingTech. Użyj ich, aby utrzymywać harness repozytorium (`AGENTS.md`), kontrakt powierzchni MCP (`.mcp-surface/spec.json`) oraz kontrakt weryfikacji przeglądarkowej (`.playwright-harness/spec.json`) pod kontrolą w CI.',
+      'Każda zasada architektoniczna ze Ścieżki 04 ma odpowiadające narzędzie CLI rozwijane przez RolePlayingTech. Użyj ich, aby utrzymywać harness repozytorium (`AGENTS.md`), kontrakt powierzchni MCP (`.mcp-surface/spec.json`), kontrakt weryfikacji przeglądarkowej (`.playwright-harness/spec.json`) oraz higienę Git i PR-ów (`git-agent doctor` / `pr-ready`) pod kontrolą w CI.',
     items: [
       {
         id: 'agent-harness-kit',
@@ -310,6 +359,33 @@ $ npx github:RolePlayingTech/playwright-harness-kit build examples/offline-ui --
         relatedPlaybookLabel: 'Playbook 07: Kontrakt Playwright',
         githubCta: 'Repozytorium GitHub',
         lessonCta: 'Czytaj Lekcję 15',
+      },
+      {
+        id: 'git-agent-workflow-kit',
+        badge: 'OPEN-SOURCE CLI · GIT I HIGIENA PR',
+        name: 'Git Agent Workflow Kit',
+        repoLabel: 'RolePlayingTech/git-agent-workflow-kit',
+        repoUrl: 'https://github.com/RolePlayingTech/git-agent-workflow-kit',
+        focusLabel: 'Czego dotyczy',
+        focus:
+          'Nieinwazyjnej diagnostyki stanu repozytorium (`doctor`), audytu zakresu zmian i integralności testów przed PR (`pr-ready`), bezpiecznych planów ratunkowych (`recovery-plan`), 5 przenośnych skilli (`SKILL.md`) oraz lokalnych piaskownic ćwiczeniowych (`sandbox`).',
+        problemLabel: 'Jaki problem rozwiązuje',
+        problemSolved:
+          'Powstrzymuje agentów kodujących przed commitowaniem na `main`, wyciekiem niezignorowanych sekretów `.env`, modyfikacją plików spoza zakresu zadania, „zazielenianiem” testów przez osłabianie asercji oraz uruchamianiem destrukcyjnego `reset --hard`.',
+        capabilities: [
+          'Bada aktywną gałąź, topologię `git worktree`, zatrzymane operacje merge/rebase, pozostawione znaczniki konfliktu oraz higienę `.gitignore` (`doctor`).',
+          'Weryfikuje diff PR-a względem wzorców `--allow`, oznacza ścieżki wysokiego ryzyka i wykrywa usunięte lub osłabione asercje w `tests/**` (`pr-ready`).',
+          'Generuje nieinwazyjne plany ratunkowe (`recovery-plan`), instaluje 5 skilli `SKILL.md` (`skills`) i buduje lokalne piaskownice Lab A i Lab B (`sandbox`).',
+        ],
+        cliCaption: 'Diagnostyka stanu repozytorium, weryfikacja zakresu PR i przegląd skilli Git',
+        cliPreview: `$ npx github:RolePlayingTech/git-agent-workflow-kit doctor .
+$ npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base origin/main --allow "src/auth/**" --strict
+$ npx github:RolePlayingTech/git-agent-workflow-kit skills list`,
+        relatedLessonSlug: 'git-and-github-for-ai-coding-agents',
+        relatedPlaybookAnchor: '#git-agent-workflow-spec',
+        relatedPlaybookLabel: 'Playbook 08: Workflow Git Agentów',
+        githubCta: 'Repozytorium GitHub',
+        lessonCta: 'Czytaj Lekcję 16',
       },
     ],
   },

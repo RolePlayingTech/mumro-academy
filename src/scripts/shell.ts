@@ -201,6 +201,8 @@ export function initShell(): void {
   bindTabGroup('data-stack-trigger', 'data-stack-panel');
   bindTabGroup('data-browser-mode', 'data-browser-panel');
   bindTabGroup('data-browser-layer-trigger', 'data-browser-layer-panel');
+  bindTabGroup('data-git-mode', 'data-git-panel');
+  bindTabGroup('data-git-recovery-trigger', 'data-git-recovery-panel');
 
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;

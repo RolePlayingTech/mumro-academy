@@ -422,6 +422,55 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
   ]
 }`,
     },
+    {
+      id: 'git-agent-workflow-spec',
+      number: 'PLAYBOOK 08',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+      title: 'Multi-Agent Git Workflow, Worktree Isolation & PR Scope Gate (`git-agent-workflow-kit`)',
+      subtitle: 'A copy-ready operational policy for running one or multiple AI coding agents safely across feature branches, isolated git worktrees, pre-PR scope & test-integrity checks, and non-destructive recovery.',
+      whenToUse: 'Before starting coding-agent work in a repository, when running two or more agents in parallel via `git worktree`, or when gating Pull Requests against scope creep and weakened test assertions.',
+      mumroBenefit:
+        'Complements `agent-harness-kit` (static `AGENTS.md` contracts), `mcp-surface-kit` (MCP tool gates), and `playwright-harness-kit` (browser verification contracts) with live Git state auditing, file-scope enforcement, test-weakening detection, and 5 portable Agent Skills via `RolePlayingTech/git-agent-workflow-kit`.',
+      templateFormat: 'JSON Task Scope & Git Workflow Policy (v1.0)',
+      templateCode: `{
+  "task": "issue-42-session-expiry-and-audit",
+  "baseBranch": "origin/main",
+  "isolation": {
+    "forbidBranches": ["main", "master", "production"],
+    "branchPattern": "feat/<issue>-<slug>",
+    "parallelWorktreeCommand": "git worktree add ../repo-<slug> -b feat/<issue>-<slug> origin/main"
+  },
+  "allowedGlobs": [
+    "src/auth/**",
+    "tests/auth.test.js",
+    ".gitignore"
+  ],
+  "forbiddenGlobs": [
+    ".env",
+    ".env.*",
+    ".github/workflows/**",
+    "migrations/**"
+  ],
+  "maxChangedFiles": 10,
+  "maxLinesChanged": 400,
+  "preFlightCommands": [
+    "npx github:RolePlayingTech/git-agent-workflow-kit doctor . --strict"
+  ],
+  "prePrCommands": [
+    "npm run check",
+    "npm test",
+    "npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base origin/main --allow \\"src/auth/**\\" --allow \\"tests/auth.test.js\\" --allow \\".gitignore\\" --strict"
+  ],
+  "recoveryRules": {
+    "uncommittedFile": "git restore <file>",
+    "shelveWorkInProgress": "git stash push -u -m \\"wip: before switch\\"",
+    "abortConflict": "git merge --abort",
+    "rescueResetCommit": "git reflog -n 15 -> git switch -c rescue/<name> <sha>",
+    "undoMergedPrOnMain": "git revert -m 1 <merge-commit-sha>"
+  }
+}`,
+    },
   ] satisfies PlaybookItem[],
 };
 
@@ -833,6 +882,55 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "covers": ["M-AUTH-01", "M-UX-01"]
     }
   ]
+}`,
+    },
+    {
+      id: 'git-agent-workflow-spec',
+      number: 'PLAYBOOK 08',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'git-and-github-for-ai-coding-agents',
+      title: 'Workflow Git dla wielu agentów, izolacja worktree i bramka zakresu PR (`git-agent-workflow-kit`)',
+      subtitle: 'Gotowa polityka operacyjna do bezpiecznej pracy jednego lub wielu agentów kodujących na gałęziach zadaniowych, w izolowanych katalogach git worktree, z audytem zakresu i integralności testów przed PR oraz nieinwazyjnym odzyskiwaniem.',
+      whenToUse: 'Przed rozpoczęciem pracy agenta w repozytorium, przy równoległym uruchamianiu dwóch lub więcej agentów przez `git worktree` oraz przy weryfikacji Pull Requestów pod kątem wyjścia poza zakres i osłabionych asercji testowych.',
+      mumroBenefit:
+        'Uzupełnia `agent-harness-kit` (statyczny kontrakt `AGENTS.md`), `mcp-surface-kit` (bramki narzędzi MCP) oraz `playwright-harness-kit` (kontrakty weryfikacji przeglądarkowej) o diagnostykę żywego stanu Gita, egzekucję zakresu plików, wykrywanie osłabionych testów i 5 przenośnych skilli przez `RolePlayingTech/git-agent-workflow-kit`.',
+      templateFormat: 'Specyfikacja JSON zakresu zadania i workflowu Git (v1.0)',
+      templateCode: `{
+  "task": "issue-42-session-expiry-and-audit",
+  "baseBranch": "origin/main",
+  "isolation": {
+    "forbidBranches": ["main", "master", "production"],
+    "branchPattern": "feat/<issue>-<slug>",
+    "parallelWorktreeCommand": "git worktree add ../repo-<slug> -b feat/<issue>-<slug> origin/main"
+  },
+  "allowedGlobs": [
+    "src/auth/**",
+    "tests/auth.test.js",
+    ".gitignore"
+  ],
+  "forbiddenGlobs": [
+    ".env",
+    ".env.*",
+    ".github/workflows/**",
+    "migrations/**"
+  ],
+  "maxChangedFiles": 10,
+  "maxLinesChanged": 400,
+  "preFlightCommands": [
+    "npx github:RolePlayingTech/git-agent-workflow-kit doctor . --strict"
+  ],
+  "prePrCommands": [
+    "npm run check",
+    "npm test",
+    "npx github:RolePlayingTech/git-agent-workflow-kit pr-ready . --base origin/main --allow \\"src/auth/**\\" --allow \\"tests/auth.test.js\\" --allow \\".gitignore\\" --strict"
+  ],
+  "recoveryRules": {
+    "uncommittedFile": "git restore <file>",
+    "shelveWorkInProgress": "git stash push -u -m \\"wip: before switch\\"",
+    "abortConflict": "git merge --abort",
+    "rescueResetCommit": "git reflog -n 15 -> git switch -c rescue/<name> <sha>",
+    "undoMergedPrOnMain": "git revert -m 1 <merge-commit-sha>"
+  }
 }`,
     },
   ] satisfies PlaybookItem[],

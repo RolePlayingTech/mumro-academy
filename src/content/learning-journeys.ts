@@ -54,15 +54,16 @@ const enJourneys: LearningJourney[] = [
     "id": "agent-engineering",
     "title": "AI product & coding-agent engineering",
     "audience": "For developers, technical founders and AI engineers",
-    "promise": "Go from a reliable coding-agent setup to a checkable MCP product surface and browser verification harness.",
-    "deliverable": "Portfolio: agent harness, tool contracts, authorization tests, recovery runbook and browser verification suite.",
+    "promise": "Go from a reliable coding-agent setup to a checkable MCP product surface, browser verification harness and isolated multi-agent Git workflow.",
+    "deliverable": "Portfolio: agent harness, tool contracts, authorization tests, recovery runbook, browser verification suite and multi-agent Git workflow gate.",
     "lessonSlugs": [
       "ai-agent-harness-engineering",
       "mcp-for-marketing-and-content-systems",
       "mcp-tools-skills-and-product-surfaces",
       "two-phase-commit-for-ai-agents",
       "autonomy-levels-and-guardrails",
-      "playwright-browser-automation-and-verification"
+      "playwright-browser-automation-and-verification",
+      "git-and-github-for-ai-coding-agents"
     ]
   }
 ];
@@ -103,15 +104,16 @@ const plJourneys: LearningJourney[] = [
     "id": "agent-engineering",
     "title": "Inżynieria produktów i agentów AI",
     "audience": "Dla programistów, technicznych founderów i inżynierów AI",
-    "promise": "Przejdź od stabilnego środowiska agenta kodującego do testowalnego interfejsu MCP i weryfikacji przeglądarkowej w Playwright.",
-    "deliverable": "Portfolio: harness agenta, kontrakty narzędzi, testy autoryzacji, procedura odzyskiwania i zestaw testów przeglądarkowych.",
+    "promise": "Przejdź od stabilnego środowiska agenta kodującego do testowalnego interfejsu MCP, weryfikacji przeglądarkowej w Playwright i izolowanego workflowu Git dla wielu agentów.",
+    "deliverable": "Portfolio: harness agenta, kontrakty narzędzi, testy autoryzacji, procedura odzyskiwania, zestaw testów przeglądarkowych i bramka PR dla wielu agentów.",
     "lessonSlugs": [
       "ai-agent-harness-engineering",
       "mcp-for-marketing-and-content-systems",
       "mcp-tools-skills-and-product-surfaces",
       "two-phase-commit-for-ai-agents",
       "autonomy-levels-and-guardrails",
-      "playwright-browser-automation-and-verification"
+      "playwright-browser-automation-and-verification",
+      "git-and-github-for-ai-coding-agents"
     ]
   }
 ];
@@ -235,6 +237,15 @@ const enPractice: Record<LessonSlug, LessonPractice> = {
       "ai-agent-harness-engineering",
       "mcp-tools-skills-and-product-surfaces"
     ]
+  },
+  "git-and-github-for-ai-coding-agents": {
+    "objective": "Isolate parallel coding agents in Git worktrees and gate PR scope and test integrity.",
+    "assignment": "Run two parallel task branches in separate Git worktrees, enforce an explicit file-scope allowlist and test-integrity check before PR, and practice a non-destructive revert on a faulty merge.",
+    "evidence": "A worktree topology checklist, a passing pre-PR scope and test-integrity report and a non-destructive Git recovery runbook.",
+    "prerequisites": [
+      "ai-agent-harness-engineering",
+      "playwright-browser-automation-and-verification"
+    ]
   }
 };
 const plPractice: Record<LessonSlug, LessonPractice> = {
@@ -354,6 +365,15 @@ const plPractice: Record<LessonSlug, LessonPractice> = {
     "prerequisites": [
       "ai-agent-harness-engineering",
       "mcp-tools-skills-and-product-surfaces"
+    ]
+  },
+  "git-and-github-for-ai-coding-agents": {
+    "objective": "Odizoluj równoległych agentów w git worktree i zweryfikuj zakres PR oraz integralność testów.",
+    "assignment": "Poprowadź dwa równoległe zadania w osobnych katalogach git worktree, wymuś listę dozwolonych plików i kontrolę asercji testowych przed PR oraz przećwicz bezinwazyjne wycofanie błędnego merge'a.",
+    "evidence": "Checklista topologii worktree, raport przejścia bramki zakresu i integralności testów przed PR oraz procedura bezpiecznego odzyskiwania w Gicie.",
+    "prerequisites": [
+      "ai-agent-harness-engineering",
+      "playwright-browser-automation-and-verification"
     ]
   }
 };

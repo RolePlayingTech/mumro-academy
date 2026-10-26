@@ -22,7 +22,7 @@ Most marketing content fails not because teams lack writing tools, but because *
 
 **MUMRO Academy (`academy.mumro.io`)** teaches the engineering and editorial patterns that connect this entire loop—whether you implement them manually in your team stack or run them natively inside **[MUMRO](https://mumro.io)**.
 
-### Curriculum: 4 Learning Tracks & 14 Deep-Dive Lessons
+### Curriculum: 4 Learning Tracks & 16 Deep-Dive Lessons
 
 | Track | Lesson | Title (EN) | Focus |
 | :--- | :--- | :--- | :--- |
@@ -35,19 +35,23 @@ Most marketing content fails not because teams lack writing tools, but because *
 | **Track 03**<br>Website, SEO & Loops | `07` | **Website + Social as One Loop: Connecting CMS with Social Distribution** | WordPress / API CMS delivery, canonicals, reciprocal `hreflang` & JSON-LD |
 | **Track 03**<br>Website, SEO & Loops | `08` | **Grounded Website Assistants: Turning Visitor Questions into Content & Leads** | Brand-grounded chatbot, Unified Inbox, lead capture & FAQ Mining |
 | **Track 03**<br>Website, SEO & Loops | `09` | **Cohort Analytics Over Vanity Metrics: Closing the Loop to Strategy v2** | Evaluating 7/30/90-day cohorts, content reuse & Strategy v2 drafts |
-| **Track 04**<br>Agents, MCP & Control | `10` | **Model Context Protocol (MCP) in Practice: Connecting AI Agents to Brand Context** | 3-tier MCP tool surface for Claude Code, Codex & Antigravity |
+| **Track 04**<br>Agents, MCP & Control | `10` | **Model Context Protocol (MCP) in Practice: Connecting AI Agents to Brand Context** | Four-tier, workspace-bound MCP tool surface for Claude Code, Codex & Antigravity |
 | **Track 04**<br>Agents, MCP & Control | `11` | **Prepare → Confirm: Designing Safe Mutation Gates for Autonomous Agents** | Two-phase confirmation tokens preventing accidental live publications |
 | **Track 04**<br>Agents, MCP & Control | `12` | **Bounded Autonomy: Credit Budgets, Quiet Hours, Channels & Kill Switches** | `draft_only`, `schedule_with_confirmation`, `autonomous_schedule` & RBAC |
 | **Track 04**<br>Agents, MCP & Control | `13` | **What Is an AI Harness? From First Steps with Coding Agents to Harness Engineering** | `AGENTS.md`, progressive-disclosure skills, verification loops & [`agent-harness-kit`](https://github.com/RolePlayingTech/agent-harness-kit) |
 | **Track 04**<br>Agents, MCP & Control | `14` | **MCP, Tools and Skills: Why Agent-Operable Products Will Win** | Four-tier MCP surfaces, per-operation scopes, untrusted data & [`mcp-surface-kit`](https://github.com/RolePlayingTech/mcp-surface-kit) |
+| **Track 04**<br>Agents, MCP & Control | `15` | **Playwright & Multimodal Browser Verification: Giving AI Coding Agents Eyes, Hands, and Deterministic UI Contracts** | ARIA snapshots vs. VLM screenshots, `ui-contract` isolation, token-rotation session safety & [`playwright-harness-kit`](https://github.com/RolePlayingTech/playwright-harness-kit) |
+| **Track 04**<br>Agents, MCP & Control | `16` | **Git Isn’t a Save Button: Version Control, Worktrees, and Safe Recovery in the Age of AI Coding Agents** | Three Trees, branches, `git worktree` isolation, catching weakened tests, safe recovery & [`git-agent-workflow-kit`](https://github.com/RolePlayingTech/git-agent-workflow-kit) |
 
 ### Operational Playbooks, Glossary & Open-Source CLI Kits
 
-- **Playbooks (`/playbooks/`, `/pl/playbooks/`)**: 6 copy-ready YAML/JSON specifications for Brand Voice & Claim Boundaries, One-Story 4-Channel Decomposition, MCP Agent Campaign Loop Runbooks, Workspace Autonomy Governance, Agent Harness Blueprints (`agent-harness-kit`), and MCP Surface Specs (`mcp-surface-kit`).
+- **Playbooks (`/playbooks/`, `/pl/playbooks/`)**: 8 copy-ready YAML/JSON specifications for Brand Voice & Claim Boundaries, One-Story 4-Channel Decomposition, MCP Agent Campaign Loop Runbooks, Workspace Autonomy Governance, Agent Harness Blueprints (`agent-harness-kit`), MCP Surface Specs (`mcp-surface-kit`), Playwright Browser Verification Contracts (`playwright-harness-kit`), and Multi-Agent Git Workflow Policies (`git-agent-workflow-kit`).
 - **Glossary (`/glossary/`, `/pl/glossary/`)**: Structured A–Z technical & marketing definitions with `DefinedTermSet` schema.org markup.
-- **Open-Source CLI Kits**:
+- **Open-Source CLI Kits (4 tools)**:
   - **[`RolePlayingTech/agent-harness-kit`](https://github.com/RolePlayingTech/agent-harness-kit)** — Scan, design, explain, build, and check coding-agent harnesses (`.harness/spec.json` → `AGENTS.md`, `CLAUDE.md`, `.cursor/rules`, and skills).
   - **[`RolePlayingTech/mcp-surface-kit`](https://github.com/RolePlayingTech/mcp-surface-kit)** — Explain, validate (`--strict`), and generate `SKILL.md` workflows from a declarative MCP product surface contract (`.mcp-surface/spec.json`).
+  - **[`RolePlayingTech/playwright-harness-kit`](https://github.com/RolePlayingTech/playwright-harness-kit)** — Explain, validate (`--strict --verify-files`), and generate `SKILL.md` browser verification workflows from a declarative Playwright contract (`.playwright-harness/spec.json`).
+  - **[`RolePlayingTech/git-agent-workflow-kit`](https://github.com/RolePlayingTech/git-agent-workflow-kit)** — Read-only repository diagnostics (`doctor`), pre-PR scope and test-integrity audits (`pr-ready`), non-destructive recovery plans (`recovery-plan`), 5 portable Agent Skills (`SKILL.md`), and local Git lab sandboxes (`sandbox`).
 
 ---
 
@@ -62,12 +66,12 @@ Większość działań content marketingowych przegrywa nie z braku narzędzi do
 
 **Akademia MUMRO (`academy.mumro.io/pl/`)** to kompletny, dwujęzyczny podręcznik pokazujący jak połączyć cały ten proces w jeden żywy system — oraz jak każdy z tych etapów działa natywnie w **[MUMRO](https://mumro.io/pl/)**.
 
-### Program: 4 Ścieżki, 14 Lekcji i Otwarte Narzędzia CLI
+### Program: 4 Ścieżki, 16 Lekcji, 8 Playbooków i 4 Otwarte Narzędzia CLI
 
 1. **Ścieżka 01 — Żywe systemy marki i strategia treści**: Wersjonowana strategia (`v1 → v2`), inżynieria Brand Voice i twardych granic marki oraz research oparty na dowodach (`Źródło → Decyzja → Szkic`).
 2. **Ścieżka 02 — Wielokanałowa inżynieria treści i publikacja**: Rozwijanie jednej historii na artykuł WWW, karuzelę 5 slajdów i 4 kanały społecznościowe oraz odporna kolejka publikacji z potwierdzeniami per kanał.
 3. **Ścieżka 03 — Strona WWW, techniczne SEO i pętla rozmów**: Integracja CMS (WordPress / API), dwujęzyczne SEO, osadzone w wiedzy czatboty WWW, wspólny inbox, FAQ mining i analityka kohortowa 7/30/90 dni.
-4. **Ścieżka 04 — Agenci AI, Model Context Protocol (MCP) i kontrola człowieka**: Łączenie agentów AI z kontekstem marki przez MCP, dwufazowe bramki decyzyjne `Prepare → Confirm`, 3 poziomy autonomii, inżynieria harnessu agenta kodującego (`agent-harness-kit`) oraz projektowanie powierzchni produktów MCP (`mcp-surface-kit`).
+4. **Ścieżka 04 — Agenci AI, Model Context Protocol (MCP) i kontrola człowieka**: Łączenie agentów AI z kontekstem marki przez MCP, dwufazowe bramki decyzyjne `Prepare → Confirm`, 3 poziomy autonomii, inżynieria harnessu agenta kodującego (`agent-harness-kit`), projektowanie powierzchni produktów MCP (`mcp-surface-kit`), weryfikacja przeglądarkowa Playwright (`playwright-harness-kit`) oraz wieloagentowy workflow Git (`git-agent-workflow-kit`).
 
 ---
 
@@ -98,11 +102,11 @@ mumro-academy/
 │   ├── generate-share-images.mjs
 │   ├── package-release.mjs          # Deterministic release archive & SHA256 manifest builder
 │   ├── share-fonts.css
-│   └── verify-build.mjs             # Automated check of all 42 routes, SEO tags, JSON-LD & feeds
+│   └── verify-build.mjs             # Automated check of all 46 routes, SEO tags, JSON-LD & feeds
 ├── src/
 │   ├── assets/fonts/                # OFL Latin + Polish woff2 font subsets
 │   ├── components/                  # AcademyHome, TrackPage, LessonPage, LessonLab, PlaybooksPage, GlossaryPage
-│   ├── content/                     # Bilingual EN/PL tracks, 14 lessons, playbooks, glossary, tools & shell copy
+│   ├── content/                     # Bilingual EN/PL tracks, 16 lessons, 8 playbooks, glossary, tools & shell copy
 │   ├── layouts/BaseLayout.astro
 │   ├── lib/contracts.ts             # Locale types, URL helpers & assertLocaleParity
 │   ├── pages/                       # Static EN & PL routes + sitemap.xml, robots.txt, llms.txt, llms-full.txt, rss.xml

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Lesson 14 and Lesson 15 render Markdown emphasis as HTML strong, preserving inline code (EN and PL)', async ({ page }) => {
+test('Lesson 14, Lesson 15, and Lesson 16 render Markdown emphasis as HTML strong, preserving inline code (EN and PL)', async ({ page }) => {
   for (const locale of ['pl', 'en'] as const) {
     const path = locale === 'pl' ? '/pl/lessons/mcp-tools-skills-and-product-surfaces/' : '/lessons/mcp-tools-skills-and-product-surfaces/';
     await page.goto(path);
@@ -25,5 +25,14 @@ test('Lesson 14 and Lesson 15 render Markdown emphasis as HTML strong, preservin
     const l15Text = (await page.locator('#hands-on-mini-lab > p').allTextContents()).join(' ');
     expect(l15Text).not.toContain('**');
     await expect(page.locator('#hands-on-mini-lab > p strong').first()).toBeVisible();
+
+    const l16Path =
+      locale === 'pl'
+        ? '/pl/lessons/git-and-github-for-ai-coding-agents/'
+        : '/lessons/git-and-github-for-ai-coding-agents/';
+    await page.goto(l16Path);
+    const l16Text = (await page.locator('#hands-on-lab-a-first-pr > p').allTextContents()).join(' ');
+    expect(l16Text).not.toContain('**');
+    await expect(page.locator('#hands-on-lab-a-first-pr > p strong').first()).toBeVisible();
   }
 });
