@@ -19,7 +19,7 @@ const journeys = learningJourneys[locale];
   </p>
   <div class="journey-grid">
     {journeys.map((journey) => {
-      const first = getLessonBySlug(locale, journey.lessonSlugs[0]);
+      const first = getLessonBySlug(locale, journey.lessonSlugs[0]!);
       return (
         <article class="preview-frame journey-card" id={`route-${journey.id}`} data-learning-journey={journey.id}>
           <div class="journey-head">
