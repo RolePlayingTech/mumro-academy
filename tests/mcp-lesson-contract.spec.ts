@@ -26,3 +26,26 @@ test('Lesson 14 teaches an honest authorization boundary in EN and PL', () => {
     expect(lab?.callout?.text).toMatch(/host|hosta/);
   }
 });
+
+test('Lesson 14 sidebar TOC avoids duplicate numbering and scrollable code/reading elements meet accessibility requirements', async ({
+  page,
+}) => {
+  for (const route of [
+    '/lessons/mcp-tools-skills-and-product-surfaces/',
+    '/pl/lessons/mcp-tools-skills-and-product-surfaces/',
+  ]) {
+    await page.goto(route);
+    const tocTexts = await page.locator('.toc-card ol li a').allTextContents();
+    for (const text of tocTexts) {
+      expect(text.trim()).not.toMatch(/^\d+\.\s/);
+    }
+    const preCount = await page.locator('.code-container pre[tabindex="0"]').count();
+    expect(preCount).toBe(10);
+    await expect(page.locator('#comparison-matrix .table-wrap')).toHaveAttribute('tabindex', '0');
+    const categoryColor = await page
+      .locator('#further-reading .resource-category')
+      .first()
+      .evaluate((el) => getComputedStyle(el).color);
+    expect(categoryColor).toBe('rgb(182, 49, 19)');
+  }
+});

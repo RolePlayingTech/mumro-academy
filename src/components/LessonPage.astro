@@ -133,7 +133,7 @@ const articleSchema = [
               </li>
               {lesson.sections.map((sec) => (
                 <li>
-                  <a href={`#${sec.id}`}>{sec.heading}</a>
+                  <a href={`#${sec.id}`}>{sec.heading.replace(/^\d+\.\s+/, '')}</a>
                 </li>
               ))}
               <li>
@@ -222,7 +222,7 @@ const articleSchema = [
                         {locale === 'pl' ? 'Kopiuj' : 'Copy'}
                       </button>
                     </div>
-                    <pre id={codeId}><code>{sec.codeBlock.code}</code></pre>
+                    <pre id={codeId} tabindex="0"><code>{sec.codeBlock.code}</code></pre>
                   </div>
                 )}
               </section>
@@ -233,7 +233,7 @@ const articleSchema = [
           <section class="content-block" id="comparison-matrix">
             <span class="eyebrow signal">{locale === 'pl' ? 'PORÓWNANIE ARCHITEKTURY' : 'ARCHITECTURE COMPARISON'}</span>
             <h2><InlineText text={lesson.comparisonTable.caption} /></h2>
-            <div class="table-wrap">
+            <div class="table-wrap" tabindex="0">
               <table>
                 <thead>
                   <tr>
@@ -658,7 +658,7 @@ const articleSchema = [
   .resource-category {
     display: inline-block;
     margin-bottom: 8px;
-    color: var(--signal);
+    color: var(--signal-text);
     font: 400 10px/1.4 var(--mono);
     letter-spacing: .04em;
     text-transform: uppercase;
