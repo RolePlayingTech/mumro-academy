@@ -172,9 +172,9 @@ $ npx github:RolePlayingTech/mcp-surface-kit build examples/content-workspace --
           'Declarative Playwright & multimodal browser verification contracts (`.playwright-harness/spec.json`), repository file evidence checks (`--verify-files`), `ui-contract` vs. `integrated` tiers, scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session rules, and generated `SKILL.md` files.',
         problemLabel: 'Problem it solves',
         problemSolved:
-          'Prevents brittle `(x, y)` screenshot clicking, ungrounded visual checks without DOM geometry invariants, `401` session revocations from shared `storageState` under single-use refresh rotation, missing `.spec.ts` files, and orphaned generated skills.',
+          'Helps specify and check browser verification constraints in `.playwright-harness/spec.json` — declaring semantic locator rules (`role-and-label-first`), DOM geometry invariants alongside visual rubrics, and single-use refresh-token session policies (`allowSharedStorageState: false`) — while auditing missing `.spec.ts` files, pruning orphaned `SKILL.md` files, and guiding runtime Playwright verification.',
         capabilities: [
-          'Validates URL-parsed `ui-contract` origins (`deny-unhandled`), semantic locator policies (`role-and-label-first`), token-rotation session safety, and repository file evidence (`check --strict --verify-files`).',
+          'Validates declared `ui-contract` origins (`new URL()`), `role-and-label-first` locator declarations, `authSessionPolicy` flags, and repository file evidence (`check --strict --verify-files`), while reporting runtime browser isolation as `not-verified` until Playwright runs.',
           'Prints a full verification matrix of tiers, scenario IDs, locator strategies, visual viewports, and `declared / observed / not-verified` evidence states (`explain --verify-files`).',
           'Generates conflict-aware `SKILL.md` browser verification workflows with SHA-256 ownership markers, unified diffs, and safe orphan cleanup (`build --dry-run --prune`).',
         ],
@@ -344,9 +344,9 @@ $ npx github:RolePlayingTech/mcp-surface-kit build examples/content-workspace --
           'Deklaratywnych kontraktów weryfikacji przeglądarkowej i multimodalnej (`.playwright-harness/spec.json`), weryfikacji dowodów w plikach repozytorium (`--verify-files`), warstw `ui-contract` i `integrated`, identyfikatorów scenariuszy (`M-AUTH-01`, `M-UX-01`), polityki sesji przy rotacji tokenów oraz generowanych plików `SKILL.md`.',
         problemLabel: 'Jaki problem rozwiązuje',
         problemSolved:
-          'Eliminuje kruche klikanie po współrzędnych `(x, y)` ze zrzutu ekranu, ocenę wizualną bez twardych niezmienników geometrii DOM, błędy `401` z dzielenia `storageState` przy jednorazowych refresh tokenach, brakujące pliki `.spec.ts` oraz osierocone wygenerowane skille.',
+          'Pomaga wyspecyfikować i statycznie sprawdzić ograniczenia weryfikacji w `.playwright-harness/spec.json` — deklaracje lokatorów semantycznych (`role-and-label-first`), niezmienników geometrii DOM obok rubryk wizualnych oraz reguł sesji przy rotacji refresh tokenów (`allowSharedStorageState: false`) — a także wykrywa brakujące pliki `.spec.ts`, czyści osierocone `SKILL.md` i prowadzi właściwą weryfikację uruchomieniową w Playwright.',
         capabilities: [
-          'Waliduje parsowane przez `URL` originy `ui-contract` (`deny-unhandled`), politykę semantycznych lokatorów (`role-and-label-first`), bezpieczeństwo sesji przy rotacji tokenów oraz dowody w plikach repozytorium (`check --strict --verify-files`).',
+          'Waliduje zadeklarowane originy `ui-contract` (`new URL()`), deklaracje lokatorów (`role-and-label-first`), flagi `authSessionPolicy` oraz dowody w plikach repozytorium (`check --strict --verify-files`), jawnie oznaczając izolację sieci i sesji w przeglądarce jako `not-verified` do czasu uruchomienia testów Playwright.',
           'Drukuje pełną matrycę weryfikacji: warstwy, identyfikatory scenariuszy, strategie lokatorów, rozdzielczości wizualne i stany dowodów `declared / observed / not-verified` (`explain --verify-files`).',
           'Bezpiecznie generuje pliki `SKILL.md` dla weryfikacji przeglądarkowej ze znacznikami SHA-256, podglądem diff i bezpiecznym usuwaniem sierot (`build --dry-run --prune`).',
         ],

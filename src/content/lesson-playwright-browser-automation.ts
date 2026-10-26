@@ -543,17 +543,47 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
       heading: '4. Choosing the right interface: @playwright/test, @playwright/cli, @playwright/mcp, and Test Agents',
       paragraphs: [
         'The Playwright ecosystem now provides four official interfaces for humans and AI agents (`https://playwright.dev/docs/getting-started-cli`, `https://playwright.dev/mcp/introduction`, `https://playwright.dev/docs/test-agents`), and picking the right one saves both context budget and maintenance pain. First is `@playwright/test` (`npx playwright test`): the deterministic test runner that executes committed `.spec.ts` files in CI without any LLM in the loop. Every bug reproduction or acceptance check should end up here.',
-        'Second is `@playwright/cli` (`playwright-cli`, documented at `https://playwright.dev/docs/getting-started-cli`): Microsoft’s official, token-efficient command-line browser controller and skill package designed specifically for coding agents (such as Claude Code, Codex, or Cursor) that already have shell access inside a repository. Instead of loading dozens of MCP tool JSON schemas and large accessibility trees into the conversation history on every turn, the coding agent invokes concise `playwright-cli` shell commands (`open`, `snapshot`, `click`, `fill`, `screenshot`) through a lightweight skill. Note the naming distinction so there is zero confusion: official `@playwright/cli` (`playwright-cli`) is a **runtime browser controller** that clicks and inspects live pages, whereas our open-source companion `playwright-harness-kit` (`playwright-harness`) is a **declarative contract validator and skill generator** for `.playwright-harness/spec.json`.',
+        'Second is `@playwright/cli` (`playwright-cli`, documented at `https://playwright.dev/docs/getting-started-cli`): Microsoft’s official, token-efficient command-line browser controller and skill package designed specifically for coding agents (such as Claude Code, Codex, or Cursor) that already have shell access inside a repository. After installing the CLI (`npm install -g @playwright/cli@latest`), downloading browser binaries (`playwright-cli install`), and installing the repository agent skill (`playwright-cli install --skills`), the coding agent drives a live browser through concise shell commands (`playwright-cli open <url>`, `playwright-cli snapshot`, `playwright-cli fill <ref> "<text>"`, `playwright-cli click <ref>`, `playwright-cli close`) instead of loading dozens of MCP tool JSON schemas into every conversation turn. Note the naming distinction so there is zero confusion: official `@playwright/cli` (`playwright-cli`) is a **runtime browser controller** that opens, snapshots, and clicks live pages, whereas our open-source companion `playwright-harness-kit` (`playwright-harness`) is a **declarative contract validator and skill generator** for `.playwright-harness/spec.json`.',
         'Third is `@playwright/mcp` (`npx @playwright/mcp@latest`, documented at `https://playwright.dev/mcp/introduction`): the official Model Context Protocol server exposing stateful, typed tools (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`). `@playwright/mcp` is ideal when an agent runs inside a host without direct bash/CLI access, or during specialized exploratory loops where the model reasons over structured MCP tool calls. By default it operates on ARIA snapshots with `[ref=...]` handles, and passing `--caps=vision` enables coordinate and visual tools when a task requires canvas interaction or pixel inspection.',
         'Fourth, introduced in Playwright 1.56 (`npx playwright init-agents`, documented at `https://playwright.dev/docs/test-agents`), is Playwright’s triad of **Test Agents**: `planner`, `generator`, and `healer`. The `planner` explores the live app starting from a seed test and writes a human-readable Markdown test plan. The `generator` turns that plan into `.spec.ts` files while verifying every `getByRole` / `getByLabel` locator against the live DOM rather than guessing selectors from static `.tsx` source files. The `healer` diagnoses failing tests — but must obey Lesson 13’s cardinal rule: a healer may propose a locator update after a benign label rename, yet must never delete a security assertion, inflate timeouts to hide a race, or turn a real product regression into a false green check.',
+      ],
+      resources: [
+        {
+          category: 'OFFICIAL DOCS · PLAYWRIGHT CLI',
+          title: 'Playwright — Getting Started with Playwright CLI (@playwright/cli)',
+          url: 'https://playwright.dev/docs/getting-started-cli',
+          description:
+            'Official guide to installing @playwright/cli, configuring coding-agent skills (playwright-cli install --skills), and running open, snapshot, fill, click, and close workflows.',
+        },
+        {
+          category: 'OFFICIAL DOCS · PLAYWRIGHT MCP',
+          title: 'Playwright — Model Context Protocol (@playwright/mcp) Introduction',
+          url: 'https://playwright.dev/mcp/introduction',
+          description:
+            'Reference for running the stateful @playwright/mcp server over accessibility snapshots and optional vision capabilities (--caps=vision).',
+        },
+        {
+          category: 'OFFICIAL DOCS · TEST AGENTS',
+          title: 'Playwright — Test Agents (planner, generator, healer)',
+          url: 'https://playwright.dev/docs/test-agents',
+          description:
+            'Documentation for npx playwright init-agents and how planner, generator, and healer inspect the live DOM to author and maintain .spec.ts files.',
+        },
+        {
+          category: 'OFFICIAL DOCS · NETWORK & SERVICE WORKERS',
+          title: 'Playwright — Network Isolation and Service Worker Routing Caveats',
+          url: 'https://playwright.dev/docs/network#service-workers',
+          description:
+            'Explains why browserContext.route() requires serviceWorkers: "block" in isolated UI-contract suites and where browser interception ends.',
+        },
       ],
       callout: {
         label: 'VERIFY LOCATORS AGAINST THE LIVE DOM, AND DISTINGUISH CLI FROM HARNESS',
         text: 'Reading a React `.tsx` file statically does not tell an agent what accessible name the browser computes after translations and portals render — always inspect the live ARIA snapshot via `@playwright/cli` or `@playwright/mcp` first. And keep the two CLIs distinct: `@playwright/cli` (`playwright-cli`) drives the live browser; `playwright-harness-kit` (`playwright-harness`) validates `.playwright-harness/spec.json` and generates project verification skills.',
       },
       codeBlock: {
-        caption: 'Decision guide: the four official Playwright interfaces plus playwright-harness-kit',
-        language: 'text',
+        caption: 'Decision guide + minimal copy-ready official @playwright/cli (playwright-cli) workflow',
+        language: 'bash',
         code: `Interface & Command                        Best For                                  Context & Runtime Profile
 -----------------------------------------  ----------------------------------------  --------------------------------------------
 1. @playwright/test (npx playwright test)  Deterministic CI/CD regression & QA       Zero LLM tokens; runs committed .spec.ts
@@ -561,8 +591,23 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
 3. @playwright/mcp (npx @playwright/mcp)   Exploratory loops / MCP-only hosts        Stateful MCP tool schemas (snapshot/vision)
 4. Test Agents (npx playwright init-agents) Authoring & healing .spec.ts suites      Planner → Generator → Healer subagent loop
 -----------------------------------------  ----------------------------------------  --------------------------------------------
-Companion: playwright-harness-kit          Validating .playwright-harness/spec.json  Checks tiers, origins, token policy & files
-(npx playwright-harness check/build)       & generating project SKILL.md playbooks   (--verify-files) + builds/prunes SKILL.md`,
+Companion: playwright-harness-kit          Validating .playwright-harness/spec.json  Checks declared tiers/origins/session rules
+(npx playwright-harness check/build)       & generating project SKILL.md playbooks   & repo files (--verify-files); builds SKILL.md
+
+# Minimal official @playwright/cli (playwright-cli) setup + interactive workflow
+# Docs: https://playwright.dev/docs/getting-started-cli
+$ npm install -g @playwright/cli@latest
+$ playwright-cli install
+$ playwright-cli install --skills
+
+# Open a local page, inspect the ARIA snapshot, interact via ephemeral [ref=...] handles, and close:
+$ playwright-cli open http://localhost:5173/forgot-password
+$ playwright-cli snapshot
+# -> - textbox "Email" [ref=e4]
+# -> - button "Send reset link" [ref=e5]
+$ playwright-cli fill e4 "qa-reset@example.invalid"
+$ playwright-cli click e5
+$ playwright-cli close`,
       },
     },
     {
@@ -920,17 +965,47 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
       heading: '4. Wybór właściwego interfejsu: @playwright/test, @playwright/cli, @playwright/mcp oraz Test Agents',
       paragraphs: [
         'Ekosystem Playwrighta udostępnia dziś cztery oficjalne interfejsy dla ludzi i agentów AI (`https://playwright.dev/docs/getting-started-cli`, `https://playwright.dev/mcp/introduction`, `https://playwright.dev/docs/test-agents`), a dobór właściwego narzędzia oszczędza zarówno okno kontekstowe modelu, jak i czas utrzymania testów. Pierwszym jest `@playwright/test` (`npx playwright test`): deterministyczny runner testowy uruchamiający pliki `.spec.ts` w CI bez żadnego modelu językowego w pętli. Każde odtworzenie błędu i każdy kontrakt odbiorczy powinien docelowo trafić właśnie tutaj.',
-        'Drugim interfejsem jest `@playwright/cli` (`playwright-cli`, opisany w `https://playwright.dev/docs/getting-started-cli`): oficjalny, oszczędny tokenowo interfejs wiersza poleceń i zestaw skilli od Microsoftu, zaprojektowany specjalnie dla agentów kodujących (takich jak Claude Code, Codex czy Cursor), które mają dostęp do powłoki systemowej w repozytorium. Zamiast wczytywać dziesiątki schematów JSON narzędzi MCP i wielkie drzewa dostępności do historii rozmowy w każdej turze, agent kodujący wywołuje zwięzłe komendy `playwright-cli` (`open`, `snapshot`, `click`, `fill`, `screenshot`) prowadzone przez lekki skill. Zwróć uwagę na rozróżnienie nazw, aby uniknąć pomyłki: oficjalny `@playwright/cli` (`playwright-cli`) to **sterownik żywej przeglądarki** wykonujący kliknięcia i snapshoty w locie, natomiast nasz otwarty pakiet `playwright-harness-kit` (`playwright-harness`) to **deklaratywny walidator kontraktu i generator skilli projektowych** dla `.playwright-harness/spec.json`.',
+        'Drugim interfejsem jest `@playwright/cli` (`playwright-cli`, opisany w `https://playwright.dev/docs/getting-started-cli`): oficjalny, oszczędny tokenowo interfejs wiersza poleceń i zestaw skilli od Microsoftu, zaprojektowany specjalnie dla agentów kodujących (takich jak Claude Code, Codex czy Cursor), które mają dostęp do powłoki systemowej w repozytorium. Po zainstalowaniu pakietu (`npm install -g @playwright/cli@latest`), pobraniu przeglądarki (`playwright-cli install`) i zainstalowaniu skilla w projekcie (`playwright-cli install --skills`) agent steruje żywą przeglądarką przez krótkie wywołania w terminalu (`playwright-cli open <url>`, `playwright-cli snapshot`, `playwright-cli fill <ref> "<tekst>"`, `playwright-cli click <ref>`, `playwright-cli close`), zamiast wczytywać dziesiątki schematów JSON narzędzi MCP w każdej turze rozmowy. Zwróć uwagę na rozróżnienie nazw, aby uniknąć pomyłki: oficjalny `@playwright/cli` (`playwright-cli`) to **sterownik żywej przeglądarki** wykonujący nawigację, snapshoty i kliknięcia w locie, natomiast nasz otwarty pakiet `playwright-harness-kit` (`playwright-harness`) to **deklaratywny walidator kontraktu i generator skilli projektowych** dla `.playwright-harness/spec.json`.',
         'Trzecim interfejsem jest `@playwright/mcp` (`npx @playwright/mcp@latest`, opisany w `https://playwright.dev/mcp/introduction`): oficjalny serwer Model Context Protocol wystawiający stanowe, typowane narzędzia (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`). `@playwright/mcp` sprawdza się najlepiej wtedy, gdy agent działa w hoście bez bezpośredniego dostępu do terminala lub w wyspecjalizowanych pętlach eksploracyjnych opartych na wywołaniach MCP. Domyślnie pracuje na snapshotach ARIA z uchwytami `[ref=...]`, a flaga `--caps=vision` odblokowuje narzędzia współrzędnych i obrazów, gdy zadanie wymaga pracy z `<canvas>` lub inspekcji pikseli.',
         'Czwartym elementem, wprowadzonym w Playwright 1.56 (`npx playwright init-agents`, `https://playwright.dev/docs/test-agents`), jest wbudowana triada **Playwright Test Agents**: `planner`, `generator` oraz `healer`. Agent `planner` bada żywą aplikację (startując od *seed testu*) i tworzy czytelny plan testów w Markdownie. Agent `generator` przekłada ten plan na pliki `.spec.ts`, weryfikując każdy lokator `getByRole` / `getByLabel` na żywym DOM zamiast zgadywać selektory na sucho z plików `.tsx`. Z kolei `healer` diagnozuje czerwone testy — ale musi podlegać twardej zasadzie z Lekcji 13: może zaproponować aktualizację lokatora po zmianie napisu na przycisku, lecz nigdy nie wolno mu usunąć asercji bezpieczeństwa, podnieść timeoutu w celu ukrycia wyścigu ani zamienić realnej regresji w fałszywy `PASS`.',
+      ],
+      resources: [
+        {
+          category: 'OFICJALNA DOKUMENTACJA · PLAYWRIGHT CLI',
+          title: 'Playwright — Getting Started with Playwright CLI (@playwright/cli)',
+          url: 'https://playwright.dev/docs/getting-started-cli',
+          description:
+            'Oficjalna instrukcja instalacji @playwright/cli, konfiguracji skilli dla agentów kodujących (playwright-cli install --skills) oraz pracy w pętli open, snapshot, fill, click i close.',
+        },
+        {
+          category: 'OFICJALNA DOKUMENTACJA · PLAYWRIGHT MCP',
+          title: 'Playwright — Model Context Protocol (@playwright/mcp) Introduction',
+          url: 'https://playwright.dev/mcp/introduction',
+          description:
+            'Dokumentacja stanowego serwera @playwright/mcp operującego na drzewie dostępności ARIA oraz opcjonalnych narzędziach wizualnych (--caps=vision).',
+        },
+        {
+          category: 'OFICJALNA DOKUMENTACJA · TEST AGENTS',
+          title: 'Playwright — Test Agents (planner, generator, healer)',
+          url: 'https://playwright.dev/docs/test-agents',
+          description:
+            'Przewodnik po npx playwright init-agents oraz pracy subagentów planner, generator i healer weryfikujących lokatory na żywym DOM.',
+        },
+        {
+          category: 'OFICJALNA DOKUMENTACJA · SIEĆ I SERVICE WORKERY',
+          title: 'Playwright — Network Isolation and Service Worker Routing Caveats',
+          url: 'https://playwright.dev/docs/network#service-workers',
+          description:
+            'Wyjaśnia, dlaczego browserContext.route() wymaga serviceWorkers: "block" w izolowanych testach ui-contract i gdzie kończy się przechwytywanie w przeglądarce.',
+        },
       ],
       callout: {
         label: 'SPRAWDZAJ LOKATORY NA ŻYWYM DOM I ODRÓŻNIAJ PLAYWRIGHT-CLI OD PLAYWRIGHT-HARNESS',
         text: 'Samo przeczytanie komponentu Reacta w pliku `.tsx` nie powie agentowi, jaką obliczoną nazwę dostępności wyrenderuje przeglądarka po załadowaniu tłumaczeń i portali — zawsze najpierw zbadaj żywy snapshot ARIA przez `@playwright/cli` lub `@playwright/mcp`. Pamiętaj też o różnicy ról: `@playwright/cli` (`playwright-cli`) steruje żywą przeglądarką, a `playwright-harness-kit` (`playwright-harness`) waliduje kontrakt `.playwright-harness/spec.json` i generuje skille weryfikacyjne.',
       },
       codeBlock: {
-        caption: 'Przewodnik decyzyjny: cztery oficjalne interfejsy Playwrighta oraz playwright-harness-kit',
-        language: 'text',
+        caption: 'Przewodnik decyzyjny + minimalny, gotowy do skopiowania przepływ oficjalnego @playwright/cli (playwright-cli)',
+        language: 'bash',
         code: `Interfejs i komenda                        Najlepsze zastosowanie                    Profil kontekstu i wykonania
 -----------------------------------------  ----------------------------------------  --------------------------------------------
 1. @playwright/test (npx playwright test)  Deterministyczne testy regresji i QA w CI Zero tokenów LLM; uruchamia pliki .spec.ts
@@ -938,8 +1013,23 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
 3. @playwright/mcp (npx @playwright/mcp)   Pętle eksploracyjne / hosty tylko z MCP   Stanowe schematy narzędzi MCP (ARIA/vision)
 4. Test Agents (npx playwright init-agents) Tworzenie i naprawa zestawów .spec.ts    Pętla subagentów Planner → Generator → Healer
 -----------------------------------------  ----------------------------------------  --------------------------------------------
-Kompan: playwright-harness-kit             Walidacja .playwright-harness/spec.json   Sprawdza warstwy, originy, politykę sesji
-(npx playwright-harness check/build)       i generowanie projektowych plików SKILL.md i pliki (--verify-files) + buduje SKILL.md`,
+Kompan: playwright-harness-kit             Walidacja .playwright-harness/spec.json   Sprawdza deklaracje warstw/originów/sesji
+(npx playwright-harness check/build)       i generowanie projektowych plików SKILL.md i pliki (--verify-files); buduje SKILL.md
+
+# Minimalna konfiguracja i przepływ pracy oficjalnego @playwright/cli (playwright-cli)
+# Dokumentacja: https://playwright.dev/docs/getting-started-cli
+$ npm install -g @playwright/cli@latest
+$ playwright-cli install
+$ playwright-cli install --skills
+
+# Otwórz lokalną stronę, pobierz snapshot ARIA, wykonaj akcje po uchwytach [ref=...] i zamknij sesję:
+$ playwright-cli open http://localhost:5173/forgot-password
+$ playwright-cli snapshot
+# -> - textbox "Email" [ref=e4]
+# -> - button "Send reset link" [ref=e5]
+$ playwright-cli fill e4 "qa-reset@example.invalid"
+$ playwright-cli click e5
+$ playwright-cli close`,
       },
     },
     {
