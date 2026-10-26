@@ -1,8 +1,9 @@
 import { assertLocaleParity } from '../lib/contracts';
 import type { LessonData } from './lessons-types';
 
-const SURFACE_COMMANDS = `$ git clone https://github.com/RolePlayingTech/mcp-surface-kit.git
+export const SURFACE_COMMANDS = `$ git clone https://github.com/RolePlayingTech/mcp-surface-kit.git
 $ cd mcp-surface-kit
+$ git -c advice.detachedHead=false checkout -q b22c474b51963ab2ebe73f464d5c99e132d91b9a
 $ node bin/mcp-surface.mjs explain examples/content-workspace
 MCP surface: content-workspace
 Workspace-scoped social and website publishing for AI agents.
@@ -24,8 +25,11 @@ Prepare -> Confirm pairs
   prepare_publication_action -> confirm_publication_action [mutate, scope: schedule (cancel:schedule, publish_now:publish, schedule_draft:schedule)]
 
 Skills
-  publish-content: Draft and prepare a social post in the workspace. Use when the user wants a post saved or queued. Always preview before confirm.
-    uses: get_workspace_context, get_content_strategy, preview_schedule, create_publication_draft, delete_publication_draft, prepare_publication_action, confirm_publication_action
+  publish-content: Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.
+    uses: get_workspace_context, get_content_strategy, preview_schedule, create_publication_draft, prepare_publication_action, confirm_publication_action
+
+  delete-draft: Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.
+    uses: get_workspace_context, delete_publication_draft
 
 Uncovered tools
   (none — all tools are referenced by at least one skill)
@@ -36,9 +40,11 @@ $ node bin/mcp-surface.mjs check examples/content-workspace --strict
 PASS: MCP surface spec is internally consistent (strict mode, 0 warnings).
 
 $ node bin/mcp-surface.mjs build examples/content-workspace --dry-run
-Dry run (nothing written) — create: 2, update: 0, unchanged: 0, conflict: 0:
+Dry run (nothing written) — create: 4, update: 0, unchanged: 0, conflict: 0:
   [create   ] .mcp-surface/skills/publish-content/SKILL.md (new file)
-  [create   ] .claude/skills/publish-content/SKILL.md (new file)`;
+  [create   ] .claude/skills/publish-content/SKILL.md (new file)
+  [create   ] .mcp-surface/skills/delete-draft/SKILL.md (new file)
+  [create   ] .claude/skills/delete-draft/SKILL.md (new file)`;
 
 export const MINI_LAB_BROKEN_SPEC = {
   name: 'field-notes',

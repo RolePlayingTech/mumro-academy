@@ -34,7 +34,7 @@
     "@types/node": "22.20.5",
     "agent-harness-kit": "github:RolePlayingTech/agent-harness-kit#489c0b958b24ea62b810158146bd004db4ad08cb",
     "axe-core": "4.14.0",
-    "mcp-surface-kit": "github:RolePlayingTech/mcp-surface-kit#5575474301a8095e99148d0acede35744364678a",
+    "mcp-surface-kit": "github:RolePlayingTech/mcp-surface-kit#b22c474b51963ab2ebe73f464d5c99e132d91b9a",
     "typescript": "6.0.3"
   }
 }
