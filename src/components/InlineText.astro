@@ -2,9 +2,41 @@
 interface Props {
   text: string;
 }
+
+type Segment = { kind: 'text' | 'code' | 'strong'; value: string };
+
 const { text } = Astro.props;
-const parts = text.split('`');
-// An odd number of backticks means unbalanced markup; render the text unchanged.
-const balanced = parts.length % 2 === 1;
+
+// Inline code wins over emphasis: never turn ** markers inside backticks into markup.
+// Keep malformed backticks and unmatched ** markers literally visible.
+function parseTextWithStrong(value: string): Segment[] {
+  const result: Segment[] = [];
+  const pattern = /\*\*([^*\n]+?)\*\*/g;
+  let cursor = 0;
+  for (const match of value.matchAll(pattern)) {
+    const index = match.index ?? 0;
+    if (index > cursor) result.push({ kind: 'text', value: value.slice(cursor, index) });
+    result.push({ kind: 'strong', value: match[1] });
+    cursor = index + match[0].length;
+  }
+  if (cursor < value.length) result.push({ kind: 'text', value: value.slice(cursor) });
+  return result;
+}
+
+const codeParts = text.split('`');
+const segments: Segment[] =
+  codeParts.length % 2 === 0
+    ? [{ kind: 'text', value: text }]
+    : codeParts.flatMap((part, index) =>
+        index % 2 === 1 ? [{ kind: 'code' as const, value: part }] : parseTextWithStrong(part)
+      );
 ---
-{balanced ? parts.map((part, i) => (i % 2 === 1 ? <code class="inline-code">{part}</code> : part)) : text}
+{segments.map((segment) =>
+  segment.kind === 'code' ? (
+    <code class="inline-code">{segment.value}</code>
+  ) : segment.kind === 'strong' ? (
+    <strong>{segment.value}</strong>
+  ) : (
+    segment.value
+  )
+)}
