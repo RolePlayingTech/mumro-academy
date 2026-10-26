@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { mcpSurfaceLesson } from '../src/content/lesson-mcp-tools-skills';
+import { readFileSync } from 'node:fs';
+import { mcpSurfaceLesson, SURFACE_COMMANDS } from '../src/content/lesson-mcp-tools-skills';
 
 test('Lesson 14 teaches an honest authorization boundary in EN and PL', () => {
   for (const locale of ['en', 'pl'] as const) {
@@ -54,4 +55,16 @@ test('Lesson 14 sidebar TOC avoids duplicate numbering and scrollable code/readi
       .evaluate((el) => getComputedStyle(el).color);
     expect(categoryColor).toBe('rgb(182, 49, 19)');
   }
+});
+
+test('Lesson 14 tutorial uses the same pinned mcp-surface-kit revision as its dependency', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8'));
+  const pin = pkg.devDependencies['mcp-surface-kit'];
+  const sha = pin.match(/#([a-f0-9]{40})$/)?.[1];
+
+  expect(sha).toBeTruthy();
+  expect(SURFACE_COMMANDS).toContain(`git -c advice.detachedHead=false checkout -q ${sha}`);
+  expect(lock.packages[''].devDependencies['mcp-surface-kit']).toBe(pin);
+  expect(lock.packages['node_modules/mcp-surface-kit'].resolved).toContain(`#${sha}`);
 });
