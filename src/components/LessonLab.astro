@@ -216,11 +216,11 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
         </div>
         <div class="lab-card" data-mcp-panel="prepare" hidden>
           <span class="badge signal">{pl ? 'KROK 3 · BRAMKA PREPARE (PODGLĄD + TOKEN)' : 'STEP 3 · PREPARE GATE (PREVIEW + TOKEN)'}</span>
-          <p>{pl ? 'Serwer MCP waliduje reguły autonomii i zwraca dokładny podgląd (Instagram · 11 paź · 18:00) wraz z krótkotrwałym tokenem `cfm_9f82a1b4`.' : 'MCP server validates autonomy rules and returns an exact human-readable preview (Instagram · Oct 11 · 18:00) plus short-lived token `cfm_9f82a1b4`.'}</p>
+          <p>{pl ? 'Serwer MCP waliduje reguły autonomii i zwraca dokładny podgląd (Instagram · czw. 5 lis · 18:00 CET) wraz z syntetyczną frazą potwierdzenia `schedule-instagram-thu-18-fieldwork-9f82`.' : 'MCP server validates autonomy rules and returns an exact human-readable preview (Instagram · Thu Nov 5 · 18:00 CET) plus a synthetic confirmation phrase `schedule-instagram-thu-18-fieldwork-9f82`.'}</p>
         </div>
         <div class="lab-card" data-mcp-panel="confirm" hidden>
           <span class="badge sage">{pl ? 'KROK 4 · ZATWIERDZENIE (CONFIRM → PLAN MUMRO)' : 'STEP 4 · CONFIRMED EXECUTION'}</span>
-          <p>{pl ? 'Po jawnej zgodzie człowieka token jest realizowany, a publikacja pojawia się bezpośrednio w planie MUMRO z zachowaniem pełnego śladu audytowego.' : 'After explicit human sign-off, the confirmation token commits the exact post to the MUMRO publishing plan with a full audit trail.'}</p>
+          <p>{pl ? 'Dopiero po niezależnym zatwierdzeniu w interfejsie hosta albo po zweryfikowanej przez serwer polityce delegacji `confirm_*` może wykonać przygotowaną operację. Sama fraza otrzymana przez model nie dowodzi zgody człowieka; rezultat trafia do planu MUMRO.' : 'Only a host-controlled approval or a server-verified delegated policy permits `confirm_*` to execute the prepared action. A phrase returned to the model is not proof of human consent; the result appears in the MUMRO plan.'}</p>
         </div>
       </div>
     </div>
