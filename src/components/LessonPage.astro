@@ -127,7 +127,7 @@ const articleSchema = [
         <aside class="lesson-sidebar" aria-label={locale === 'pl' ? 'Spis treści lekcji' : 'Lesson contents'}>
           <div class="toc-card">
             <span class="eyebrow">{locale === 'pl' ? 'W tej lekcji' : 'In this lesson'}</span>
-            <ol>
+            <ul class="toc-list" role="list">
               <li>
                 <a href="#problem-statement">{lesson.problemStatement.heading}</a>
               </li>
@@ -148,7 +148,7 @@ const articleSchema = [
               <li>
                 <a href="#self-audit">{lesson.checklist.title}</a>
               </li>
-            </ol>
+            </ul>
             <div class="toc-cta">
               <span class="demo-note">{track.mumroCapability}</span>
               <a class="button" href={lesson.mumroIntegration.anchorHref}>
@@ -222,7 +222,7 @@ const articleSchema = [
                         {locale === 'pl' ? 'Kopiuj' : 'Copy'}
                       </button>
                     </div>
-                    <pre id={codeId}><code>{sec.codeBlock.code}</code></pre>
+                    <pre id={codeId} tabindex="0"><code>{sec.codeBlock.code}</code></pre>
                   </div>
                 )}
               </section>
@@ -233,7 +233,7 @@ const articleSchema = [
           <section class="content-block" id="comparison-matrix">
             <span class="eyebrow signal">{locale === 'pl' ? 'PORÓWNANIE ARCHITEKTURY' : 'ARCHITECTURE COMPARISON'}</span>
             <h2><InlineText text={lesson.comparisonTable.caption} /></h2>
-            <div class="table-wrap">
+            <div class="table-wrap" tabindex="0">
               <table>
                 <thead>
                   <tr>
@@ -415,9 +415,10 @@ const articleSchema = [
     border: 1px solid var(--line);
     padding: 22px;
   }
-  .toc-card ol {
+  .toc-card .toc-list {
+    list-style: none;
     margin: 12px 0 20px;
-    padding-left: 18px;
+    padding-left: 0;
     display: grid;
     gap: 9px;
     font-size: 13px;
@@ -658,7 +659,7 @@ const articleSchema = [
   .resource-category {
     display: inline-block;
     margin-bottom: 8px;
-    color: var(--signal);
+    color: var(--signal-text);
     font: 400 10px/1.4 var(--mono);
     letter-spacing: .04em;
     text-transform: uppercase;
