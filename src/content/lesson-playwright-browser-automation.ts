@@ -584,30 +584,30 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
       codeBlock: {
         caption: 'Decision guide + minimal copy-ready official @playwright/cli (playwright-cli) workflow',
         language: 'bash',
-        code: `Interface & Command                        Best For                                  Context & Runtime Profile
------------------------------------------  ----------------------------------------  --------------------------------------------
-1. @playwright/test (npx playwright test)  Deterministic CI/CD regression & QA       Zero LLM tokens; runs committed .spec.ts
-2. @playwright/cli (playwright-cli)        Coding agents in repos (Claude/Codex)     Token-efficient shell commands + skills
-3. @playwright/mcp (npx @playwright/mcp)   Exploratory loops / MCP-only hosts        Stateful MCP tool schemas (snapshot/vision)
-4. Test Agents (npx playwright init-agents) Authoring & healing .spec.ts suites      Planner → Generator → Healer subagent loop
------------------------------------------  ----------------------------------------  --------------------------------------------
-Companion: playwright-harness-kit          Validating .playwright-harness/spec.json  Checks declared tiers/origins/session rules
-(npx playwright-harness check/build)       & generating project SKILL.md playbooks   & repo files (--verify-files); builds SKILL.md
+        code: `# Interface & Command                        Best For                                  Context & Runtime Profile
+# -----------------------------------------  ----------------------------------------  --------------------------------------------
+# 1. @playwright/test (npx playwright test)  Deterministic CI/CD regression & QA       Zero LLM tokens; runs committed .spec.ts
+# 2. @playwright/cli (playwright-cli)        Coding agents in repos (Claude/Codex)     Token-efficient shell commands + skills
+# 3. @playwright/mcp (npx @playwright/mcp)   Exploratory loops / MCP-only hosts        Stateful MCP tool schemas (snapshot/vision)
+# 4. Test Agents (npx playwright init-agents) Authoring & healing .spec.ts suites      Planner → Generator → Healer subagent loop
+# -----------------------------------------  ----------------------------------------  --------------------------------------------
+# Companion: playwright-harness-kit          Validating .playwright-harness/spec.json  Checks declared tiers/origins/session rules
+# (npx playwright-harness check/build)       & generating project SKILL.md playbooks   & repo files (--verify-files); builds SKILL.md
+#
 
-# Minimal official @playwright/cli (playwright-cli) setup + interactive workflow
 # Docs: https://playwright.dev/docs/getting-started-cli
-$ npm install -g @playwright/cli@latest
-$ playwright-cli install
-$ playwright-cli install --skills
+npm install -g @playwright/cli@latest
+playwright-cli install
+playwright-cli install --skills
 
-# Open a local page, inspect the ARIA snapshot, interact via ephemeral [ref=...] handles, and close:
-$ playwright-cli open http://localhost:5173/forgot-password
-$ playwright-cli snapshot
-# -> - textbox "Email" [ref=e4]
-# -> - button "Send reset link" [ref=e5]
-$ playwright-cli fill e4 "qa-reset@example.invalid"
-$ playwright-cli click e5
-$ playwright-cli close`,
+# Runnable example using the official public Playwright demo:
+playwright-cli open https://demo.playwright.dev/todomvc/
+playwright-cli snapshot
+playwright-cli type "Buy groceries"
+playwright-cli press Enter
+playwright-cli snapshot
+# [ref] handles are ephemeral: inspect your own snapshot before using click/fill.
+playwright-cli close`,
       },
     },
     {
@@ -1006,30 +1006,30 @@ await page.getByRole('button', { name: 'Send reset link' }).click();
       codeBlock: {
         caption: 'Przewodnik decyzyjny + minimalny, gotowy do skopiowania przepływ oficjalnego @playwright/cli (playwright-cli)',
         language: 'bash',
-        code: `Interfejs i komenda                        Najlepsze zastosowanie                    Profil kontekstu i wykonania
------------------------------------------  ----------------------------------------  --------------------------------------------
-1. @playwright/test (npx playwright test)  Deterministyczne testy regresji i QA w CI Zero tokenów LLM; uruchamia pliki .spec.ts
-2. @playwright/cli (playwright-cli)        Agenci kodujący w repo (Claude/Codex)     Oszczędne tokenowo komendy shell + skille
-3. @playwright/mcp (npx @playwright/mcp)   Pętle eksploracyjne / hosty tylko z MCP   Stanowe schematy narzędzi MCP (ARIA/vision)
-4. Test Agents (npx playwright init-agents) Tworzenie i naprawa zestawów .spec.ts    Pętla subagentów Planner → Generator → Healer
------------------------------------------  ----------------------------------------  --------------------------------------------
-Kompan: playwright-harness-kit             Walidacja .playwright-harness/spec.json   Sprawdza deklaracje warstw/originów/sesji
-(npx playwright-harness check/build)       i generowanie projektowych plików SKILL.md i pliki (--verify-files); buduje SKILL.md
+        code: `# Interfejs i komenda                        Najlepsze zastosowanie                    Profil kontekstu i wykonania
+# -----------------------------------------  ----------------------------------------  --------------------------------------------
+# 1. @playwright/test (npx playwright test)  Deterministyczne testy regresji i QA w CI Zero tokenów LLM; uruchamia pliki .spec.ts
+# 2. @playwright/cli (playwright-cli)        Agenci kodujący w repo (Claude/Codex)     Oszczędne tokenowo komendy shell + skille
+# 3. @playwright/mcp (npx @playwright/mcp)   Pętle eksploracyjne / hosty tylko z MCP   Stanowe schematy narzędzi MCP (ARIA/vision)
+# 4. Test Agents (npx playwright init-agents) Tworzenie i naprawa zestawów .spec.ts    Pętla subagentów Planner → Generator → Healer
+# -----------------------------------------  ----------------------------------------  --------------------------------------------
+# Kompan: playwright-harness-kit             Walidacja .playwright-harness/spec.json   Sprawdza deklaracje warstw/originów/sesji
+# (npx playwright-harness check/build)       i generowanie projektowych plików SKILL.md i pliki (--verify-files); buduje SKILL.md
+#
 
-# Minimalna konfiguracja i przepływ pracy oficjalnego @playwright/cli (playwright-cli)
 # Dokumentacja: https://playwright.dev/docs/getting-started-cli
-$ npm install -g @playwright/cli@latest
-$ playwright-cli install
-$ playwright-cli install --skills
+npm install -g @playwright/cli@latest
+playwright-cli install
+playwright-cli install --skills
 
-# Otwórz lokalną stronę, pobierz snapshot ARIA, wykonaj akcje po uchwytach [ref=...] i zamknij sesję:
-$ playwright-cli open http://localhost:5173/forgot-password
-$ playwright-cli snapshot
-# -> - textbox "Email" [ref=e4]
-# -> - button "Send reset link" [ref=e5]
-$ playwright-cli fill e4 "qa-reset@example.invalid"
-$ playwright-cli click e5
-$ playwright-cli close`,
+# Uruchamialny przykład na publicznej stronie demonstracyjnej Playwright:
+playwright-cli open https://demo.playwright.dev/todomvc/
+playwright-cli snapshot
+playwright-cli type "Buy groceries"
+playwright-cli press Enter
+playwright-cli snapshot
+# Numery [ref] są chwilowe: odczytaj je z własnego snapshotu przed click/fill.
+playwright-cli close`,
       },
     },
     {

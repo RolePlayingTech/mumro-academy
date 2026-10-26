@@ -575,9 +575,10 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('npm install -g @playwright/cli@latest');
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli install --skills');
-    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open http://localhost:5173/forgot-password');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open https://demo.playwright.dev/todomvc/');
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli snapshot');
-    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli click e5');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli type "Buy groceries"');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli press Enter');
     await expect(
       page.locator('#playwright-mcp-and-test-agents a[href="https://playwright.dev/docs/getting-started-cli"]')
     ).toBeVisible();
@@ -594,9 +595,10 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('npm install -g @playwright/cli@latest');
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli install --skills');
-    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open http://localhost:5173/forgot-password');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open https://demo.playwright.dev/todomvc/');
     await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli snapshot');
-    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli click e5');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli type "Buy groceries"');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli press Enter');
     await expect(
       page.locator('#playwright-mcp-and-test-agents a[href="https://playwright.dev/docs/getting-started-cli"]')
     ).toBeVisible();
