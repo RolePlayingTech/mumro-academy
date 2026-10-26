@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test, expect } from '@playwright/test';
 import { learningJourneys, lessonPractice } from '../src/content/learning-journeys';
+import { getLessonBySlug } from '../src/content/lessons';
 import { lessonSlugs } from '../src/lib/contracts';
 import {
   MINI_LAB_BROKEN_SPEC,
@@ -1003,5 +1004,35 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
     await page.goto('/pl/lessons/git-and-github-for-ai-coding-agents/');
     const lesson16Overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(lesson16Overflow).toBe(false);
+  });
+
+  test('Lessons 01–12 and README avoid unsupported 48h/80%/100% claims and label demo workspaces (Issue #32)', () => {
+    for (const locale of ['en', 'pl'] as const) {
+      const lesson02 = getLessonBySlug(locale, 'brand-voice-architecture');
+      expect(lesson02.sections[0]?.callout?.text).not.toMatch(/80%/);
+
+      const lesson04 = getLessonBySlug(locale, 'one-story-multi-channel-architecture');
+      expect(lesson04.keyTakeaways.join(' ')).not.toMatch(/100%/);
+
+      const lesson07 = getLessonBySlug(locale, 'content-hub-and-cms-architecture');
+      expect(lesson07.keyTakeaways.join(' ')).not.toMatch(/48 hours|48 godzin/);
+
+      const lesson09 = getLessonBySlug(locale, 'cohort-analytics-and-strategy-iteration');
+      const lesson09Table = lesson09.comparisonTable.rows.flat().join(' ');
+      expect(lesson09Table).not.toMatch(/48 hours|po dwóch dniach/);
+
+      const lesson11 = getLessonBySlug(locale, 'two-phase-commit-for-ai-agents');
+      expect(lesson11.keyTakeaways.join(' ')).not.toMatch(/100%/);
+      expect(lesson11.caseStudy.resultNote).not.toMatch(/100%/);
+
+      for (const slug of lessonSlugs.slice(0, 12)) {
+        const lesson = getLessonBySlug(locale, slug);
+        expect(lesson.caseStudy.brand).toMatch(/Demo Workspace|demonstracyjn/i);
+      }
+    }
+
+    const readme = readFileSync(resolve(process.cwd(), 'README.md'), 'utf8');
+    expect(readme).not.toContain('każdy z tych etapów działa natywnie w **[MUMRO]');
+    expect(readme).not.toContain('run them natively inside **[MUMRO]');
   });
 });

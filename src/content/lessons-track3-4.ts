@@ -18,7 +18,7 @@ const en: LessonData[] = [
     metaDescription: 'Learn how to connect your website CMS (WordPress or API) with social distribution: canonical URLs, reciprocal hreflang, JSON-LD structured data, and coordinated publishing.',
     keywords: ['CMS social media integration', 'bilingual technical SEO', 'hreflang canonical architecture', 'WordPress custom CMS API', 'MUMRO website'],
     keyTakeaways: [
-      'Social media posts decay in 48 hours; your website articles compound in search and AI retrieval for years.',
+      'Social feed visibility is typically short-lived compared with search-indexed website articles, which can keep earning organic visits and citations over much longer periods.',
       'Bilingual content hubs require strict URL symmetry (`/` and `/pl/`), reciprocal `hreflang` links, and rich `TechArticle` / `WebSite` JSON-LD graphs.',
       'Connecting CMS delivery (WordPress or Custom API) directly to your workspace eliminates manual HTML copy-pasting and broken links.',
     ],
@@ -87,7 +87,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Publishing the Handlebar Packing Guide & Driving Social Referral Traffic',
       context: 'Cycling Escapes wanted their technical guide on 4-litre weight distribution to rank in search while serving as the landing hub for their Instagram and LinkedIn campaign.',
       executionSteps: [
@@ -189,7 +189,7 @@ const en: LessonData[] = [
         id: 'faq-mining-to-content-decision',
         heading: '3. FAQ Mining: Turning Recurring Questions into Next Week’s Content',
         paragraphs: [
-          'Instead of brainstorming random topics on Monday morning, inspect your clustered visitor questions (`H07`) and recurring comment themes (`X01`). If 19 visitors asked about carbon handlebar compatibility this month, your next canonical article and 5-slide carousel are already validated by real demand.',
+          'Instead of brainstorming random topics on Monday morning, inspect your clustered visitor questions (`H07`) and recurring comment themes (`X01`). In the example cluster above, 19 recurring questions about carbon handlebar compatibility point directly to a concrete topic for the next canonical article and 5-slide carousel.',
         ],
       },
     ],
@@ -204,7 +204,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Mining Mounting & Rain-Protection Questions to Plan the Next Content Cycle',
       context: 'Visitors reading the DRIFT 4L article frequently asked the website assistant and Instagram comments about heavy rain seams and carbon head-tube straps.',
       executionSteps: [
@@ -212,7 +212,7 @@ const en: LessonData[] = [
         'Captured contact details from riders asking about group bikepacking outfitting.',
         'Used clustered FAQ themes from the website assistant to brief the next technical article.',
       ],
-      resultNote: 'Customer conversations directly fueled high-converting educational content.',
+      resultNote: 'Recurring visitor and comment questions feed directly into the next article and carousel brief.',
     },
     mumroIntegration: {
       eyebrow: 'HOW MUMRO IMPLEMENTS THIS',
@@ -316,13 +316,13 @@ const en: LessonData[] = [
       headers: ['Metric Focus', 'Vanity Dashboard Reporting', 'Closed-Loop Cohort Analytics (MUMRO Pattern)'],
       rows: [
         ['Time horizon', 'Arbitrary date ranges with no hypothesis', 'Structured 7 / 30 / 90-day cohorts per channel or workspace'],
-        ['Content reuse', 'Old posts are forgotten after 48 hours', 'Surfaces high-performing content to revisit and adapt (`SC03`)'],
+        ['Content reuse', 'Older posts drop out of the active feed without a structured review', 'Surfaces high-performing content to revisit and adapt (`SC03`)'],
         ['Web + Social view', 'Separate tools for social stats and web visits', 'Side-by-side social performance and website pageviews/referrers (`H05`)'],
         ['Strategic output', 'Static PDF slide at the end of the month', 'Turns analysis directly into a Strategy v2 draft for review (`SC04`)'],
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes & Świadek Dziejów',
+      brand: 'Cycling Escapes & Świadek Dziejów (Demo Workspaces)',
       scenarioTitle: 'Using 30-Day Cohort Filters to Compare Channels and Approve Strategy v2',
       context: 'Both workspaces track performance across 7, 30, and 90-day windows, allowing operators to filter by individual channel or inspect the combined workspace trajectory.',
       executionSteps: [
@@ -438,7 +438,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Running an Interactive MCP Brief from Context Read to Scheduled Plan',
       context: 'An operator asks their MCP-connected agent to prepare the Thursday evening Instagram post for the DRIFT 4L campaign based on the active strategy.',
       executionSteps: [
@@ -483,7 +483,7 @@ const en: LessonData[] = [
     keywords: ['two-phase commit AI agents', 'prepare confirm pattern MCP', 'human in the loop AI safety', 'agent mutation gate', 'MUMRO MCP confirmation'],
     keyTakeaways: [
       'LLMs are probabilistic; external API mutations (publishing a post, replying to a customer, activating a strategy) must be deterministic.',
-      'Splitting every mutation into `prepare_*` (dry-run validation + preview token) and `confirm_*` (token execution) eliminates accidental side effects.',
+      'Splitting every mutation into `prepare_*` (dry-run validation + preview token) and `confirm_*` (token execution) blocks unconfirmed single-call side effects.',
       'A confirmation token must bind to the exact target channel, payload hash, and scheduled timestamp—expiring if anything changes.',
     ],
     problemStatement: {
@@ -559,14 +559,14 @@ const en: LessonData[] = [
       caption: 'Direct Execution vs. Two-Phase Prepare → Confirm Architecture',
       headers: ['Property', 'Direct Tool Execution', 'Two-Phase Prepare → Confirm (MUMRO Pattern)'],
       rows: [
-        ['Ambiguous prompt risk', 'High—agent may publish when asked to "test scheduling"', 'Zero—`prepare_*` only generates a safe preview and token'],
+        ['Ambiguous prompt risk', 'High—agent may publish when asked to "test scheduling"', 'Contained at prepare step—`prepare_*` only generates a preview and token'],
         ['Payload integrity', 'Agent might alter text between preview and execution', 'Token is cryptographically bound to the prepared draft and slot'],
         ['Policy enforcement', 'Checked too late or bypassed', 'Evaluated during `prepare` against autonomy mode and quiet hours'],
         ['Audit trail', 'Single opaque log entry', 'Explicit record of Prepared Preview + Confirmed Authorization (`AG03`)'],
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Inspecting the MCP Preview Before Adding the DRIFT 4L Post to the Plan',
       context: 'In the MUMRO interactive MCP flow, the agent prepares the DRIFT 4L post for Thu Nov 5 · 18:00 CET and pauses in the `review` state.',
       executionSteps: [
@@ -574,7 +574,7 @@ const en: LessonData[] = [
         'The operator inspects the exact caption, target channel (Instagram), and slot (Thu Nov 5 · 18:00 CET).',
         'Only after clicking the explicit confirmation button does the item enter the FIELDWORK publishing plan, with a direct link to focus that exact row.',
       ],
-      resultNote: 'Fast agentic preparation paired with 100% deterministic human sign-off.',
+      resultNote: 'Fast agentic preparation paired with explicit, auditable human sign-off before scheduling.',
     },
     mumroIntegration: {
       eyebrow: 'HOW MUMRO IMPLEMENTS THIS',
@@ -685,7 +685,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes & Świadek Dziejów',
+      brand: 'Cycling Escapes & Świadek Dziejów (Demo Workspaces)',
       scenarioTitle: 'Configuring Autonomy Rules, Quiet Hours (22:00–07:00), and Workspace Roles',
       context: 'An agency team operates both workspaces simultaneously and needs clear boundaries on who can draft, who can approve strategy, and when AI agents can schedule.',
       executionSteps: [
@@ -693,7 +693,7 @@ const en: LessonData[] = [
         'Enabled mandatory human review for media and assigned Owner, Admin, Member, and Viewer roles.',
         'Verified that engaging the Stop switch immediately halts delegated actions without losing workspace drafts.',
       ],
-      resultNote: 'Complete peace of mind: AI accelerates the heavy lifting while humans own the rules.',
+      resultNote: 'AI accelerates drafting and analysis while human operators control the boundaries, budgets, and stop switch.',
     },
     mumroIntegration: {
       eyebrow: 'HOW MUMRO IMPLEMENTS THIS',
@@ -736,7 +736,7 @@ const pl: LessonData[] = [
     metaDescription: 'Dowiedz się, jak połączyć CMS strony WWW (WordPress lub własne API) z dystrybucją w social mediach: adresy canonical, hreflang, dane strukturalne JSON-LD i wspólny plan.',
     keywords: ['integracja CMS i social media', 'dwujęzyczne techniczne SEO', 'architektura hreflang canonical', 'WordPress API CMS', 'strona WWW MUMRO'],
     keyTakeaways: [
-      'Post w social mediach żyje 48 godzin; dobrze zoptymalizowany artykuł na własnej stronie pracuje w wyszukiwarkach i modelach AI przez lata.',
+      'Widoczność posta w feedzie społecznościowym jest zazwyczaj krótkotrwała w porównaniu z indeksowanym artykułem na własnej stronie, który może przez długi czas przyciągać ruch z wyszukiwarek i cytowania.',
       'Dwujęzyczny serwis treści wymaga symetrycznych ścieżek URL (`/` oraz `/pl/`), wzajemnych linków `hreflang` oraz danych strukturalnych JSON-LD.',
       'Bezpośrednie połączenie edytora artykułów z CMS (WordPress lub API) eliminuje ręczne kopiowanie kodu HTML i błędy w linkowaniu.',
     ],
@@ -805,7 +805,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Publikacja poradnika pakowania w CMS i kierowanie ruchu z 4 kanałów społecznościowych',
       context: 'Zespół chciał, aby techniczny artykuł o rozkładzie masy w torbie 4L budował pozycję w wyszukiwarce i jednocześnie zbierał ruch z kampanii na Instagramie, Facebooku, X i LinkedInie.',
       executionSteps: [
@@ -907,7 +907,7 @@ const pl: LessonData[] = [
         id: 'faq-mining-to-content-decision',
         heading: '3. FAQ Mining: zamiana powtarzających się pytań w plan treści',
         paragraphs: [
-          'Zamiast wymyślać tematy na ślepo w poniedziałkowy poranek, przejrzyj zgrupowane pytania odwiedzających stronę (`H07`) oraz powracające tematy z komentarzy (`X01`). Jeśli 19 osób pytało w tym miesiącu o montaż na karbonowej kierownicy, masz gotowy, zwalidowany temat na kolejny artykuł i karuzelę.',
+          'Zamiast wymyślać tematy na ślepo w poniedziałkowy poranek, przejrzyj zgrupowane pytania odwiedzających stronę (`H07`) oraz powracające tematy z komentarzy (`X01`). W powyższym przykładzie 19 powtarzających się pytań o montaż na karbonowej kierownicy od razu wskazuje konkretny temat na kolejny artykuł i karuzelę.',
         ],
       },
     ],
@@ -922,7 +922,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Wykorzystanie pytań o odporność na deszcz i montaż do zaplanowania kolejnej publikacji',
       context: 'Czytelnicy poradnika DRIFT 4L regularnie dopytywali w czacie na stronie oraz w komentarzach na Instagramie o jazdę w ulewie i ochronę lakieru.',
       executionSteps: [
@@ -930,7 +930,7 @@ const pl: LessonData[] = [
         'Zebrano dane kontaktowe od osób pytających o wyposażenie na grupowe wyprawy.',
         'Wykorzystano wyłapane grupy pytań (FAQ mining) jako materiał wejściowy do kolejnego artykułu.',
       ],
-      resultNote: 'Rozmowy z odbiorcami bezpośrednio napędzają kolejne, trafione w punkt publikacje.',
+      resultNote: 'Powtarzające się pytania z czatu i komentarzy trafiają bezpośrednio do briefu kolejnego artykułu i karuzeli.',
     },
     mumroIntegration: {
       eyebrow: 'JAK REALIZUJE TO MUMRO',
@@ -1034,13 +1034,13 @@ const pl: LessonData[] = [
       headers: ['Obszar', 'Tradycyjny raport zasięgowy', 'Analityka kohortowa (Wzorzec MUMRO)'],
       rows: [
         ['Horyzont czasu', 'Przypadkowe zakresy dat bez hipotezy badawczej', 'Spójne kohorty 7 / 30 / 90 dni dla całego workspace lub wybranego kanału'],
-        ['Powrót do treści', 'Stare publikacje idą w zapomnienie po dwóch dniach', 'Wskazywanie obiecujących treści do ponownego wykorzystania (`SC03`)'],
+        ['Powrót do treści', 'Starsze publikacje wypadają z bieżącego obiegu bez systematycznego przeglądu', 'Wskazywanie obiecujących treści do ponownego wykorzystania (`SC03`)'],
         ['Widok WWW + Social', 'Osobne panele do social mediów i statystyk strony', 'Połączony wgląd w wyniki postów oraz odwiedziny i źródła ruchu WWW (`H05`)'],
         ['Efekt końcowy', 'Slajd w prezentacji na koniec miesiąca', 'Zamiana analizy bezpośrednio w szkic Strategii v2 do oceny (`SC04`)'],
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe & Świadek Dziejów',
+      brand: 'Wyprawy Rowerowe & Świadek Dziejów (Przestrzenie demonstracyjne)',
       scenarioTitle: 'Porównanie kohort 7/30/90 dni, analiza kanałów i zatwierdzenie Strategii v2',
       context: 'Oba workspace’y pozwalają przełączać filtry kohort 7, 30 i 90 dni oraz sprawdzać wyniki każdego podłączonego konta społecznościowego i strony WWW.',
       executionSteps: [
@@ -1156,7 +1156,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Interaktywne zadanie MCP: od odczytu kontekstu do zaplanowanego wpisu w kalendarzu',
       context: 'Redaktor zleca agentowi MCP przygotowanie czwartkowego posta na Instagram dla kampanii DRIFT 4L zgodnie z aktualną strategią.',
       executionSteps: [
@@ -1200,8 +1200,8 @@ const pl: LessonData[] = [
     metaDescription: 'Poznaj wzorzec architektoniczny bezpiecznych mutacji dla agentów AI: dwufazowe bramki Prepare → Confirm, tokeny podglądu, kontrola ładunku i zatwierdzanie przez człowieka.',
     keywords: ['dwufazowe zatwierdzanie AI', 'wzorzec prepare confirm MCP', 'bezpieczeństwo agentów AI', 'bramka decyzyjna publikacji', 'potwierdzanie MCP MUMRO'],
     keyTakeaways: [
-      'Modele językowe działają probabilistycznie, natomiast mutacje na zewnątrz (publikacja posta, odpowiedź klientowi, zmiana strategii) muszą być w 100% deterministyczne.',
-      'Rozdzielenie każdego działania na `prepare_*` (walidacja i wygenerowanie podglądu + tokenu) oraz `confirm_*` (wykonanie tokenu) eliminuje przypadkowe publikacje.',
+      'Modele językowe działają probabilistycznie, natomiast mutacje na zewnątrz (publikacja posta, odpowiedź klientowi, zmiana strategii) muszą być deterministyczne.',
+      'Rozdzielenie każdego działania na `prepare_*` (walidacja i wygenerowanie podglądu + tokenu) oraz `confirm_*` (wykonanie tokenu) blokuje niepotwierdzone mutacje w jednym wywołaniu.',
       'Token potwierdzenia musi być trwale powiązany z konkretnym kanałem, treścią i godziną — i wygasać przy jakiejkolwiek zmianie.',
     ],
     problemStatement: {
@@ -1277,14 +1277,14 @@ const pl: LessonData[] = [
       caption: 'Bezpośrednie wykonanie vs. architektura dwufazowa Prepare → Confirm',
       headers: ['Właściwość', 'Jednoetapowe wywołanie', 'Dwufazowa bramka Prepare → Confirm (Wzorzec MUMRO)'],
       rows: [
-        ['Ryzyko pomyłki promptu', 'Wysokie — agent może opublikować przy prośbie o „test planu”', 'Zerowe — `prepare_*` tworzy wyłącznie bezpieczny podgląd i token'],
+        ['Ryzyko pomyłki promptu', 'Wysokie — agent może opublikować przy prośbie o „test planu”', 'Ograniczone na etapie prepare — `prepare_*` tworzy wyłącznie podgląd i token'],
         ['Integralność treści', 'Ryzyko zmiany tekstu między podglądem a wysyłką', 'Token jest trwale powiązany z przygotowanym szkicem i terminem'],
         ['Sprawdzenie reguł', 'Weryfikowane za późno lub pomijane', 'Walidacja trybu autonomii i godzin ciszy już na etapie `prepare`'],
         ['Ślad audytowy', 'Pojedynczy wpis w logach', 'Jawny zapis przygotowanego podglądu oraz osobnej autoryzacji (`AG03`)'],
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Weryfikacja podglądu MCP przed dodaniem posta DRIFT 4L do planu publikacji',
       context: 'W interaktywnym pokazie MCP agent przygotowuje post DRIFT 4L na czw. 5 lis · 18:00 CET i zatrzymuje proces w stanie oczekiwania na decyzję (`review`).',
       executionSteps: [
@@ -1292,7 +1292,7 @@ const pl: LessonData[] = [
         'Użytkownik sprawdza dokładny tekst podpisu, kanał (Instagram) oraz godzinę (czw. 5 lis · 18:00 CET).',
         'Dopiero po kliknięciu osobnej zgody wpis trafia do planu Wypraw Rowerowych, a link „Zobacz ten post w planie MUMRO” podświetla dodany wiersz.',
       ],
-      resultNote: 'Błyskawiczna praca agenta połączona ze 100% kontrolą człowieka nad momentem publikacji.',
+      resultNote: 'Szybkie przygotowanie szkicu przez agenta połączone z jawnym, audytowalnym zatwierdzeniem publikacji przez człowieka.',
     },
     mumroIntegration: {
       eyebrow: 'JAK REALIZUJE TO MUMRO',
@@ -1403,7 +1403,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe & Świadek Dziejów',
+      brand: 'Wyprawy Rowerowe & Świadek Dziejów (Przestrzenie demonstracyjne)',
       scenarioTitle: 'Konfiguracja trybu autonomii, godzin ciszy (22:00–07:00), budżetu 1000 kredytów i ról zespołu',
       context: 'Zespół obsługuje równolegle dwie zupełnie różne marki i potrzebuje precyzyjnych zasad określających, kto tworzy szkice, kto zatwierdza strategię i kiedy AI może planować publikacje.',
       executionSteps: [
@@ -1411,7 +1411,7 @@ const pl: LessonData[] = [
         'Włączono wymóg oceny mediów przez człowieka oraz przypisano role Owner, Admin, Member i Viewer.',
         'Sprawdzono działanie przycisku zatrzymania (Stop), który natychmiast blokuje dalsze delegowane zadania bez utraty roboczych danych.',
       ],
-      resultNote: 'AI przyspiesza pracę redakcyjną i analityczną, ale to człowiek ustala zasady gry.',
+      resultNote: 'AI przyspiesza pracę redakcyjną i analityczną, a operatorzy zachowują kontrolę nad granicami, budżetem i wyłącznikiem awaryjnym.',
     },
     mumroIntegration: {
       eyebrow: 'JAK REALIZUJE TO MUMRO',
