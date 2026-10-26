@@ -43,6 +43,12 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('[data-open-source-tool="agent-harness-kit"]')).toContainText('RolePlayingTech/agent-harness-kit');
     await expect(page.locator('[data-open-source-tool="mcp-surface-kit"]')).toContainText('RolePlayingTech/mcp-surface-kit');
     await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).toContainText('RolePlayingTech/playwright-harness-kit');
+    await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).toContainText(
+      'Helps specify and check browser verification constraints'
+    );
+    await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).not.toContainText(
+      'Prevents brittle'
+    );
     await expect(page.locator('[data-open-source-tool="git-agent-workflow-kit"]')).toContainText('RolePlayingTech/git-agent-workflow-kit');
 
     // Dynamic lesson counts per track (3 vs 7)
@@ -70,6 +76,12 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('[data-lesson-card]')).toHaveCount(16);
     await expect(page.locator('[data-latest-lesson]')).toHaveCount(4);
     await expect(page.locator('[data-open-source-tool]')).toHaveCount(4);
+    await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).toContainText(
+      'Pomaga wyspecyfikować i statycznie sprawdzić ograniczenia weryfikacji'
+    );
+    await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).not.toContainText(
+      'Eliminuje kruche klikanie'
+    );
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (7 lekcji):');
 
@@ -561,6 +573,16 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.locator('[data-browser-layer-trigger="session"]').click();
     await expect(page.locator('[data-browser-layer-panel="session"]')).toBeVisible();
 
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('npm install -g @playwright/cli@latest');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli install --skills');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open https://demo.playwright.dev/todomvc/');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli snapshot');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli type "Buy groceries"');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli press Enter');
+    await expect(
+      page.locator('#playwright-mcp-and-test-agents a[href="https://playwright.dev/docs/getting-started-cli"]')
+    ).toBeVisible();
+
     await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-AUTH-01');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-UX-01');
@@ -571,6 +593,15 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('Playwright');
     await expect(page.locator('[data-browser-panel="hybrid"]')).toBeVisible();
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('npm install -g @playwright/cli@latest');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli install --skills');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli open https://demo.playwright.dev/todomvc/');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli snapshot');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli type "Buy groceries"');
+    await expect(page.locator('#playwright-mcp-and-test-agents')).toContainText('playwright-cli press Enter');
+    await expect(
+      page.locator('#playwright-mcp-and-test-agents a[href="https://playwright.dev/docs/getting-started-cli"]')
+    ).toBeVisible();
     await expect(page.locator('#hands-on-mini-lab')).toContainText('examples/offline-ui');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-AUTH-01');
     await expect(page.locator('#hands-on-mini-lab')).toContainText('DEMO-UX-01');

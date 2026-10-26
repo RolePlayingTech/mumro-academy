@@ -954,8 +954,8 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           </span>
           <p>
             {pl
-              ? 'playwright-harness-kit zapisuje warstwy (`ui-contract`, `integrated`), identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`), politykę sesji przy rotacji tokenów i hybrydowe rubryki wizualne w .playwright-harness/spec.json, weryfikuje kontrakt oraz dowody w plikach repozytorium (`check --strict --verify-files`) i generuje skille SKILL.md z czyszczeniem sierot (`build --prune`).'
-              : 'playwright-harness-kit records tiers (`ui-contract`, `integrated`), scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session policy, and hybrid visual rubrics in .playwright-harness/spec.json, verifies the contract and repository file evidence (`check --strict --verify-files`), and generates SKILL.md files with orphan pruning (`build --prune`).'}
+              ? 'playwright-harness-kit zapisuje deklaratywny kontrakt w .playwright-harness/spec.json (warstwy `ui-contract` i `integrated`, scenariusze `M-AUTH-01` i `M-UX-01`, reguły sesji przy rotacji tokenów, rubryki wizualne), weryfikuje spójność kontraktu oraz dowody w plikach repozytorium (`check --strict --verify-files`) i generuje skille SKILL.md prowadzące uruchomieniową weryfikację w Playwright (`build --prune`).'
+              : 'playwright-harness-kit records the declarative contract in .playwright-harness/spec.json (`ui-contract` and `integrated` tiers, `M-AUTH-01` and `M-UX-01` scenarios, token-rotation session rules, visual rubrics), checks contract consistency and repository file evidence (`check --strict --verify-files`), and generates SKILL.md workflows that guide runtime Playwright verification (`build --prune`).'}
           </p>
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/playwright-harness-kit" target="_blank" rel="noopener">
