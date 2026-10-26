@@ -5,6 +5,12 @@ export interface LessonSection {
   levelBadge?: string;
   heading: string;
   paragraphs: string[];
+  resources?: Array<{
+    category: string;
+    title: string;
+    url: string;
+    description: string;
+  }>;
   callout?: {
     label: string;
     text: string;

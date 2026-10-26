@@ -115,36 +115,45 @@ channel_adaptations:
       whenToUse: 'When instructing an MCP-connected AI agent to audit performance, propose strategy updates, or prepare scheduled posts safely.',
       mumroBenefit: 'MUMRO’s MCP server enforces this exact sequence natively—requiring `prepare_*` and `confirm_*` tokens for all external mutations.',
       templateFormat: 'JSON-RPC / MCP Sequence',
-      templateCode: `// MUMRO Academy — Safe Agentic Content Loop (MCP Runbook)
+      templateCode: `// MUMRO Academy — MCP publishing loop (synthetic IDs; no secrets)
+// The server binds the workspace to the credential; NEVER pass workspace_id from the model.
+// Replace account_id=42 and media_asset_ids=[901] with IDs returned for your own workspace.
+// Schedule: Thursday, 2026-11-05 at 18:00 Europe/Warsaw = 2026-11-05T17:00:00Z.
 
-// 1. Ground in live workspace state & strategy (Read-Only)
-1. call get_workspace_context({ "workspace": "fieldwork" })
-2. call get_content_strategy({ "workspace": "fieldwork" })
-3. call get_analytics_overview({ "workspace": "fieldwork", "windowDays": 30 })
-4. call list_content_performance({ "workspace": "fieldwork", "windowDays": 30 })
+// 1. Read the scoped workspace and approved strategy (mumro:read)
+1. call get_workspace_context({})
+2. call get_content_strategy({ "account_id": 42 })
+3. call preview_schedule({ "account_id": 42, "content_type": "post" })
 
-// 2. Check upcoming queue slots & channel capabilities (Read-Only)
-5. call get_publication_capabilities({ "workspace": "fieldwork" })
-6. call preview_schedule({ "workspace": "fieldwork", "channel": "instagram" })
-
-// 3. Create visible workspace draft (Safe Workspace Write — Never Publishes Live)
-7. call create_publication_draft({
-     "workspace": "fieldwork",
-     "channel": "instagram",
+// 2. Create a visible local draft — no social-provider call (mumro:drafts)
+4. call create_publication_draft({
+     "targets": [{ "account_id": 42, "platform": "instagram" }],
+     "publication_type": "post",
      "caption": "Two days. Four litres...",
-     "mediaIds": ["media_drift4l_carousel"]
+     "media_asset_ids": [901],
+     "idempotency_key": "fieldwork-drift4l-2026-11-05-draft"
    })
+   // -> Capture items[].draft_id as publication_id (illustrated as 1881).
 
-// 4. Two-Phase Mutation Gate (Prepare Preview -> Human/Policy Confirm)
-8. call prepare_publication_action({
-     "draftId": "draft_id_from_step_7",
-     "action": "schedule",
-     "scheduledAt": "2026-10-11T18:00:00Z"
+// 3. Prepare without scheduling or publishing (mumro:schedule)
+5. call prepare_publication_action({
+     "publication_id": 1881,
+     "operation": "schedule_draft",
+     "scheduled_at": "2026-11-05T17:00:00Z",
+     "idempotency_key": "fieldwork-drift4l-2026-11-05-prepare"
    })
-   // -> Pause and present preview (channel, exact text, slot) to human operator
-9. call confirm_publication_action({
-     "confirmationToken": "token_from_step_8"
-   })`,
+   // -> Display exact preview, expiry and confirmation_mode.
+   // -> If confirmation_mode=user, STOP and require a NEW human approval
+   //    via a host-controlled approval UI / out-of-band gate.
+   // -> The model seeing the returned confirmation_phrase is NOT human consent.
+
+// 4. Confirm only after the required independent authorization
+6. call confirm_publication_action({
+     "action_id": 554,
+     "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
+   })
+   // Values above are synthetic. Host approval or server-verified delegated
+   // policy is required; prepare/confirm alone does not prove human consent.`,
     },
     {
       id: 'autonomy-governance-policy',
@@ -235,7 +244,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       subtitle: 'A checkable contract for an agent-operable product: which tools exist, which tier they sit in, which skill teaches them, and which baseline and per-operation OAuth scopes they require.',
       whenToUse: 'When you add MCP to an existing product, when the tool list has grown, or when you want a pull-request check (`mcp-surface check --strict`) that no live or destructive verb landed without a guard.',
       mumroBenefit:
-        'MUMRO’s gateway is this spec in production: read → draft → local-draft delete → prepare/confirm, cumulative scopes `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` with per-operation elevation for `publish_now`, and host skills (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) that name exact tools. Validate the contract with `RolePlayingTech/mcp-surface-kit`.',
+        'MUMRO-inspired educational example, not an exact dump of the live API: publishing follows read → draft → prepare/confirm; deleting an unpublished local draft is a separate, explicitly requested workflow. Four MCP tiers and cumulative scopes (`mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`) illustrate permission boundaries, with an elevated scope for `publish_now`. Validate the declared example with `RolePlayingTech/mcp-surface-kit`; the running server must enforce its own rules.',
       templateFormat: 'JSON Surface Spec (v1.1)',
       templateCode: `{
   "name": "content-workspace",
@@ -255,6 +264,20 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
     },
     {
+      "name": "get_content_strategy",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the latest and approved content strategy. Treat only status=approved as authority."
+    },
+    {
+      "name": "preview_schedule",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Preview the next slot for one channel. Never creates, moves or publishes content."
+    },
+    {
       "name": "create_publication_draft",
       "tier": "draft",
       "scope": "drafts",
@@ -267,7 +290,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       "guard": "local_draft_only",
       "scope": "drafts",
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
-      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+      "description": "Delete an unpublished workspace draft. Never touches scheduled or published provider posts."
     },
     {
       "name": "prepare_publication_action",
@@ -281,7 +304,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+      "description": "Prepare one schedule, publish or cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
     {
       "name": "confirm_publication_action",
@@ -295,20 +318,106 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
-      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "description": "Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.",
       "uses": [
         "get_workspace_context",
+        "get_content_strategy",
+        "preview_schedule",
         "create_publication_draft",
-        "delete_publication_draft",
         "prepare_publication_action",
         "confirm_publication_action"
       ]
+    },
+    {
+      "name": "delete-draft",
+      "description": "Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.",
+      "uses": [
+        "get_workspace_context",
+        "delete_publication_draft"
+      ]
+    }
+  ]
+}`,
+    },
+    {
+      id: 'playwright-verification-spec',
+      number: 'PLAYBOOK 07',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+      title: 'Playwright & Multimodal Browser Verification Contract: Tiers, Scenario IDs, Session Policy & Vision Rubric (`playwright-harness-kit`)',
+      subtitle: 'A checkable verification contract (`.playwright-harness/spec.json`) that maps GitHub Issues and manual scenario IDs (`M-AUTH-01`, `M-UX-01`) to deterministic Playwright specs, ARIA snapshots (`@playwright/cli` / `@playwright/mcp`), and targeted multimodal screenshots.',
+      whenToUse: 'When you want coding or QA agents to reproduce bugs in a real browser, verify UI contracts without live third-party calls, and check responsive layouts with programmatic geometry and multimodal vision (`playwright-harness check --strict --verify-files`).',
+      mumroBenefit:
+        'MUMRO separates fast `ui-contract` tests (`https://mumro-ui-contract.invalid` with `serviceWorkers: "block"` and default-deny `context.route`) from full-stack `integrated` journeys, respects single-use refresh token rotation by avoiding shared `storageState`, and maps every GitHub issue to stable scenario IDs (`M-AUTH-01`, `M-UX-01`). Validate the contract and repository file evidence with `RolePlayingTech/playwright-harness-kit`, then enforce runtime assertions in Playwright.',
+      templateFormat: 'JSON Verification Spec (v1.1)',
+      templateCode: `{
+  "name": "mumro-web-verification",
+  "purpose": "Two-tier Playwright & multimodal browser verification for workspace auth, shell geometry, and composer flows.",
+  "copySkillsTo": [".claude/skills"],
+  "tiers": {
+    "ui-contract": {
+      "command": "npm --prefix frontend run test:e2e:contract",
+      "origin": "https://mumro-ui-contract.invalid",
+      "networkPolicy": "deny-unhandled",
+      "purpose": "Fast, deterministic verification of routes, auth refresh queues, and 390x844 mobile geometry without external services."
+    },
+    "integrated": {
+      "command": "npm --prefix frontend run test:e2e:integrated",
+      "origin": "http://localhost:5173",
+      "networkPolicy": "local-stack-only",
+      "purpose": "End-to-end journeys against local frontend + backend with disposable QA accounts (QA-A / QA-B)."
+    }
+  },
+  "authSessionPolicy": {
+    "singleUseRefreshRotation": true,
+    "allowSharedStorageState": false,
+    "rationale": "Concurrent workers sharing one single-use refresh token trigger reuse detection and revoke the session family."
+  },
+  "artifactHygiene": {
+    "traceMode": "on-first-retry",
+    "gitIgnore": ["playwright-report/", "test-results/", "playwright/.auth/"],
+    "forbidLiveMutations": true
+  },
+  "scenarios": [
+    {
+      "id": "M-AUTH-01",
+      "title": "Silent refresh single-flight under concurrent 401 responses",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/auth-session.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": { "required": false }
+    },
+    {
+      "id": "M-UX-01",
+      "title": "Mobile shell drawer and dialog overflow check (390x844)",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/ux-shell-mobile.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": {
+        "required": true,
+        "viewports": [{ "width": 390, "height": 844 }, { "width": 1280, "height": 800 }],
+        "programmaticInvariants": [
+          "documentElement.scrollWidth <= window.innerWidth",
+          "dialog close button inside viewport boundingBox"
+        ],
+        "multimodalRubric": [
+          "No overlapping badges or clipped headings in the mobile drawer",
+          "Primary action button remains visually distinct and unobstructed"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "verify-browser-scenarios",
+      "description": "Verify UI-contract and integrated Playwright scenarios with ARIA locators, DOM geometry invariants, and targeted VLM screenshots. Use when an issue or task packet references M-AUTH-01 or M-UX-01.",
+      "covers": ["M-AUTH-01", "M-UX-01"]
     }
   ]
 }`,
@@ -322,7 +431,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
       subtitle: 'A copy-ready operational policy for running one or multiple AI coding agents safely across feature branches, isolated git worktrees, pre-PR scope & test-integrity checks, and non-destructive recovery.',
       whenToUse: 'Before starting coding-agent work in a repository, when running two or more agents in parallel via `git worktree`, or when gating Pull Requests against scope creep and weakened test assertions.',
       mumroBenefit:
-        'Complements `agent-harness-kit` (static `AGENTS.md` contracts) and `mcp-surface-kit` (MCP tool gates) with live Git state auditing, file-scope enforcement, test-weakening detection, and 5 portable Agent Skills via `RolePlayingTech/git-agent-workflow-kit`.',
+        'Complements `agent-harness-kit` (static `AGENTS.md` contracts), `mcp-surface-kit` (MCP tool gates), and `playwright-harness-kit` (browser verification contracts) with live Git state auditing, file-scope enforcement, test-weakening detection, and 5 portable Agent Skills via `RolePlayingTech/git-agent-workflow-kit`.',
       templateFormat: 'JSON Task Scope & Git Workflow Policy (v1.0)',
       templateCode: `{
   "task": "issue-42-session-expiry-and-audit",
@@ -467,36 +576,46 @@ channel_adaptations:
       whenToUse: 'Gdy zlecasz agentowi AI podłączonemu przez MCP analizę wyników, aktualizację strategii lub przygotowanie planu publikacji.',
       mumroBenefit: 'Serwer MCP MUMRO egzekwuje tę sekwencję natywnie — wymagając dwufazowych tokenów `prepare_*` oraz `confirm_*` przed każdą zmianą planu.',
       templateFormat: 'Sekwencja JSON-RPC / MCP',
-      templateCode: `// Akademia MUMRO — Bezpieczna Pętla Agenta AI (Runbook MCP)
+      templateCode: `// MUMRO Academy — bezpieczna sekwencja MCP (syntetyczne ID, bez sekretów)
+// Serwer wiąże workspace z poświadczeniem; NIE przekazuj workspace_id od modelu.
+// Zastąp account_id=42 i media_asset_ids=[901] identyfikatorami własnego workspace.
+// Termin: czwartek 2026-11-05, 18:00 Europe/Warsaw = 2026-11-05T17:00:00Z.
 
-// 1. Odczyt kontekstu przestrzeni i aktywnej strategii (Tylko odczyt)
-1. call get_workspace_context({ "workspace": "fieldwork" })
-2. call get_content_strategy({ "workspace": "fieldwork" })
-3. call get_analytics_overview({ "workspace": "fieldwork", "windowDays": 30 })
-4. call list_content_performance({ "workspace": "fieldwork", "windowDays": 30 })
+// 1. Odczytaj kontekst workspace i zatwierdzoną strategię (mumro:read)
+1. call get_workspace_context({})
+2. call get_content_strategy({ "account_id": 42 })
+3. call preview_schedule({ "account_id": 42, "content_type": "post" })
 
-// 2. Sprawdzenie możliwości kanałów i wolnych okien w harmonogramie (Tylko odczyt)
-5. call get_publication_capabilities({ "workspace": "fieldwork" })
-6. call preview_schedule({ "workspace": "fieldwork", "channel": "instagram" })
-
-// 3. Zapis widocznego szkicu w workspace (Bezpieczny zapis — nie publikuje na żywo)
-7. call create_publication_draft({
-     "workspace": "fieldwork",
-     "channel": "instagram",
+// 2. Zapisz widoczny szkic lokalny — bez wywołania dostawcy (mumro:drafts)
+4. call create_publication_draft({
+     "targets": [{ "account_id": 42, "platform": "instagram" }],
+     "publication_type": "post",
      "caption": "Dwa dni. Cztery litry...",
-     "mediaIds": ["media_drift4l_carousel"]
+     "media_asset_ids": [901],
+     "idempotency_key": "fieldwork-drift4l-2026-11-05-draft"
    })
+   // -> Odczytaj items[].draft_id jako publication_id (tu: 1881).
 
-// 4. Dwufazowa bramka decyzyjna (Prepare Podgląd -> Zgoda Człowieka -> Confirm)
-8. call prepare_publication_action({
-     "draftId": "draft_id_from_step_7",
-     "action": "schedule",
-     "scheduledAt": "2026-10-11T18:00:00Z"
+// 3. Przygotuj operację — bez planowania i publikacji (mumro:schedule)
+5. call prepare_publication_action({
+     "publication_id": 1881,
+     "operation": "schedule_draft",
+     "scheduled_at": "2026-11-05T17:00:00Z",
+     "idempotency_key": "fieldwork-drift4l-2026-11-05-prepare"
    })
-   // -> Zatrzymaj i pokaż podgląd (kanał, pełny tekst, termin) do akceptacji człowieka
-9. call confirm_publication_action({
-     "confirmationToken": "token_from_step_8"
-   })`,
+   // -> Pokaż pełny podgląd, czas wygaśnięcia i confirmation_mode.
+   // -> Jeśli confirmation_mode=user, ZATRZYMAJ SIĘ i wymagaj NOWEJ zgody
+   //    w interfejsie hosta albo przez niezależny mechanizm autoryzacji.
+   // -> Sam dostęp modelu do confirmation_phrase NIE oznacza zgody człowieka.
+
+// 4. Potwierdź dopiero po niezależnym zatwierdzeniu
+6. call confirm_publication_action({
+     "action_id": 554,
+     "confirmation_phrase": "schedule-instagram-thu-18-fieldwork-9f82"
+   })
+   // Dane powyżej są syntetyczne. Wymagana jest zgoda przez hosta albo
+   // zweryfikowana przez serwer polityka delegacji: para prepare/confirm
+   // sama w sobie nie dowodzi zgody człowieka.`,
     },
     {
       id: 'autonomy-governance-policy',
@@ -587,7 +706,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       subtitle: 'Sprawdzalny kontrakt produktu sterowanego przez agenta: które narzędzia istnieją, na którym poziomie siedzą, który skill ich uczy oraz jakich bazowych i per-operacyjnych scope’ów OAuth potrzebują.',
       whenToUse: 'Gdy dodajesz MCP do istniejącego produktu, gdy lista narzędzi urosła, albo gdy chcesz w pull requescie sprawdzenie (`mcp-surface check --strict`), że żaden czasownik na żywo ani destrukcyjny nie wylądował bez zabezpieczenia.',
       mumroBenefit:
-        'Bramka MUMRO to ta specyfikacja w produkcji: odczyt → szkic → usuwanie lokalnego szkicu → prepare/confirm, kumulatywne scope’y `mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish` z podniesieniem uprawnień dla `publish_now` oraz skille hosta (`mumro-plan-campaign`, `mumro-publish-content`, `mumro-manage-queue`, `mumro-content-intelligence`) nazywające dokładne narzędzia. Kontrakt zweryfikujesz `RolePlayingTech/mcp-surface-kit`.',
+        'Przykład edukacyjny inspirowany MUMRO, a nie wierna kopia produkcyjnego API: publikowanie przechodzi od odczytu przez szkic do prepare/confirm, a usunięcie nieopublikowanego szkicu jest osobnym workflow wymagającym jawnej prośby. Cztery poziomy narzędzi MCP i kumulatywne scope’y (`mumro:read` ⊂ `mumro:drafts` ⊂ `mumro:schedule` ⊂ `mumro:publish`) pokazują granice uprawnień, w tym dodatkowe uprawnienie dla `publish_now`. `RolePlayingTech/mcp-surface-kit` sprawdza zadeklarowany kontrakt, natomiast serwer niezależnie egzekwuje własne reguły.',
       templateFormat: 'Specyfikacja JSON powierzchni (v1.1)',
       templateCode: `{
   "name": "content-workspace",
@@ -607,6 +726,20 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "description": "Return the workspace, plan, role and scopes bound to this credential. Call first."
     },
     {
+      "name": "get_content_strategy",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Return the latest and approved content strategy. Treat only status=approved as authority."
+    },
+    {
+      "name": "preview_schedule",
+      "tier": "read",
+      "scope": "read",
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false },
+      "description": "Preview the next slot for one channel. Never creates, moves or publishes content."
+    },
+    {
       "name": "create_publication_draft",
       "tier": "draft",
       "scope": "drafts",
@@ -619,7 +752,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       "guard": "local_draft_only",
       "scope": "drafts",
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": false },
-      "description": "Delete an unscheduled local draft from the workspace. Refuses queued or published items."
+      "description": "Delete an unpublished workspace draft. Never touches scheduled or published provider posts."
     },
     {
       "name": "prepare_publication_action",
@@ -633,7 +766,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Prepare one schedule/publish/cancel action. Returns preview and confirmation_phrase. Executes nothing."
+      "description": "Prepare one schedule, publish or cancel action. Returns preview and confirmation_phrase. Executes nothing."
     },
     {
       "name": "confirm_publication_action",
@@ -647,20 +780,106 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
         "publish_now": "publish"
       },
       "annotations": { "readOnlyHint": false, "destructiveHint": true, "idempotentHint": true, "openWorldHint": true },
-      "description": "Execute one still-fresh prepared action after explicit approval or server-verified approved_strategy policy."
+      "description": "Execute one still-fresh prepared action after explicit approval or approved_strategy policy."
     }
   ],
   "skills": [
     {
       "name": "publish-content",
-      "description": "Draft and prepare a social post. Use when the user wants a post saved or queued. Always preview before confirm.",
+      "description": "Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.",
       "uses": [
         "get_workspace_context",
+        "get_content_strategy",
+        "preview_schedule",
         "create_publication_draft",
-        "delete_publication_draft",
         "prepare_publication_action",
         "confirm_publication_action"
       ]
+    },
+    {
+      "name": "delete-draft",
+      "description": "Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.",
+      "uses": [
+        "get_workspace_context",
+        "delete_publication_draft"
+      ]
+    }
+  ]
+}`,
+    },
+    {
+      id: 'playwright-verification-spec',
+      number: 'PLAYBOOK 07',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+      title: 'Kontrakt Weryfikacji Przeglądarkowej Playwright i Modali Wizualnych: Warstwy, ID Scenariuszy, Sesje i Rubryka VLM (`playwright-harness-kit`)',
+      subtitle: 'Sprawdzalny w CI kontrakt weryfikacji (`.playwright-harness/spec.json`) łączący zgłoszenia GitHub Issue i identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`) z testami Playwright, drzewem ARIA (`@playwright/cli` / `@playwright/mcp`) i celowanymi zrzutami ekranu.',
+      whenToUse: 'Gdy chcesz, aby agent kodujący lub QA potrafił samodzielnie odtworzyć błąd w przeglądarce, zweryfikować kontrakt UI bez zewnętrznych usług i sprawdzić układ mobilny przez geometrię DOM oraz model multimodalny (`playwright-harness check --strict --verify-files`).',
+      mumroBenefit:
+        'MUMRO oddziela szybkie testy `ui-contract` (`https://mumro-ui-contract.invalid` z `serviceWorkers: "block"` i blokadą `context.route`) od pełnych ścieżek `integrated`, szanuje jednorazową rotację refresh tokenów przez zakaz współdzielenia `storageState` i mapuje każde zgłoszenie GitHub na stałe identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`). Kontrakt oraz dowody w plikach repozytorium zweryfikujesz przez `RolePlayingTech/playwright-harness-kit`, a zachowanie w czasie wykonania wymusisz w Playwright.',
+      templateFormat: 'Specyfikacja JSON weryfikacji (v1.1)',
+      templateCode: `{
+  "name": "mumro-web-verification",
+  "purpose": "Two-tier Playwright & multimodal browser verification for workspace auth, shell geometry, and composer flows.",
+  "copySkillsTo": [".claude/skills"],
+  "tiers": {
+    "ui-contract": {
+      "command": "npm --prefix frontend run test:e2e:contract",
+      "origin": "https://mumro-ui-contract.invalid",
+      "networkPolicy": "deny-unhandled",
+      "purpose": "Fast, deterministic verification of routes, auth refresh queues, and 390x844 mobile geometry without external services."
+    },
+    "integrated": {
+      "command": "npm --prefix frontend run test:e2e:integrated",
+      "origin": "http://localhost:5173",
+      "networkPolicy": "local-stack-only",
+      "purpose": "End-to-end journeys against local frontend + backend with disposable QA accounts (QA-A / QA-B)."
+    }
+  },
+  "authSessionPolicy": {
+    "singleUseRefreshRotation": true,
+    "allowSharedStorageState": false,
+    "rationale": "Concurrent workers sharing one single-use refresh token trigger reuse detection and revoke the session family."
+  },
+  "artifactHygiene": {
+    "traceMode": "on-first-retry",
+    "gitIgnore": ["playwright-report/", "test-results/", "playwright/.auth/"],
+    "forbidLiveMutations": true
+  },
+  "scenarios": [
+    {
+      "id": "M-AUTH-01",
+      "title": "Silent refresh single-flight under concurrent 401 responses",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/auth-session.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": { "required": false }
+    },
+    {
+      "id": "M-UX-01",
+      "title": "Mobile shell drawer and dialog overflow check (390x844)",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/ux-shell-mobile.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": {
+        "required": true,
+        "viewports": [{ "width": 390, "height": 844 }, { "width": 1280, "height": 800 }],
+        "programmaticInvariants": [
+          "documentElement.scrollWidth <= window.innerWidth",
+          "dialog close button inside viewport boundingBox"
+        ],
+        "multimodalRubric": [
+          "No overlapping badges or clipped headings in the mobile drawer",
+          "Primary action button remains visually distinct and unobstructed"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "verify-browser-scenarios",
+      "description": "Verify UI-contract and integrated Playwright scenarios with ARIA locators, DOM geometry invariants, and targeted VLM screenshots. Use when an issue or task packet references M-AUTH-01 or M-UX-01.",
+      "covers": ["M-AUTH-01", "M-UX-01"]
     }
   ]
 }`,
@@ -674,7 +893,7 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
       subtitle: 'Gotowa polityka operacyjna do bezpiecznej pracy jednego lub wielu agentów kodujących na gałęziach zadaniowych, w izolowanych katalogach git worktree, z audytem zakresu i integralności testów przed PR oraz nieinwazyjnym odzyskiwaniem.',
       whenToUse: 'Przed rozpoczęciem pracy agenta w repozytorium, przy równoległym uruchamianiu dwóch lub więcej agentów przez `git worktree` oraz przy weryfikacji Pull Requestów pod kątem wyjścia poza zakres i osłabionych asercji testowych.',
       mumroBenefit:
-        'Uzupełnia `agent-harness-kit` (statyczny kontrakt `AGENTS.md`) oraz `mcp-surface-kit` (bramki narzędzi MCP) o diagnostykę żywego stanu Gita, egzekucję zakresu plików, wykrywanie osłabionych testów i 5 przenośnych skilli przez `RolePlayingTech/git-agent-workflow-kit`.',
+        'Uzupełnia `agent-harness-kit` (statyczny kontrakt `AGENTS.md`), `mcp-surface-kit` (bramki narzędzi MCP) oraz `playwright-harness-kit` (kontrakty weryfikacji przeglądarkowej) o diagnostykę żywego stanu Gita, egzekucję zakresu plików, wykrywanie osłabionych testów i 5 przenośnych skilli przez `RolePlayingTech/git-agent-workflow-kit`.',
       templateFormat: 'Specyfikacja JSON zakresu zadania i workflowu Git (v1.0)',
       templateCode: `{
   "task": "issue-42-session-expiry-and-audit",

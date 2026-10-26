@@ -1,0 +1,75 @@
+---
+import { learningJourneys, lessonPractice } from '../content/learning-journeys';
+import { getLessonBySlug } from '../content/lessons';
+import { localePath, type LessonSlug, type Locale } from '../lib/contracts';
+
+interface Props { locale: Locale; slug: LessonSlug; }
+const { locale, slug } = Astro.props;
+const practice = lessonPractice[locale][slug];
+const journeys = learningJourneys[locale].filter((journey) => journey.lessonSlugs.includes(slug));
+---
+<section class="preview-frame practice-guide" id="practice-task" data-lesson-practice aria-labelledby="practice-heading">
+  <p class="eyebrow signal">{locale === 'pl' ? 'NAUKA PRZEZ DZIAŁANIE' : 'LEARN BY DOING'}</p>
+  <h2 id="practice-heading">{practice.objective}</h2>
+  <div class="practice-grid">
+    <div>
+      <h3>{locale === 'pl' ? 'Zadanie do wykonania' : 'Try this yourself'}</h3>
+      <p>{practice.assignment}</p>
+    </div>
+    <div>
+      <h3>{locale === 'pl' ? 'Efekt do portfolio' : 'Evidence for your portfolio'}</h3>
+      <p>{practice.evidence}</p>
+    </div>
+  </div>
+  <div class="practice-links">
+    <div>
+      <strong>{locale === 'pl' ? 'Warto znać wcześniej' : 'Helpful prerequisites'}</strong>
+      {practice.prerequisites.length > 0 ? (
+        <ul>
+          {practice.prerequisites.map((prerequisite) => {
+            const lesson = getLessonBySlug(locale, prerequisite);
+            return <li><a href={localePath(locale, `lessons/${prerequisite}`)}>{lesson.number}: {lesson.title}</a></li>;
+          })}
+        </ul>
+      ) : (
+        <p>{locale === 'pl' ? 'Możesz rozpocząć od tej lekcji.' : 'You can start with this lesson.'}</p>
+      )}
+    </div>
+    <div>
+      <strong>{locale === 'pl' ? 'W polecanych drogach nauki' : 'Part of these guided routes'}</strong>
+      <ul>
+        {journeys.map((journey) => {
+          const index = journey.lessonSlugs.indexOf(slug);
+          const nextSlug = journey.lessonSlugs[index + 1];
+          return (
+            <li>
+              <a href={`${localePath(locale)}#route-${journey.id}`}>{journey.title}</a>
+              {nextSlug ? (
+                <span class="next-hint">
+                  {locale === 'pl' ? 'Następnie: ' : 'Up next: '}
+                  <a href={localePath(locale, `lessons/${nextSlug}`)}>{getLessonBySlug(locale, nextSlug).title}</a>
+                </span>
+              ) : <span class="next-hint">{locale === 'pl' ? 'Ostatnia lekcja tej drogi' : 'Final lesson in this route'}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+  .practice-guide { margin-top: 26px; background: var(--paper); }
+  .practice-guide h2 { font: 400 clamp(25px, 2.8vw, 36px)/1.12 var(--display); margin: 10px 0 18px; }
+  .practice-grid, .practice-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .practice-grid h3 { margin: 0 0 8px; font-size: 14px; }
+  .practice-grid p { margin: 0; font-size: 14px; line-height: 1.6; }
+  .practice-links { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line-strong); font-size: 13px; }
+  .practice-links strong { display: block; margin-bottom: 10px; }
+  .practice-links ul { margin: 0; padding-left: 18px; display: grid; gap: 9px; }
+  .practice-links p { margin: 0; color: var(--muted); }
+  .practice-links a { text-decoration: underline; text-underline-offset: 2px; }
+  .next-hint { display: block; color: var(--muted); margin-top: 4px; }
+  @media (max-width: 700px) {
+    .practice-grid, .practice-links { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  }
+</style>

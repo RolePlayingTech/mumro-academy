@@ -51,6 +51,11 @@ export const GET: APIRoute = () => {
       for (const sec of l.sections) {
         chunks.push(`#### ${sec.heading}`);
         for (const p of sec.paragraphs) chunks.push(p);
+        if (sec.resources) {
+          for (const resource of sec.resources) {
+            chunks.push(`- [${resource.category}] ${resource.title} (${resource.url}): ${resource.description}`);
+          }
+        }
       }
       chunks.push(`Case Study (${l.caseStudy.brand} — ${l.caseStudy.scenarioTitle}): ${l.caseStudy.context}`);
       chunks.push(`Connected in MUMRO (${l.mumroIntegration.title}): ${l.mumroIntegration.summary}`, '');

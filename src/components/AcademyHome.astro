@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import ContactDialog from './ContactDialog.astro';
+import LearningRoutes from './LearningRoutes.astro';
 import { shellContent } from '../content/shell';
 import { tracksContent } from '../content/tracks';
 import { playbooksContent } from '../content/playbooks';
@@ -71,7 +72,7 @@ const homeSchema = [
         <div class="hero-copy">
           <p class="hero-lead">{c.hero.lead}</p>
           <div class="hero-actions">
-            <a class="button" href="#lessons">
+            <a class="button" href="#learning-routes">
               {c.hero.primaryCta}<span aria-hidden="true">↓</span>
             </a>
             <a class="button secondary" href="#latest-lessons">
@@ -93,6 +94,9 @@ const homeSchema = [
         ))}
       </div>
     </section>
+
+    <!-- Role-based journeys before release-driven latest additions -->
+    <LearningRoutes locale={locale} />
 
     <!-- LATEST ADDITIONS: LESSONS 13 & 14 -->
     <section class="section container" id="latest-lessons">

@@ -11,19 +11,22 @@ const { locale, trackId, slug } = Astro.props;
 const pl = locale === 'pl';
 const isHarnessLesson = slug === 'ai-agent-harness-engineering';
 const isMcpSurfaceLesson = slug === 'mcp-tools-skills-and-product-surfaces';
+const isPlaywrightLesson = slug === 'playwright-browser-automation-and-verification';
 const isGitWorkflowLesson = slug === 'git-and-github-for-ai-coding-agents';
-const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLesson;
+const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLesson && !isGitWorkflowLesson;
 ---
 <section
   class="preview-frame lesson-lab"
   data-lesson-lab={
     isGitWorkflowLesson
       ? 'git-agent-workflow'
-      : isMcpSurfaceLesson
-        ? 'mcp-surface'
-        : isHarnessLesson
-          ? 'harness-engineering'
-          : trackId
+      : isPlaywrightLesson
+        ? 'playwright-browser'
+        : isMcpSurfaceLesson
+          ? 'mcp-surface'
+          : isHarnessLesson
+            ? 'harness-engineering'
+            : trackId
   }
 >
   <div class="lab-header">
@@ -44,6 +47,10 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
           (pl
             ? 'Symulator powierzchni produktu: Klikanie UI vs. Surowe narzędzia MCP vs. Narzędzia + skille + bramka'
             : 'Product Surface Simulator: Clicking the UI vs. Raw MCP Tools vs. Tools + Skills + Gate')}
+        {isPlaywrightLesson &&
+          (pl
+            ? 'Symulator Przeglądarki i Modalności: Drzewo ARIA vs. Surowe Piksele VLM vs. Hybrydowa Pętla Playwright'
+            : 'Browser & Modality Simulator: ARIA Snapshot vs. Raw VLM Pixels vs. Hybrid Playwright Loop')}
         {usesTrackLab && trackId === 'brand-systems' &&
           (pl
             ? 'Porównaj: Pusty prompt vs. Warstwy kontekstu MUMRO (Źródła · Głos marki · Cel)'
@@ -229,11 +236,11 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
         </div>
         <div class="lab-card" data-mcp-panel="prepare" hidden>
           <span class="badge signal">{pl ? 'KROK 3 · BRAMKA PREPARE (PODGLĄD + TOKEN)' : 'STEP 3 · PREPARE GATE (PREVIEW + TOKEN)'}</span>
-          <p>{pl ? 'Serwer MCP waliduje reguły autonomii i zwraca dokładny podgląd (Instagram · 11 paź · 18:00) wraz z krótkotrwałym tokenem `cfm_9f82a1b4`.' : 'MCP server validates autonomy rules and returns an exact human-readable preview (Instagram · Oct 11 · 18:00) plus short-lived token `cfm_9f82a1b4`.'}</p>
+          <p>{pl ? 'Serwer MCP waliduje reguły autonomii i zwraca dokładny podgląd (Instagram · czw. 5 lis · 18:00 CET) wraz z syntetyczną frazą potwierdzenia `schedule-instagram-thu-18-fieldwork-9f82`.' : 'MCP server validates autonomy rules and returns an exact human-readable preview (Instagram · Thu Nov 5 · 18:00 CET) plus a synthetic confirmation phrase `schedule-instagram-thu-18-fieldwork-9f82`.'}</p>
         </div>
         <div class="lab-card" data-mcp-panel="confirm" hidden>
           <span class="badge sage">{pl ? 'KROK 4 · ZATWIERDZENIE (CONFIRM → PLAN MUMRO)' : 'STEP 4 · CONFIRMED EXECUTION'}</span>
-          <p>{pl ? 'Po jawnej zgodzie człowieka token jest realizowany, a publikacja pojawia się bezpośrednio w planie MUMRO z zachowaniem pełnego śladu audytowego.' : 'After explicit human sign-off, the confirmation token commits the exact post to the MUMRO publishing plan with a full audit trail.'}</p>
+          <p>{pl ? 'Dopiero po niezależnym zatwierdzeniu w interfejsie hosta albo po zweryfikowanej przez serwer polityce delegacji `confirm_*` może wykonać przygotowaną operację. Sama fraza otrzymana przez model nie dowodzi zgody człowieka; rezultat trafia do planu MUMRO.' : 'Only a host-controlled approval or a server-verified delegated policy permits `confirm_*` to execute the prepared action. A phrase returned to the model is not proof of human consent; the result appears in the MUMRO plan.'}</p>
         </div>
       </div>
     </div>
@@ -312,7 +319,7 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
           </p>
         </div>
         <div class="lab-card" data-stack-panel="skills" hidden>
-          <span class="badge">{pl ? 'WARSTWA 2 · SKILL.MD · EGZEKWUJE: MODEL (Gdy WCZYTA)' : 'LAYER 2 · SKILL.MD · ENFORCED BY: THE MODEL (IF LOADED)'}</span>
+          <span class="badge">{pl ? 'WARSTWA 2 · SKILL.MD · EGZEKWUJE: MODEL (GDY WCZYTA)' : 'LAYER 2 · SKILL.MD · ENFORCED BY: THE MODEL (IF LOADED)'}</span>
           <p>
             {pl
               ? 'Procedura na żądanie: opis mówi „używaj, gdy…”, ciało ustala kolejność narzędzi i STOP na prepare. Mumro-publish-content nie jest endpointem HTTP — to choreografia na hoście.'
@@ -335,6 +342,48 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
               : 'The only layer that will stop a publish when the model is not being careful: the prepare/confirm pair, cumulative scopes, an idempotency key and a rechecked payload fingerprint. A skill can lie; this layer cannot.'}
           </p>
         </div>
+      </div>
+
+      <div class="harness-sim-block" data-surface-journey>
+        <span class="eyebrow">
+          {pl ? '3. OD POLECENIA DO SZKICU — SYMULACJA MUMRO' : '3. FROM REQUEST TO DRAFT — MUMRO SIMULATION'}
+        </span>
+        <p class="lab-paragraph">
+          {pl
+            ? 'Dane są fikcyjne. To schemat pracy, nie zrzut rzeczywistego konta ani połączenie z serwerem produkcyjnym.'
+            : 'All data is fictional. This is a schematic workflow, not a real workspace screenshot or a production server connection.'}
+        </p>
+        <div class="lab-split">
+          <div class="lab-card">
+            <span class="badge">{pl ? 'POLECENIE I WYWOŁANIA' : 'USER REQUEST AND CALLS'}</span>
+            <p>{pl
+              ? '„Przygotuj czwartkowy post zgodny ze strategią; pokaż szkic, ale niczego nie planuj.”'
+              : '“Prepare Thursday’s post from the approved strategy; show the draft, but do not schedule it.”'}</p>
+            <p><code>get_workspace_context</code> → <code>get_content_strategy</code> → <code>preview_schedule</code> → <code>create_publication_draft</code></p>
+            <p>{pl ? 'Scope: mumro:read i mumro:drafts. Brak kontaktu z dostawcą.' : 'Scopes: mumro:read and mumro:drafts. No provider contact.'}</p>
+          </div>
+          <div class="lab-card">
+            <span class="badge sage">{pl ? 'PLAN MUMRO — WIDOK SCHEMATYCZNY' : 'MUMRO PLAN — SCHEMATIC VIEW'}</span>
+            <p><strong>FIELDWORK · Instagram</strong></p>
+            <p>{pl ? 'Status: SZKIC, widoczny i edytowalny w workspace' : 'Status: DRAFT, visible and editable in the workspace'}</p>
+            <p>{pl ? 'Propozycja: czw. 5 lis 2026 · 18:00 CET' : 'Proposed: Thu Nov 5, 2026 · 18:00 CET'}</p>
+            <p>{pl ? 'Żadnego planowania ani publikacji na żywo.' : 'No scheduling or live publishing has occurred.'}</p>
+          </div>
+        </div>
+        <details class="lab-card" data-surface-permission-denied>
+          <summary>{pl
+            ? 'Sprawdź odmowę: agent ma tylko mumro:drafts, ale próbuje zaplanować szkic'
+            : 'Test a refusal: the agent holds mumro:drafts, but tries to schedule the draft'}</summary>
+          <p>{pl
+            ? 'Oczekiwane: 403 insufficient_scope. Operacja schedule_draft wymaga mumro:schedule; serwer odmawia, nic nie trafia do kolejki. Host z obsługą OAuth może zaoferować dodatkową zgodę, ale opis narzędzia nie przyznaje scope’u.'
+            : 'Expected: 403 insufficient_scope. schedule_draft requires mumro:schedule; the server refuses and nothing enters the queue. An OAuth-capable host may offer additional consent, but a tool description does not grant scopes.'}</p>
+          <p>{pl
+            ? 'Nawet z odpowiednim scope’em fraza prepare widoczna dla modelu nie oznacza ludzkiej zgody. Przy confirmation_mode=user potrzebne jest niezależne zatwierdzenie przez hosta lub poza modelem.'
+            : 'Even with the right scope, a prepare phrase visible to the model is not human approval. confirmation_mode=user needs host-controlled or out-of-band authorization.'}</p>
+        </details>
+        <p class="lab-paragraph">{pl
+          ? 'Teraz Ty: wybierz jeden proces w swojej aplikacji, nazwij narzędzia odczytu, szkicu, usuwania i mutacji, opisz scope’y w spec.json i uruchom mcp-surface check --strict.'
+          : 'Your turn: choose one workflow in your product, name its read, draft, delete and mutation tools, declare the scopes in spec.json, then run mcp-surface check --strict.'}</p>
       </div>
 
       <div class="lab-card explanation kit-banner">
@@ -544,7 +593,6 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
       </div>
     </div>
   )}
-
   {isGitWorkflowLesson && (
     <div class="harness-lab-body">
       <!-- PART A: Multi-Agent Topology & PR Gate Simulator -->
@@ -794,6 +842,124 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isGitWorkflowLe
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/git-agent-workflow-kit" target="_blank" rel="noopener">
           {pl ? 'Otwórz git-agent-workflow-kit na GitHubie ↗' : 'Open git-agent-workflow-kit on GitHub ↗'}
+        </a>
+      </div>
+    </div>
+  )}
+
+  {isPlaywrightLesson && (
+    <div class="lab-body harness-lab-body" data-lab-playwright>
+      <div class="harness-sim-block">
+        <span class="eyebrow">
+          {pl
+            ? '1. JAK AGENT POSTRZEGA PRZEGLĄDARKĘ? TRZY TRYBY PERCEPCJI I AKCJI'
+            : '1. HOW THE AGENT PERCEIVES THE BROWSER: THREE MODES OF PERCEPTION & ACTION'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Tryb percepcji przeglądarki' : 'Browser perception mode'}>
+          <button type="button" class="filter-pill" data-browser-mode="aria" aria-pressed="false">
+            {pl ? '1. Tylko drzewo ARIA (Tekst)' : '1. ARIA Snapshot Only (Text)'}
+          </button>
+          <button type="button" class="filter-pill" data-browser-mode="vision" aria-pressed="false">
+            {pl ? '2. Tylko zrzut ekranu (Piksele VLM)' : '2. Raw Screenshot Only (VLM Pixels)'}
+          </button>
+          <button type="button" class="filter-pill is-active" data-browser-mode="hybrid" aria-pressed="true">
+            {pl ? '3. Architektura hybrydowa (ARIA + Geometria + VLM)' : '3. Hybrid Architecture (ARIA + Geometry + VLM)'}
+          </button>
+        </div>
+
+        <div class="lab-card harness-panel" data-browser-panel="aria" hidden>
+          <span class="badge">{pl ? 'SZYBKA NAWIGACJA, ALE ŚLEPOTA NA ROZJECHANY CSS' : 'FAST NAVIGATION, BLIND TO BROKEN CSS'}</span>
+          <p>
+            {pl
+              ? 'Agent pobiera zwięzłe drzewo dostępności (`playwright-cli snapshot` lub `browser_snapshot` w `@playwright/mcp`): widzi role (`button`, `dialog`), nazwy i efemeryczne uchwyty `[ref=e14]` ważne dla bieżącego zrzutu. Działa z każdym modelem tekstowym i bezbłędnie wypełnia formularze, ale nie zauważy, że na ekranie 390px modal wystaje poza kadr lub tekst nachodzi na sąsiednią plakietkę.'
+              : 'The agent fetches a compact accessibility tree (`playwright-cli snapshot` or `browser_snapshot` in `@playwright/mcp`): it sees roles (`button`, `dialog`), accessible names, and ephemeral `[ref=e14]` handles for the current snapshot. It works with any text LLM and fills forms reliably, but cannot see that a 390px mobile modal overflows the viewport or clips a heading.'}
+          </p>
+        </div>
+        <div class="lab-card harness-panel" data-browser-panel="vision" hidden>
+          <span class="badge signal">{pl ? 'WIDZI UKŁAD GRAFICZNY, ALE KLIKANIE PO (X, Y) JEST KRUCHE' : 'SEES VISUAL LAYOUT, BUT (X, Y) PIXEL CLICKING IS BRITTLE'}</span>
+          <p>
+            {pl
+              ? 'Agent robi zrzut ekranu po każdym kroku i zgaduje współrzędne `mouse.click(x, y)`. Wymaga modelu multimodalnego (VLM), zużywa tysiące tokenów na klatki obrazu, nie widzi ukrytego stanu DOM ani kolejek sieciowych, a drobna zmiana DPI lub paska przewijania powoduje kliknięcie obok przycisku (wyjątkiem są powierzchnie `<canvas>` / WebGL).'
+              : 'The agent takes a screenshot after every step and guesses `mouse.click(x, y)` coordinates. It requires a vision-capable model (VLM), burns thousands of image tokens, cannot inspect network queues or hidden DOM attributes, and misses targets whenever viewport scaling or scroll offsets shift (reserved only for `<canvas>` / WebGL surfaces).'}
+          </p>
+        </div>
+        <div class="lab-card harness-panel" data-browser-panel="hybrid">
+          <span class="badge sage">{pl ? 'SEMANTYCZNE AKCJE + GEOMETRIA DOM + CELOWANA OCENA WIZUALNA' : 'SEMANTIC ACTIONS + DOM GEOMETRY + TARGETED VISUAL AUDIT'}</span>
+          <p>
+            {pl
+              ? 'Wszystkie standardowe akcje DOM w plikach `.spec.ts` wykonują semantyczne lokatory ARIA (`getByRole`, `getByLabel`), a sesje interaktywne używają uchwytów `[ref=e14]`. Twarde niezmienniki układu sprawdza kod (`scrollWidth <= innerWidth`, `boundingBox`), a w kluczowych punktach kontrolnych (390×844 i 1280×800) zrzut ekranu wspiera przegląd wizualny (przez człowieka lub VLM) według jawnej rubryki.'
+              : 'All standard DOM actions in `.spec.ts` files use persistent semantic ARIA locators (`getByRole`, `getByLabel`), while interactive sessions use ephemeral `[ref=e14]` handles. Hard layout invariants are asserted in code (`scrollWidth <= innerWidth`, `boundingBox`), and targeted screenshots at 390×844 and 1280×800 support human or VLM visual review against an explicit rubric.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="harness-anatomy-block">
+        <span class="eyebrow">
+          {pl
+            ? '2. CZTERY WARSTWY WERYFIKACJI W MUMRO — OD ZGŁOSZENIA GITHUB DO ZRZUTU EKRANU'
+            : '2. FOUR VERIFICATION LAYERS IN MUMRO — FROM GITHUB ISSUE TO VISUAL PROOF'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Warstwa weryfikacji przeglądarkowej' : 'Browser verification layer'}>
+          <button type="button" class="filter-pill is-active" data-browser-layer-trigger="issue" aria-pressed="true">
+            {pl ? '1. Zgłoszenie i ID scenariusza' : '1. Issue & Scenario ID'}
+          </button>
+          <button type="button" class="filter-pill" data-browser-layer-trigger="contract" aria-pressed="false">
+            {pl ? '2. Izolacja UI-Contract' : '2. UI-Contract Isolation'}
+          </button>
+          <button type="button" class="filter-pill" data-browser-layer-trigger="session" aria-pressed="false">
+            {pl ? '3. Polityka sesji i rotacji' : '3. Session Rotation Policy'}
+          </button>
+          <button type="button" class="filter-pill" data-browser-layer-trigger="visual" aria-pressed="false">
+            {pl ? '4. Geometria + Zrzut VLM' : '4. Geometry + VLM Screenshot'}
+          </button>
+        </div>
+        <div class="lab-card" data-browser-layer-panel="issue">
+          <span class="badge">{pl ? 'WARSTWA 1 · PAKIET ZADANIA + KATALOG MANUAL-TESTING.MD (`M-AUTH-01`, `M-UX-01`)' : 'LAYER 1 · TASK PACKET + MANUAL-TESTING.MD CATALOG (`M-AUTH-01`, `M-UX-01`)'}</span>
+          <p>
+            {pl
+              ? 'Każde zgłoszenie na GitHubie i zadanie dla agenta wskazuje konkretne identyfikatory scenariuszy (np. `M-AUTH-01` dla odświeżania sesji, `M-UX-01` dla szuflady mobilnej). Agent nie zgaduje, co przetestować — otwiera przypisany plik `.spec.ts` i uruchamia właściwą komendę.'
+              : 'Every GitHub issue and agent task packet references stable scenario IDs (e.g., `M-AUTH-01` for session refresh, `M-UX-01` for the mobile drawer). The agent never guesses what to verify — it opens the mapped `.spec.ts` file and runs the exact tier command.'}
+          </p>
+        </div>
+        <div class="lab-card" data-browser-layer-panel="contract" hidden>
+          <span class="badge">{pl ? 'WARSTWA 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + `SERVICEWORKERS: BLOCK` + `CONTEXT.ROUTE`' : 'LAYER 2 · `HTTPS://MUMRO-UI-CONTRACT.INVALID` + `SERVICEWORKERS: BLOCK` + `CONTEXT.ROUTE`'}</span>
+          <p>
+            {pl
+              ? 'Testy `ui-contract` blokują rejestrację Service Workerów (`serviceWorkers: "block"`), przechwytują cały ruch HTTP oraz WebSocket i domyślnie odrzucają każde nieobsłużone zapytanie. Pozwala to w ułamku sekundy zasymulować równoległe błędy `401`, limity `429` lub błędy `503` bez uruchamiania backendu i bez ryzyka dotknięcia zewnętrznych API.'
+              : '`ui-contract` tests disable Service Workers (`serviceWorkers: "block"`), intercept all HTTP and WebSocket traffic, and fail closed on any unhandled request. This lets the suite simulate concurrent `401` expirations, `429` rate limits, or `503` errors in milliseconds without booting a backend or touching live third-party APIs.'}
+          </p>
+        </div>
+        <div class="lab-card" data-browser-layer-panel="session" hidden>
+          <span class="badge signal">{pl ? 'WARSTWA 3 · JEDNORAZOWA ROTACJA REFRESH TOKENÓW (ZAKAZ WSPÓŁDZIELENIA STORAGESTATE)' : 'LAYER 3 · SINGLE-USE REFRESH TOKEN ROTATION (NO SHARED STORAGESTATE)'}</span>
+          <p>
+            {pl
+              ? 'Ponieważ backend unieważnia całą rodzinę sesji przy ponownym użyciu zużytego refresh tokena, równoległe workery Playwrighta nigdy nie współdzielą jednego pliku `storageState`. Każdy test zakłada świeżą sesję w fixturze lub używa odseparowanych kont QA (`QA-A`, `QA-B`).'
+              : 'Because the backend revokes the entire session family when a consumed refresh token is reused, parallel Playwright workers never share a single `storageState` snapshot. Each test boots a fresh fixture session or uses isolated disposable QA accounts (`QA-A`, `QA-B`).'}
+          </p>
+        </div>
+        <div class="lab-card" data-browser-layer-panel="visual" hidden>
+          <span class="badge sage">{pl ? 'WARSTWA 4 · `SCROLLWIDTH <= INNERWIDTH` + `BOUNDINGBOX` + OCENA ZRZUTU PRZEZ VLM' : 'LAYER 4 · `SCROLLWIDTH <= INNERWIDTH` + `BOUNDINGBOX` + VLM SCREENSHOT AUDIT'}</span>
+          <p>
+            {pl
+              ? 'Test najpierw sprawdza twardą geometrię DOM na widoku mobilnym 390×844 (brak poziomego paska przewijania, przycisk zamknięcia w granicach ekranu), a następnie zapisuje celowany zrzut ekranu do oceny wizualnej i czyści artefakty sesji przed commitem.'
+              : 'The test first asserts hard DOM geometry on a 390×844 mobile viewport (zero horizontal overflow, close button inside viewport bounds), then captures a targeted screenshot for visual review and cleans up session artifacts before commit.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="lab-card explanation kit-banner">
+        <div>
+          <span class="eyebrow signal">
+            {pl ? 'OPEN SOURCE · ROLEPLAYINGTECH / PLAYWRIGHT-HARNESS-KIT' : 'OPEN SOURCE · ROLEPLAYINGTECH / PLAYWRIGHT-HARNESS-KIT'}
+          </span>
+          <p>
+            {pl
+              ? 'playwright-harness-kit zapisuje warstwy (`ui-contract`, `integrated`), identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`), politykę sesji przy rotacji tokenów i hybrydowe rubryki wizualne w .playwright-harness/spec.json, weryfikuje kontrakt oraz dowody w plikach repozytorium (`check --strict --verify-files`) i generuje skille SKILL.md z czyszczeniem sierot (`build --prune`).'
+              : 'playwright-harness-kit records tiers (`ui-contract`, `integrated`), scenario IDs (`M-AUTH-01`, `M-UX-01`), token-rotation session policy, and hybrid visual rubrics in .playwright-harness/spec.json, verifies the contract and repository file evidence (`check --strict --verify-files`), and generates SKILL.md files with orphan pruning (`build --prune`).'}
+          </p>
+        </div>
+        <a class="button" href="https://github.com/RolePlayingTech/playwright-harness-kit" target="_blank" rel="noopener">
+          {pl ? 'Otwórz playwright-harness-kit na GitHubie ↗' : 'Open playwright-harness-kit on GitHub ↗'}
         </a>
       </div>
     </div>

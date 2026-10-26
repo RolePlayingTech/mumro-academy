@@ -199,6 +199,8 @@ export function initShell(): void {
   bindTabGroup('data-anatomy-trigger', 'data-anatomy-panel');
   bindTabGroup('data-surface-mode', 'data-surface-panel');
   bindTabGroup('data-stack-trigger', 'data-stack-panel');
+  bindTabGroup('data-browser-mode', 'data-browser-panel');
+  bindTabGroup('data-browser-layer-trigger', 'data-browser-layer-panel');
   bindTabGroup('data-git-mode', 'data-git-panel');
   bindTabGroup('data-git-recovery-trigger', 'data-git-recovery-panel');
 
