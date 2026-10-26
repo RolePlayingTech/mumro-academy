@@ -27,7 +27,6 @@ Prepare -> Confirm pairs
 Skills
   publish-content: Draft and prepare a social post for scheduling or publishing. Use when the user explicitly asks to schedule or publish a post, not merely save a draft. Preview first; confirm only after fresh user approval or a server-verified owner-authorized approved_strategy policy.
     uses: get_workspace_context, get_content_strategy, preview_schedule, create_publication_draft, prepare_publication_action, confirm_publication_action
-
   delete-draft: Delete an unpublished workspace draft. Use when the user explicitly requests deletion of a local unpublished draft. Never delete scheduled or published provider content.
     uses: get_workspace_context, delete_publication_draft
 
