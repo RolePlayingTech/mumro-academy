@@ -4,6 +4,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test, expect } from '@playwright/test';
+import { learningJourneys, lessonPractice } from '../src/content/learning-journeys';
+import { lessonSlugs } from '../src/lib/contracts';
 import {
   MINI_LAB_BROKEN_SPEC,
   MINI_LAB_EXPECTED_BUILD_OUT,
@@ -63,7 +65,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (6 lekcji):');
 
-    await page.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
+    await page.locator('#tracks a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
     await expect(page.locator('h1')).toContainText('Model Context Protocol (MCP) w praktyce');
   });
@@ -633,5 +635,99 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await expect(page.locator('[data-contact-dialog]')).toBeVisible();
     await page.locator('[data-close-contact]').click();
     await expect(page.locator('[data-contact-dialog]')).toBeHidden();
+  });
+});
+
+test.describe('MUMRO Academy — guided learning journeys', () => {
+  test('the role-based paths cover all lessons without duplicates and agree across locales', () => {
+    const en = learningJourneys.en;
+    const pl = learningJourneys.pl;
+    expect(en.map((route) => route.id)).toEqual(pl.map((route) => route.id));
+
+    for (const locale of ['en', 'pl'] as const) {
+      const covered = new Set<string>();
+      for (const journey of learningJourneys[locale]) {
+        expect(new Set(journey.lessonSlugs).size).toBe(journey.lessonSlugs.length);
+        expect(journey.lessonSlugs.length).toBeGreaterThan(0);
+        journey.lessonSlugs.forEach((slug) => covered.add(slug));
+      }
+      expect([...covered].sort()).toEqual([...lessonSlugs].sort());
+      lessonSlugs.forEach((slug) => {
+        const practice = lessonPractice[locale][slug];
+        expect(practice.objective.length).toBeGreaterThan(5);
+        expect(practice.assignment.length).toBeGreaterThan(20);
+        expect(practice.evidence.length).toBeGreaterThan(15);
+        expect(practice.prerequisites).not.toContain(slug);
+        practice.prerequisites.forEach((dependency) => expect(lessonSlugs).toContain(dependency));
+      });
+    }
+    en.forEach((journey, index) => {
+      expect(journey.lessonSlugs).toEqual(pl[index]!.lessonSlugs);
+    });
+  });
+
+  test('a newcomer sees guided routes before newest releases, in English and Polish', async ({ page }) => {
+    for (const root of ['/', '/pl/']) {
+      await page.goto(root);
+      const cards = page.locator('[data-learning-journey]');
+      await expect(cards).toHaveCount(3);
+      await expect(cards.nth(0).locator('a.journey-start')).toHaveAttribute(
+        'href', root + 'lessons/versioned-brand-strategy/'
+      );
+      await cards.nth(0).locator('summary').click();
+      await expect(cards.nth(0).locator('ol li')).toHaveCount(9);
+      await expect(cards.nth(1).locator('a.journey-start')).toHaveAttribute(
+        'href', root + 'lessons/evidence-led-research-pipelines/'
+      );
+      await cards.nth(2).locator('summary').click();
+      await expect(cards.nth(2).locator('ol li')).toHaveCount(6);
+      await expect(cards.nth(2).locator(`a[href="${root}lessons/playwright-browser-automation-and-verification/"]`)).toHaveCount(1);
+      const firstId = await page.locator('#learning-routes').evaluate((el) => el.compareDocumentPosition(document.querySelector('#latest-lessons')!));
+      expect(firstId & 4).toBe(4);
+    }
+  });
+
+  test('a lesson offers independent practice, helpful context and correct route links', async ({ page }) => {
+    await page.goto('/pl/lessons/mcp-tools-skills-and-product-surfaces/');
+    const guidance = page.locator('[data-lesson-practice]');
+    await expect(guidance).toBeVisible();
+    await expect(guidance).toContainText('test odmowy');
+    await expect(guidance.locator('a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]')).toHaveCount(1);
+    await expect(guidance.locator('a[href="/pl/#route-agent-engineering"]')).toHaveCount(1);
+    await expect(guidance.locator('a[href="/pl/#route-agent-ops"]')).toHaveCount(1);
+
+    await page.goto('/pl/lessons/playwright-browser-automation-and-verification/');
+    const pl15Guidance = page.locator('[data-lesson-practice]');
+    await expect(pl15Guidance).toBeVisible();
+    await expect(pl15Guidance).toContainText('ui-contract');
+    await expect(pl15Guidance).toContainText('390×844');
+    await expect(pl15Guidance.locator('a[href="/pl/lessons/ai-agent-harness-engineering/"]')).toHaveCount(1);
+    await expect(pl15Guidance.locator('a[href="/pl/lessons/mcp-tools-skills-and-product-surfaces/"]')).toHaveCount(1);
+    await expect(pl15Guidance.locator('a[href="/pl/#route-agent-engineering"]')).toHaveCount(1);
+
+    await page.goto('/lessons/playwright-browser-automation-and-verification/');
+    const en15Guidance = page.locator('[data-lesson-practice]');
+    await expect(en15Guidance).toBeVisible();
+    await expect(en15Guidance).toContainText('ui-contract');
+    await expect(en15Guidance).toContainText('390×844');
+    await expect(en15Guidance.locator('a[href="/lessons/ai-agent-harness-engineering/"]')).toHaveCount(1);
+    await expect(en15Guidance.locator('a[href="/lessons/mcp-tools-skills-and-product-surfaces/"]')).toHaveCount(1);
+    await expect(en15Guidance.locator('a[href="/#route-agent-engineering"]')).toHaveCount(1);
+
+    await page.goto('/lessons/versioned-brand-strategy/');
+    await expect(page.locator('[data-lesson-practice]')).toContainText('You can start with this lesson.');
+
+    // Mobile 390x844 smoke check for PL journey cards and Lesson 15 practice panel
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/pl/');
+    await page.locator('[data-learning-journey="agent-engineering"] summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('[data-learning-journey="agent-engineering"] ol')).toBeVisible();
+    const homeOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(homeOverflow).toBe(false);
+
+    await page.goto('/pl/lessons/playwright-browser-automation-and-verification/');
+    const lessonOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(lessonOverflow).toBe(false);
   });
 });
