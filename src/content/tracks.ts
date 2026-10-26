@@ -73,12 +73,12 @@ const en: Record<TrackId, TrackData> = {
     id: 'agents-mcp-governance',
     number: 'TRACK 04',
     title: 'Agentic AI, Model Context Protocol (MCP) & Governance',
-    subtitle: 'Connecting AI agents to brand context with Prepare → Confirm gates, bounded autonomy, coding-agent harnesses, and MCP product surfaces.',
+    subtitle: 'Connecting AI agents to brand context with Prepare → Confirm gates, bounded autonomy, coding-agent harnesses, MCP product surfaces, and Playwright browser verification.',
     summary:
-      'Go under the hood of agentic marketing and software systems. Learn how Model Context Protocol (MCP) exposes workspace context to coding and operational agents, why mutations require two-phase confirmation gates, how to engineer repository harnesses (`AGENTS.md`), and how to specify agent-operable product surfaces.',
+      'Go under the hood of agentic marketing and software systems. Learn how Model Context Protocol (MCP) exposes workspace context to coding and operational agents, why mutations require two-phase confirmation gates, how to engineer repository harnesses (`AGENTS.md`), how to specify agent-operable product surfaces, and how agents control and verify real browsers with Playwright and multimodal checks.',
     audience: 'AI Engineers, Technical Founders, Agency Operations Leads',
     coreProblem: 'Giving AI agents raw API credentials risks accidental live publications, off-brand replies, or runaway token spend—while keeping AI completely disconnected or governed only by bloated prompt files wastes hours on copy-pasting and fragile workflows.',
-    systemOutcome: 'A governed agentic architecture using scoped MCP tools, Prepare → Confirm mutation gates, credit caps, quiet hours, repository harnesses (`agent-harness-kit`), and checkable MCP surface contracts (`mcp-surface-kit`).',
+    systemOutcome: 'A governed agentic architecture using scoped MCP tools, Prepare → Confirm mutation gates, credit caps, quiet hours, repository harnesses (`agent-harness-kit`), checkable MCP surface contracts (`mcp-surface-kit`), and deterministic + multimodal Playwright verification (`playwright-harness-kit`).',
     mumroAnchor: 'https://mumro.io/#agents',
     mumroCapability: 'MUMRO MCP Gateway, Two-Phase Confirmation Gate, 3-Mode Autonomy Control & Open-Source Agent Kits',
     outcomes: [
@@ -87,6 +87,7 @@ const en: Record<TrackId, TrackData> = {
       'Configure workspace governance: 3 autonomy modes (`draft_only`, `schedule_with_confirmation`, `autonomous_schedule`), quiet hours, credit budgets, and RBAC.',
       'Engineer lean, verifiable coding-agent harnesses (`AGENTS.md`, progressive-disclosure skills, and CI checks) with `RolePlayingTech/agent-harness-kit`.',
       'Design and validate four-tier MCP product surfaces, per-operation OAuth scopes, and generated host skills with `RolePlayingTech/mcp-surface-kit`.',
+      'Automate and verify browser flows with Playwright, ARIA accessibility trees (`@playwright/mcp`), multimodal screenshots, and `RolePlayingTech/playwright-harness-kit`.',
     ],
   },
 };
@@ -150,12 +151,12 @@ const pl: Record<TrackId, TrackData> = {
     id: 'agents-mcp-governance',
     number: 'ŚCIEŻKA 04',
     title: 'Agenci AI, Model Context Protocol (MCP) i kontrola człowieka',
-    subtitle: 'Łączenie agentów AI z kontekstem marki przez bramki Prepare → Confirm, ograniczoną autonomię, harness inżynieryjny i powierzchnie MCP.',
+    subtitle: 'Łączenie agentów AI z kontekstem marki przez bramki Prepare → Confirm, ograniczoną autonomię, harness inżynieryjny, powierzchnie MCP i weryfikację przeglądarkową Playwright.',
     summary:
-      'Zajrzyj pod maskę agentycznych systemów marketingowych i inżynieryjnych. Zobacz, jak Model Context Protocol (MCP) udostępnia kontekst workspace agentom, dlaczego mutacje wymagają dwufazowej zgody, jak projektować harness w repozytorium (`AGENTS.md`) i jak specyfikować powierzchnię produktu pod agentów.',
+      'Zajrzyj pod maskę agentycznych systemów marketingowych i inżynieryjnych. Zobacz, jak Model Context Protocol (MCP) udostępnia kontekst workspace agentom, dlaczego mutacje wymagają dwufazowej zgody, jak projektować harness w repozytorium (`AGENTS.md`), jak specyfikować powierzchnię produktu pod agentów i jak weryfikować aplikację w przeglądarce przez Playwright oraz modele multimodalne.',
     audience: 'Inżynierowie AI, techniczni founderzy, liderzy operacji w agencjach',
     coreProblem: 'Danie agentom AI bezpośrednich kluczy do publikacji grozi przypadkowymi postami na żywo lub przepaleniem budżetu, a całkowite odcięcie AI lub poleganie wyłącznie na rozdętych plikach promptów zmusza do ręcznego kopiowania kontekstu.',
-    systemOutcome: 'Architektura nadzorowanej autonomii oparta na narzędziach MCP, dwufazowych bramkach Prepare → Confirm, limitach kredytów, godzinach ciszy, harnessie repozytorium (`agent-harness-kit`) oraz sprawdzalnym kontrakcie powierzchni MCP (`mcp-surface-kit`).',
+    systemOutcome: 'Architektura nadzorowanej autonomii oparta na narzędziach MCP, dwufazowych bramkach Prepare → Confirm, limitach kredytów, godzinach ciszy, harnessie repozytorium (`agent-harness-kit`), sprawdzalnym kontrakcie powierzchni MCP (`mcp-surface-kit`) oraz weryfikacji w Playwright (`playwright-harness-kit`).',
     mumroAnchor: 'https://mumro.io/pl/#agents',
     mumroCapability: 'Bramka MCP MUMRO, dwufazowe potwierdzanie działań, 3 tryby kontroli autonomii i otwarte narzędzia CLI',
     outcomes: [
@@ -164,6 +165,7 @@ const pl: Record<TrackId, TrackData> = {
       'Skonfigurujesz zasady nadzoru: 3 poziomy autonomii (`draft_only`, `schedule_with_confirmation`, `autonomous_schedule`), godziny ciszy, budżet kredytów i role zespołu.',
       'Zaprojektujesz zwięzły, weryfikowalny harness dla agentów kodujących (`AGENTS.md`, skille ładowane na żądanie i bramki CI) z użyciem `RolePlayingTech/agent-harness-kit`.',
       'Zdefiniujesz i zwalidujesz czteropoziomową powierzchnię produktu MCP, uprawnienia OAuth per operacja oraz generowane skille hosta z użyciem `RolePlayingTech/mcp-surface-kit`.',
+      'Zautomatyzujesz i zweryfikujesz ścieżki przeglądarkowe przez Playwright, drzewo dostępności ARIA (`@playwright/mcp`), zrzuty multimodalne i `RolePlayingTech/playwright-harness-kit`.',
     ],
   },
 };

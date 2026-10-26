@@ -8,7 +8,7 @@ A good lesson changes what someone can **decide, make, verify or safely operate*
 
 ## Diagnosis (main branch, 2026-10-26)
 
-- The four existing *tracks* are reasonable topic groupings, but the flat 01–14 sequence blends two audiences: brand/content professionals (01–09) and AI/software engineers (10–14). Lessons 13–14 switch to coding-agent harnesses and MCP product interfaces without warning that the learner is changing specialization.
+- The four existing *tracks* are reasonable topic groupings, but the flat 01–15 sequence blends two audiences: brand/content professionals (01–09) and AI/software engineers (10–15). Lessons 13–15 switch to coding-agent harnesses, MCP product interfaces and Playwright browser verification without warning that the learner is changing specialization.
 - “Latest additions” prominently features the newest developer content regardless of a newcomer's goal. A visitor needs an **entry point by role** before a chronology of releases.
 - Key takeaways, rich case studies, labs, and checklists are strengths. Yet the old curriculum does not say what *artifact* each lesson should produce, which knowledge is helpful beforehand, or how one lesson builds a portfolio toward a clear outcome.
 - The previous homepage claim that everything taught in the Academy exists natively in MUMRO overstates the relationship: open-source coding-agent techniques are portable and not all a core product feature.
@@ -25,7 +25,7 @@ A good lesson changes what someone can **decide, make, verify or safely operate*
 | --- | --- | --- |
 | Brand & content strategy | 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 | Strategy-to-evidence-to-publishing loop with a measurable revision |
 | AI agents for content operations | 03 → 10 → 11 → 12 → 14 | Source-aware agents, explicit approval and bounded mutation policy |
-| AI product & coding-agent engineering | 13 → 10 → 14 → 11 → 12 | Harness, MCP tool surface and authorization/refusal contract |
+| AI product & coding-agent engineering | 13 → 10 → 14 → 11 → 12 → 15 | Harness, MCP tool surface, authorization/refusal contract and browser verification |
 
 Journeys intentionally overlap. The first journey goes deep on brand/content outcomes; the second and third use different entry points into the agent material. Lesson 14 can be useful in both, despite different motivations.
 
@@ -52,11 +52,11 @@ Score each lesson 0–2 for **goal clarity, factual/evidence quality, runnable e
 
 ## Follow-on work (not silently bundled into this PR)
 
-1. **Fact-check and copy-edit 01–14.** Revisit unsupported blanket claims (for instance fixed lifetimes of social posts), remove product-first language where it substitutes for teaching, and verify each linked technical resource and external feature assertion.
+1. **Fact-check and copy-edit 01–15.** Revisit unsupported blanket claims (for instance fixed lifetimes of social posts), remove product-first language where it substitutes for teaching, and verify each linked technical resource and external feature assertion.
 2. **Add an actual worked answer + rubric to each new practice assignment.** The current per-lesson tasks set the target, but do not pretend the old sections already provide graded solutions.
 3. **Tame jargon & variation in depth.** Consolidate recurring “source → draft → approve” explanations through cross-links; give short primers before deep OAuth/MCP/Harness material.
-4. **Plan incoming lessons deliberately.** Draft PRs for Playwright/browser verification (15) and Git/multi-agent workflows (16) already exist independently. After their integration, place them in the *engineering* journey only where their prerequisites and portfolio outputs make sense, and update both locales and tests together. Do not change their files or assume they are merged in this PR.
-5. **Avoid hard-coded counts.** The existing README, shell copy, and some tests still say “14” even though other counters are dynamic. Before merging more lessons, migrate these copy fields to count-aware rendering.
+4. **Plan incoming lessons deliberately.** Lesson 15 (Playwright/browser verification) is now part of the engineering journey; a draft PR for Git/multi-agent workflows (16) exists independently. After its integration, place it in the *engineering* journey where its prerequisites and portfolio outputs make sense, and update both locales and tests together.
+5. **Avoid hard-coded counts.** The existing README and some copy fields still have static counts even though other counters are dynamic. Before merging more lessons, migrate remaining static counts to count-aware rendering.
 
 ## Release safeguards
 

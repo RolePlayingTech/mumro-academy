@@ -4,12 +4,15 @@ Durable agreements for this project, newest first. Read before changing architec
 
 Entry format: a heading `## YYYY-MM-DD: decision`, then one to three lines on why.
 
+## 2026-10-23: Lesson 15 companion is playwright-harness-kit
+Lesson 15 (`playwright-browser-automation-and-verification`) and Playbook 07 (`playwright-verification-spec`) complete the Track 04 three-harness stack alongside `agent-harness-kit` (Lesson 13) and `mcp-surface-kit` (Lesson 14). The open-source companion lives in `RolePlayingTech/playwright-harness-kit` (pinned in `devDependencies` at `github:RolePlayingTech/playwright-harness-kit#badf916591d66222586961e8998ea20d3b21d77f` and verified in `tests/academy.spec.ts`): a zero-dependency Node CLI that explains, validates declarative contracts and repository file evidence (`check --strict --verify-files`), and builds `.claude/skills/verify-browser-scenarios/SKILL.md` with orphan pruning (`build --prune`) from `.playwright-harness/spec.json`, paired with a runnable offline UI lab executed in `tests/academy.spec.ts`.
+
 ## 2026-10-22: Ecosystem tools and dynamic homepage counters
 Homepage sections for Latest Additions (`#latest-lessons`) and Open-Source Tools (`#open-source-tools`) live in `src/content/tools.ts` with `assertLocaleParity`. Lesson metadata (number, title, reading time) and track/catalog counts are derived from source arrays and formatted via `formatTrackLessonsHeading` / `formatTrackBadgeCount` in `src/lib/contracts.ts`.
 
 ## 2026-10-22: Lesson 14 companion is mcp-surface-kit
 Lesson 14 (MCP, tools, skills) needed a checkable product-side spec, the way Lesson 13 uses agent-harness-kit for the coding harness. The companion lives in `RolePlayingTech/mcp-surface-kit`: a Node CLI with no dependencies that explains, checks and generates SKILL.md from `.mcp-surface/spec.json`.
-Like `agent-harness-kit`, `mcp-surface-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/mcp-surface-kit#5575474301a8095e99148d0acede35744364678a`) so `tests/academy.spec.ts` unconditionally runs the real `mcp-surface` CLI (`check --strict` and `build`) against Lesson 14's exported mini-lab fixtures locally and in CI.
+Like `agent-harness-kit`, `mcp-surface-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/mcp-surface-kit#669de9c7d785a3b1a0c4d03a241cf8fc795fdebf`) so `tests/academy.spec.ts` unconditionally runs the real `mcp-surface` CLI (`check --strict` and `build`) against Lesson 14's exported mini-lab fixtures locally and in CI.
 
 ## 2026-10-21: Agent harness adopted
 Rigor standard, memory handoff, agents cursor, claude. The reasoning for each part is printed by `npx agent-harness explain`; the decisions themselves live in `.harness/spec.json`.

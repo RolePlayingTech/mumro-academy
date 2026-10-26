@@ -345,6 +345,83 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
   ]
 }`,
     },
+    {
+      id: 'playwright-verification-spec',
+      number: 'PLAYBOOK 07',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+      title: 'Playwright & Multimodal Browser Verification Contract: Tiers, Scenario IDs, Session Policy & Vision Rubric (`playwright-harness-kit`)',
+      subtitle: 'A checkable verification contract (`.playwright-harness/spec.json`) that maps GitHub Issues and manual scenario IDs (`M-AUTH-01`, `M-UX-01`) to deterministic Playwright specs, ARIA snapshots (`@playwright/cli` / `@playwright/mcp`), and targeted multimodal screenshots.',
+      whenToUse: 'When you want coding or QA agents to reproduce bugs in a real browser, verify UI contracts without live third-party calls, and check responsive layouts with programmatic geometry and multimodal vision (`playwright-harness check --strict --verify-files`).',
+      mumroBenefit:
+        'MUMRO separates fast `ui-contract` tests (`https://mumro-ui-contract.invalid` with `serviceWorkers: "block"` and default-deny `context.route`) from full-stack `integrated` journeys, respects single-use refresh token rotation by avoiding shared `storageState`, and maps every GitHub issue to stable scenario IDs (`M-AUTH-01`, `M-UX-01`). Validate the contract and repository file evidence with `RolePlayingTech/playwright-harness-kit`, then enforce runtime assertions in Playwright.',
+      templateFormat: 'JSON Verification Spec (v1.1)',
+      templateCode: `{
+  "name": "mumro-web-verification",
+  "purpose": "Two-tier Playwright & multimodal browser verification for workspace auth, shell geometry, and composer flows.",
+  "copySkillsTo": [".claude/skills"],
+  "tiers": {
+    "ui-contract": {
+      "command": "npm --prefix frontend run test:e2e:contract",
+      "origin": "https://mumro-ui-contract.invalid",
+      "networkPolicy": "deny-unhandled",
+      "purpose": "Fast, deterministic verification of routes, auth refresh queues, and 390x844 mobile geometry without external services."
+    },
+    "integrated": {
+      "command": "npm --prefix frontend run test:e2e:integrated",
+      "origin": "http://localhost:5173",
+      "networkPolicy": "local-stack-only",
+      "purpose": "End-to-end journeys against local frontend + backend with disposable QA accounts (QA-A / QA-B)."
+    }
+  },
+  "authSessionPolicy": {
+    "singleUseRefreshRotation": true,
+    "allowSharedStorageState": false,
+    "rationale": "Concurrent workers sharing one single-use refresh token trigger reuse detection and revoke the session family."
+  },
+  "artifactHygiene": {
+    "traceMode": "on-first-retry",
+    "gitIgnore": ["playwright-report/", "test-results/", "playwright/.auth/"],
+    "forbidLiveMutations": true
+  },
+  "scenarios": [
+    {
+      "id": "M-AUTH-01",
+      "title": "Silent refresh single-flight under concurrent 401 responses",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/auth-session.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": { "required": false }
+    },
+    {
+      "id": "M-UX-01",
+      "title": "Mobile shell drawer and dialog overflow check (390x844)",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/ux-shell-mobile.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": {
+        "required": true,
+        "viewports": [{ "width": 390, "height": 844 }, { "width": 1280, "height": 800 }],
+        "programmaticInvariants": [
+          "documentElement.scrollWidth <= window.innerWidth",
+          "dialog close button inside viewport boundingBox"
+        ],
+        "multimodalRubric": [
+          "No overlapping badges or clipped headings in the mobile drawer",
+          "Primary action button remains visually distinct and unobstructed"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "verify-browser-scenarios",
+      "description": "Verify UI-contract and integrated Playwright scenarios with ARIA locators, DOM geometry invariants, and targeted VLM screenshots. Use when an issue or task packet references M-AUTH-01 or M-UX-01.",
+      "covers": ["M-AUTH-01", "M-UX-01"]
+    }
+  ]
+}`,
+    },
   ] satisfies PlaybookItem[],
 };
 
@@ -677,6 +754,83 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
         "get_workspace_context",
         "delete_publication_draft"
       ]
+    }
+  ]
+}`,
+    },
+    {
+      id: 'playwright-verification-spec',
+      number: 'PLAYBOOK 07',
+      trackId: 'agents-mcp-governance',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+      title: 'Kontrakt Weryfikacji Przeglądarkowej Playwright i Modali Wizualnych: Warstwy, ID Scenariuszy, Sesje i Rubryka VLM (`playwright-harness-kit`)',
+      subtitle: 'Sprawdzalny w CI kontrakt weryfikacji (`.playwright-harness/spec.json`) łączący zgłoszenia GitHub Issue i identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`) z testami Playwright, drzewem ARIA (`@playwright/cli` / `@playwright/mcp`) i celowanymi zrzutami ekranu.',
+      whenToUse: 'Gdy chcesz, aby agent kodujący lub QA potrafił samodzielnie odtworzyć błąd w przeglądarce, zweryfikować kontrakt UI bez zewnętrznych usług i sprawdzić układ mobilny przez geometrię DOM oraz model multimodalny (`playwright-harness check --strict --verify-files`).',
+      mumroBenefit:
+        'MUMRO oddziela szybkie testy `ui-contract` (`https://mumro-ui-contract.invalid` z `serviceWorkers: "block"` i blokadą `context.route`) od pełnych ścieżek `integrated`, szanuje jednorazową rotację refresh tokenów przez zakaz współdzielenia `storageState` i mapuje każde zgłoszenie GitHub na stałe identyfikatory scenariuszy (`M-AUTH-01`, `M-UX-01`). Kontrakt oraz dowody w plikach repozytorium zweryfikujesz przez `RolePlayingTech/playwright-harness-kit`, a zachowanie w czasie wykonania wymusisz w Playwright.',
+      templateFormat: 'Specyfikacja JSON weryfikacji (v1.1)',
+      templateCode: `{
+  "name": "mumro-web-verification",
+  "purpose": "Two-tier Playwright & multimodal browser verification for workspace auth, shell geometry, and composer flows.",
+  "copySkillsTo": [".claude/skills"],
+  "tiers": {
+    "ui-contract": {
+      "command": "npm --prefix frontend run test:e2e:contract",
+      "origin": "https://mumro-ui-contract.invalid",
+      "networkPolicy": "deny-unhandled",
+      "purpose": "Fast, deterministic verification of routes, auth refresh queues, and 390x844 mobile geometry without external services."
+    },
+    "integrated": {
+      "command": "npm --prefix frontend run test:e2e:integrated",
+      "origin": "http://localhost:5173",
+      "networkPolicy": "local-stack-only",
+      "purpose": "End-to-end journeys against local frontend + backend with disposable QA accounts (QA-A / QA-B)."
+    }
+  },
+  "authSessionPolicy": {
+    "singleUseRefreshRotation": true,
+    "allowSharedStorageState": false,
+    "rationale": "Concurrent workers sharing one single-use refresh token trigger reuse detection and revoke the session family."
+  },
+  "artifactHygiene": {
+    "traceMode": "on-first-retry",
+    "gitIgnore": ["playwright-report/", "test-results/", "playwright/.auth/"],
+    "forbidLiveMutations": true
+  },
+  "scenarios": [
+    {
+      "id": "M-AUTH-01",
+      "title": "Silent refresh single-flight under concurrent 401 responses",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/auth-session.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": { "required": false }
+    },
+    {
+      "id": "M-UX-01",
+      "title": "Mobile shell drawer and dialog overflow check (390x844)",
+      "tier": "ui-contract",
+      "spec": "frontend/e2e/ui-contract/ux-shell-mobile.spec.ts",
+      "locatorStrategy": "role-and-label-first",
+      "visualCheck": {
+        "required": true,
+        "viewports": [{ "width": 390, "height": 844 }, { "width": 1280, "height": 800 }],
+        "programmaticInvariants": [
+          "documentElement.scrollWidth <= window.innerWidth",
+          "dialog close button inside viewport boundingBox"
+        ],
+        "multimodalRubric": [
+          "No overlapping badges or clipped headings in the mobile drawer",
+          "Primary action button remains visually distinct and unobstructed"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "verify-browser-scenarios",
+      "description": "Verify UI-contract and integrated Playwright scenarios with ARIA locators, DOM geometry invariants, and targeted VLM screenshots. Use when an issue or task packet references M-AUTH-01 or M-UX-01.",
+      "covers": ["M-AUTH-01", "M-UX-01"]
     }
   ]
 }`,

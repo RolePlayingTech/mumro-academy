@@ -144,10 +144,10 @@ const en = {
     },
     {
       id: 'mcp-tool-surface',
-      term: 'MCP Tool Surface (read / draft / gated mutation)',
+      term: 'MCP Tool Surface (read / draft / local-draft delete / gated mutation)',
       category: 'Agentic AI',
       definition:
-        'The designed set of Model Context Protocol tools a product exposes, grouped so read tools cannot change state, draft tools write only workspace artifacts, and live provider calls require a separate prepare → confirm pair.',
+        'The designed set of Model Context Protocol tools a product exposes, grouped into four tiers so read tools cannot change state, draft tools write only workspace artifacts, delete tools are restricted to unpublished local drafts (`local_draft_only`) or paired gates, and live provider calls require a separate prepare → confirm pair.',
       whyItMatters:
         'Once users delegate click paths to agents, this surface is part of product quality: too small and the agent pastes; unbounded and it can publish by mistake; designed and humans and agents edit the same rows.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
@@ -171,6 +171,26 @@ const en = {
       whyItMatters:
         'Connecting an agent to live workspace text without this contract turns every comment into an attack surface. The label does not make models immune; scopes and prepare/confirm still have to refuse a one-step publish.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'aria-snapshot-vs-multimodal-vision',
+      term: 'ARIA Accessibility Tree vs. Multimodal Vision (VLM Screenshots)',
+      category: 'Browser Automation',
+      definition:
+        'Two complementary ways an AI agent perceives a web page: the Accessibility Tree (used by `@playwright/cli` and `@playwright/mcp` `browser_snapshot`) gives a compact YAML tree of roles, accessible names, and ephemeral element references (`[ref=e14]`), whereas Multimodal Vision (`page.screenshot()`) captures rendered pixels for a human or vision-capable model to inspect visual layout, overlap, and contrast.',
+      whyItMatters:
+        'Not every LLM or execution harness supports image input, and raw coordinate clicking on screenshots is brittle across viewport sizes. Use semantic ARIA locators (`getByRole`, `getByLabel`) in persistent `.spec.ts` files and `[ref=e14]` handles in interactive sessions for all standard DOM actions, paired with programmatic geometry (`scrollWidth`, `boundingBox`) and targeted screenshots when verifying visual layout.',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+    },
+    {
+      id: 'ui-contract-vs-integrated',
+      term: 'UI-Contract vs. Integrated Browser Verification',
+      category: 'Browser Automation',
+      definition:
+        'Separating fast, network-isolated browser tests (`ui-contract`, where `serviceWorkers: "block"` and `context.route` intercept and stub every API call and fail closed on any unhandled request) from full-stack browser journeys (`integrated`, running against a local frontend, backend, and database with disposable QA accounts).',
+      whyItMatters:
+        'Running every browser check against a full stack or third-party APIs makes suites slow and flaky. UI-contract tests verify auth refresh races, error states, and mobile geometry in seconds, while integrated tests confirm real end-to-end wiring.',
+      relatedLesson: 'playwright-browser-automation-and-verification',
     },
   ] satisfies GlossaryTerm[],
 };
@@ -310,10 +330,10 @@ const pl: typeof en = {
     },
     {
       id: 'mcp-tool-surface',
-      term: 'Powierzchnia narzędzi MCP (odczyt / szkic / mutacja z bramką)',
+      term: 'Powierzchnia narzędzi MCP (odczyt / szkic / usuwanie lokalnego szkicu / mutacja z bramką)',
       category: 'Agenci AI',
       definition:
-        'Zaprojektowany zestaw narzędzi Model Context Protocol, które produkt wystawia, pogrupowany tak, że narzędzia odczytu nie zmieniają stanu, narzędzia szkiców zapisują tylko artefakty workspace, a żywe wywołania dostawcy wymagają osobnej pary prepare → confirm.',
+        'Zaprojektowany zestaw narzędzi Model Context Protocol, które produkt wystawia, pogrupowany w cztery poziomy: narzędzia odczytu nie zmieniają stanu, narzędzia szkiców zapisują tylko artefakty workspace, narzędzia usuwania są ograniczone do nieopublikowanych szkiców (`local_draft_only`) lub par z bramką, a żywe wywołania dostawcy wymagają osobnej pary prepare → confirm.',
       whyItMatters:
         'Gdy użytkownicy zlecają ścieżki kliknięć agentom, ta powierzchnia jest częścią jakości produktu: za mała i agent wkleja; nieograniczona i może opublikować przez pomyłkę; zaprojektowana — ludzie i agenci edytują te same wiersze.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
@@ -333,10 +353,30 @@ const pl: typeof en = {
       term: 'Niezaufane dane workspace (pośrednia injekcja promptu)',
       category: 'Agenci AI',
       definition:
-        'Podpisy, komentarze, HTML artykułów i tekst na obrazach zwracane przez narzędzia odczytu MCP, oznaczone w kontrakcie serwera jako dane, których model nie wolno słuchać jak instrukcji, bo artefakt tenanta może zawierać injekcję skierowaną do agenta.',
+        'Podpisy, komentarze, HTML artykułów i tekst na obrazach zwracane przez narzędzia odczytu MCP, oznaczone w kontrakcie serwera jako dane, których modelowi nie wolno traktować jako instrukcji, bo artefakt tenanta może zawierać injekcję skierowaną do agenta.',
       whyItMatters:
         'Podłączenie agenta do żywego tekstu workspace bez tego kontraktu zamienia każdy komentarz w powierzchnię ataku. Etykieta nie czyni modeli odpornymi; scope’y i prepare/confirm i tak muszą odmówić publikacji w jednym kroku.',
       relatedLesson: 'mcp-tools-skills-and-product-surfaces',
+    },
+    {
+      id: 'aria-snapshot-vs-multimodal-vision',
+      term: 'Drzewo dostępności ARIA a wizja multimodalna (zrzuty ekranu VLM)',
+      category: 'Automatyzacja Przeglądarki',
+      definition:
+        'Dwa uzupełniające się sposoby postrzegania strony WWW przez agenta AI: drzewo dostępności (używane przez `@playwright/cli` oraz `browser_snapshot` w `@playwright/mcp`) dostarcza zwięzłe drzewo YAML ról, nazw dostępności i efemerycznych uchwytów (`[ref=e14]`), natomiast wizja multimodalna (`page.screenshot()`) przekazuje wyrenderowane piksele człowiekowi lub modelowi VLM do oceny układu, nachodzenia elementów i kontrastu.',
+      whyItMatters:
+        'Nie każdy model i nie każdy harness obsługuje obrazy, a klikanie po współrzędnych `(x, y)` ze zrzutu ekranu psuje się przy zmianie rozdzielczości. Używaj semantycznych lokatorów ARIA (`getByRole`, `getByLabel`) w trwałych plikach `.spec.ts` oraz uchwytów `[ref=e14]` w sesjach interaktywnych do wszystkich standardowych akcji DOM, łącząc je z geometrią (`scrollWidth`, `boundingBox`) i celowanymi zrzutami ekranu przy weryfikacji wizualnej.',
+      relatedLesson: 'playwright-browser-automation-and-verification',
+    },
+    {
+      id: 'ui-contract-vs-integrated',
+      term: 'Testy UI-Contract a testy Integrated w przeglądarce',
+      category: 'Automatyzacja Przeglądarki',
+      definition:
+        'Rozdzielenie szybkich, odizolowanych sieciowo testów przeglądarkowych (`ui-contract`, w których `serviceWorkers: "block"` oraz `context.route` przechwytują zapytania API i blokują wszelki nieobsłużony ruch) od pełnych ścieżek (`integrated`, uruchamianych na lokalnym frontendzie, backendzie i bazie danych z kontami testowymi QA).',
+      whyItMatters:
+        'Uruchamianie każdego testu na pełnym stosie i zewnętrznych usługach spowalnia CI i powoduje niestabilność. Testy `ui-contract` w kilka sekund weryfikują wyścigi odświeżania sesji, stany błędów i geometrię mobilną, a testy `integrated` potwierdzają spięcie całości.',
+      relatedLesson: 'playwright-browser-automation-and-verification',
     },
   ] satisfies GlossaryTerm[],
 };

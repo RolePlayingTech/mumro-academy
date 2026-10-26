@@ -199,6 +199,8 @@ export function initShell(): void {
   bindTabGroup('data-anatomy-trigger', 'data-anatomy-panel');
   bindTabGroup('data-surface-mode', 'data-surface-panel');
   bindTabGroup('data-stack-trigger', 'data-stack-panel');
+  bindTabGroup('data-browser-mode', 'data-browser-panel');
+  bindTabGroup('data-browser-layer-trigger', 'data-browser-layer-panel');
 
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;

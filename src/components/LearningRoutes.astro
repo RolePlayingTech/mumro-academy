@@ -1,7 +1,7 @@
 ---
 import { learningJourneys } from '../content/learning-journeys';
 import { getLessonBySlug } from '../content/lessons';
-import { localePath, type Locale } from '../lib/contracts';
+import { localePath, plLessonNoun, type Locale } from '../lib/contracts';
 
 interface Props { locale: Locale; }
 const { locale } = Astro.props;
@@ -23,7 +23,7 @@ const journeys = learningJourneys[locale];
       return (
         <article class="preview-frame journey-card" id={`route-${journey.id}`} data-learning-journey={journey.id}>
           <div class="journey-head">
-            <span class="badge sage">{journey.lessonSlugs.length} {locale === 'pl' ? 'lekcji' : 'lessons'}</span>
+            <span class="badge sage">{journey.lessonSlugs.length} {locale === 'pl' ? plLessonNoun(journey.lessonSlugs.length) : 'lessons'}</span>
             <span class="demo-note">{journey.audience}</span>
           </div>
           <h3>{journey.title}</h3>

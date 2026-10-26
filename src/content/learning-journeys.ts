@@ -54,14 +54,15 @@ const enJourneys: LearningJourney[] = [
     "id": "agent-engineering",
     "title": "AI product & coding-agent engineering",
     "audience": "For developers, technical founders and AI engineers",
-    "promise": "Go from a reliable coding-agent setup to a checkable, permissioned MCP product surface.",
-    "deliverable": "Portfolio: agent harness, tool contracts, authorization tests and a recovery runbook.",
+    "promise": "Go from a reliable coding-agent setup to a checkable MCP product surface and browser verification harness.",
+    "deliverable": "Portfolio: agent harness, tool contracts, authorization tests, recovery runbook and browser verification suite.",
     "lessonSlugs": [
       "ai-agent-harness-engineering",
       "mcp-for-marketing-and-content-systems",
       "mcp-tools-skills-and-product-surfaces",
       "two-phase-commit-for-ai-agents",
-      "autonomy-levels-and-guardrails"
+      "autonomy-levels-and-guardrails",
+      "playwright-browser-automation-and-verification"
     ]
   }
 ];
@@ -102,14 +103,15 @@ const plJourneys: LearningJourney[] = [
     "id": "agent-engineering",
     "title": "Inżynieria produktów i agentów AI",
     "audience": "Dla programistów, technicznych founderów i inżynierów AI",
-    "promise": "Przejdź od stabilnego środowiska agenta kodującego do testowalnego interfejsu MCP z uprawnieniami.",
-    "deliverable": "Portfolio: harness agenta, kontrakty narzędzi, testy autoryzacji i procedura odzyskiwania.",
+    "promise": "Przejdź od stabilnego środowiska agenta kodującego do testowalnego interfejsu MCP i weryfikacji przeglądarkowej w Playwright.",
+    "deliverable": "Portfolio: harness agenta, kontrakty narzędzi, testy autoryzacji, procedura odzyskiwania i zestaw testów przeglądarkowych.",
     "lessonSlugs": [
       "ai-agent-harness-engineering",
       "mcp-for-marketing-and-content-systems",
       "mcp-tools-skills-and-product-surfaces",
       "two-phase-commit-for-ai-agents",
-      "autonomy-levels-and-guardrails"
+      "autonomy-levels-and-guardrails",
+      "playwright-browser-automation-and-verification"
     ]
   }
 ];
@@ -224,6 +226,15 @@ const enPractice: Record<LessonSlug, LessonPractice> = {
     "prerequisites": [
       "mcp-for-marketing-and-content-systems"
     ]
+  },
+  "playwright-browser-automation-and-verification": {
+    "objective": "Verify browser flows and mobile layout with an isolated Playwright harness.",
+    "assignment": "Write an offline ui-contract Playwright test with role/label locators, a 390px overflow check and a failing HTTP 503 form-recovery assertion.",
+    "evidence": "A runnable .spec.ts test, a 390×844 screenshot rubric and a validated browser verification contract.",
+    "prerequisites": [
+      "ai-agent-harness-engineering",
+      "mcp-tools-skills-and-product-surfaces"
+    ]
   }
 };
 const plPractice: Record<LessonSlug, LessonPractice> = {
@@ -334,6 +345,15 @@ const plPractice: Record<LessonSlug, LessonPractice> = {
     "evidence": "Sprawdzalny kontrakt powierzchni MCP i test odmowy.",
     "prerequisites": [
       "mcp-for-marketing-and-content-systems"
+    ]
+  },
+  "playwright-browser-automation-and-verification": {
+    "objective": "Zweryfikuj ścieżki przeglądarkowe i układ mobilny w izolowanym harnessie Playwright.",
+    "assignment": "Napisz izolowany test ui-contract w Playwright z lokatorami ról/etykiet, kontrolą szerokości 390px i testem zachowania formularza po błędzie HTTP 503.",
+    "evidence": "Uruchamialny plik .spec.ts, rubryka zrzutu 390×844 i zwalidowany kontrakt weryfikacji przeglądarkowej.",
+    "prerequisites": [
+      "ai-agent-harness-engineering",
+      "mcp-tools-skills-and-product-surfaces"
     ]
   }
 };
