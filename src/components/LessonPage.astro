@@ -5,6 +5,7 @@ import SiteFooter from './SiteFooter.astro';
 import ContactDialog from './ContactDialog.astro';
 import LessonLab from './LessonLab.astro';
 import InlineText from './InlineText.astro';
+import LessonGuidance from './LessonGuidance.astro';
 import { tracksContent } from '../content/tracks';
 import { getAdjacentLessons, getLessonBySlug } from '../content/lessons';
 import { localePath, type LessonSlug, type Locale } from '../lib/contracts';
@@ -121,6 +122,8 @@ const articleSchema = [
           </ul>
         </div>
       </header>
+
+      <LessonGuidance locale={locale} slug={slug} />
 
       <div class="lesson-body-grid">
         <!-- Sticky Sidebar TOC -->
@@ -278,7 +281,7 @@ const articleSchema = [
 
           <!-- Connected in MUMRO Showcase -->
           <section class="content-block mumro-box" id="in-mumro">
-            <span class="eyebrow signal">{lesson.mumroIntegration.eyebrow}</span>
+            <span class="eyebrow signal">{locale === 'pl' ? 'PRZYKŁAD WDROŻENIA · MUMRO' : 'IMPLEMENTATION EXAMPLE · MUMRO'}</span>
             <h2>{lesson.mumroIntegration.title}</h2>
             <p><InlineText text={lesson.mumroIntegration.summary} /></p>
             <ul>
@@ -287,7 +290,7 @@ const articleSchema = [
               ))}
             </ul>
             <div class="mumro-box-actions">
-              <a class="button signal" href={lesson.mumroIntegration.anchorHref}>
+              <a class="button secondary" href={lesson.mumroIntegration.anchorHref}>
                 {lesson.mumroIntegration.anchorLabel}<span aria-hidden="true">↗</span>
               </a>
               <a class="button secondary" href={localePath(locale, 'playbooks')}>
@@ -327,7 +330,7 @@ const articleSchema = [
           <nav class="lesson-pagination" aria-label={locale === 'pl' ? 'Kolejne lekcje' : 'Lesson pagination'}>
             {previous ? (
               <a class="preview-frame page-link prev" href={localePath(locale, `lessons/${previous.slug}`)}>
-                <span class="eyebrow">← {locale === 'pl' ? 'Poprzednia lekcja' : 'Previous lesson'}</span>
+                <span class="eyebrow">← {locale === 'pl' ? 'Poprzednia w katalogu' : 'Previous in catalog'}</span>
                 <strong>{previous.number}: {previous.title}</strong>
               </a>
             ) : (
@@ -338,7 +341,7 @@ const articleSchema = [
             )}
             {next ? (
               <a class="preview-frame page-link next" href={localePath(locale, `lessons/${next.slug}`)}>
-                <span class="eyebrow signal">{locale === 'pl' ? 'Następna lekcja' : 'Next lesson'} →</span>
+                <span class="eyebrow signal">{locale === 'pl' ? 'Następna w katalogu' : 'Next in catalog'} →</span>
                 <strong>{next.number}: {next.title}</strong>
               </a>
             ) : (
