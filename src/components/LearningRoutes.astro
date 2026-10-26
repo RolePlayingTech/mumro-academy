@@ -1,0 +1,73 @@
+---
+import { learningJourneys } from '../content/learning-journeys';
+import { getLessonBySlug } from '../content/lessons';
+import { localePath, type Locale } from '../lib/contracts';
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const journeys = learningJourneys[locale];
+---
+<section class="section container" id="learning-routes" aria-labelledby="learning-routes-heading">
+  <p class="eyebrow signal">{locale === 'pl' ? 'WYBIERZ CEL NAUKI' : 'CHOOSE A LEARNING GOAL'}</p>
+  <h2 class="section-title" id="learning-routes-heading">
+    {locale === 'pl' ? 'Trzy drogi do konkretnych umiejętności.' : 'Three ways to build practical expertise.'}
+  </h2>
+  <p class="section-intro">
+    {locale === 'pl'
+      ? 'Nie musisz czytać wszystkiego po kolei. Wybierz swoją rolę, przejdź przez wskazane lekcje i zbieraj efekty ćwiczeń do portfolio. Materiały działają również poza MUMRO.'
+      : 'You do not need to read every lesson in numeric order. Choose a role, follow a guided sequence and keep the exercises as portfolio evidence. The methods also work outside MUMRO.'}
+  </p>
+  <div class="journey-grid">
+    {journeys.map((journey) => {
+      const first = getLessonBySlug(locale, journey.lessonSlugs[0]);
+      return (
+        <article class="preview-frame journey-card" id={`route-${journey.id}`} data-learning-journey={journey.id}>
+          <div class="journey-head">
+            <span class="badge sage">{journey.lessonSlugs.length} {locale === 'pl' ? 'lekcji' : 'lessons'}</span>
+            <span class="demo-note">{journey.audience}</span>
+          </div>
+          <h3>{journey.title}</h3>
+          <p class="journey-promise">{journey.promise}</p>
+          <div class="journey-outcome">
+            <strong>{locale === 'pl' ? 'Co zostaje po nauce' : 'What you will have made'}</strong>
+            <p>{journey.deliverable}</p>
+          </div>
+          <details class="journey-syllabus">
+            <summary>{locale === 'pl' ? 'Zobacz kolejność lekcji' : 'See the lesson sequence'}</summary>
+            <ol>
+              {journey.lessonSlugs.map((slug) => {
+                const lesson = getLessonBySlug(locale, slug);
+                return (
+                  <li>
+                    <a href={localePath(locale, `lessons/${slug}`)}>{lesson.number.replace(/^[^0-9]+/, '')}: {lesson.title}</a>
+                  </li>
+                );
+              })}
+            </ol>
+          </details>
+          <a class="button secondary journey-start" href={localePath(locale, `lessons/${first.slug}`)}>
+            {locale === 'pl' ? 'Zacznij od' : 'Start with'} {first.number} <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      );
+    })}
+  </div>
+</section>
+<style>
+  .journey-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 30px; }
+  .journey-card { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .journey-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
+  .journey-head .demo-note { max-width: 28ch; }
+  .journey-card h3 { font: 400 clamp(27px, 2.4vw, 36px)/1.08 var(--display); margin: 0; }
+  .journey-promise { font-size: 14px; color: var(--muted); margin: 0; }
+  .journey-outcome { background: var(--paper); border: 1px solid var(--line); padding: 16px; font-size: 13px; }
+  .journey-outcome strong { display: block; margin-bottom: 8px; }
+  .journey-outcome p { margin: 0; }
+  .journey-syllabus { font-size: 13px; }
+  .journey-syllabus summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+  .journey-syllabus ol { margin: 8px 0; padding-left: 22px; display: grid; gap: 10px; }
+  .journey-syllabus a { text-decoration: underline; text-underline-offset: 3px; }
+  .journey-start { margin-top: auto; align-self: flex-start; }
+  @media (max-width: 1050px) { .journey-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .journey-grid { grid-template-columns: 1fr; } }
+</style>
