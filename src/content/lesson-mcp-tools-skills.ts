@@ -3,7 +3,7 @@ import type { LessonData } from './lessons-types';
 
 export const SURFACE_COMMANDS = `$ git clone https://github.com/RolePlayingTech/mcp-surface-kit.git
 $ cd mcp-surface-kit
-$ git -c advice.detachedHead=false checkout -q b22c474b51963ab2ebe73f464d5c99e132d91b9a
+$ git -c advice.detachedHead=false checkout -q 669de9c7d785a3b1a0c4d03a241cf8fc795fdebf
 $ node bin/mcp-surface.mjs explain examples/content-workspace
 MCP surface: content-workspace
 Workspace-scoped social and website publishing for AI agents.
