@@ -324,6 +324,48 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson;
         </div>
       </div>
 
+      <div class="harness-sim-block" data-surface-journey>
+        <span class="eyebrow">
+          {pl ? '3. OD POLECENIA DO SZKICU — SYMULACJA MUMRO' : '3. FROM REQUEST TO DRAFT — MUMRO SIMULATION'}
+        </span>
+        <p class="lab-paragraph">
+          {pl
+            ? 'Dane są fikcyjne. To schemat pracy, nie zrzut rzeczywistego konta ani połączenie z serwerem produkcyjnym.'
+            : 'All data is fictional. This is a schematic workflow, not a real workspace screenshot or a production server connection.'}
+        </p>
+        <div class="lab-split">
+          <div class="lab-card">
+            <span class="badge">{pl ? 'POLECENIE I WYWOŁANIA' : 'USER REQUEST AND CALLS'}</span>
+            <p>{pl
+              ? '„Przygotuj czwartkowy post zgodny ze strategią; pokaż szkic, ale niczego nie planuj.”'
+              : '“Prepare Thursday’s post from the approved strategy; show the draft, but do not schedule it.”'}</p>
+            <p><code>get_workspace_context</code> → <code>get_content_strategy</code> → <code>preview_schedule</code> → <code>create_publication_draft</code></p>
+            <p>{pl ? 'Scope: mumro:read i mumro:drafts. Brak kontaktu z dostawcą.' : 'Scopes: mumro:read and mumro:drafts. No provider contact.'}</p>
+          </div>
+          <div class="lab-card">
+            <span class="badge sage">{pl ? 'PLAN MUMRO — WIDOK SCHEMATYCZNY' : 'MUMRO PLAN — SCHEMATIC VIEW'}</span>
+            <p><strong>FIELDWORK · Instagram</strong></p>
+            <p>{pl ? 'Status: SZKIC, widoczny i edytowalny w workspace' : 'Status: DRAFT, visible and editable in the workspace'}</p>
+            <p>{pl ? 'Propozycja: czw. 5 lis 2026 · 18:00 CET' : 'Proposed: Thu Nov 5, 2026 · 18:00 CET'}</p>
+            <p>{pl ? 'Żadnego planowania ani publikacji na żywo.' : 'No scheduling or live publishing has occurred.'}</p>
+          </div>
+        </div>
+        <details class="lab-card" data-surface-permission-denied>
+          <summary>{pl
+            ? 'Sprawdź odmowę: agent ma tylko mumro:drafts, ale próbuje zaplanować szkic'
+            : 'Test a refusal: the agent holds mumro:drafts, but tries to schedule the draft'}</summary>
+          <p>{pl
+            ? 'Oczekiwane: 403 insufficient_scope. Operacja schedule_draft wymaga mumro:schedule; serwer odmawia, nic nie trafia do kolejki. Host z obsługą OAuth może zaoferować dodatkową zgodę, ale opis narzędzia nie przyznaje scope’u.'
+            : 'Expected: 403 insufficient_scope. schedule_draft requires mumro:schedule; the server refuses and nothing enters the queue. An OAuth-capable host may offer additional consent, but a tool description does not grant scopes.'}</p>
+          <p>{pl
+            ? 'Nawet z odpowiednim scope’em fraza prepare widoczna dla modelu nie oznacza ludzkiej zgody. Przy confirmation_mode=user potrzebne jest niezależne zatwierdzenie przez hosta lub poza modelem.'
+            : 'Even with the right scope, a prepare phrase visible to the model is not human approval. confirmation_mode=user needs host-controlled or out-of-band authorization.'}</p>
+        </details>
+        <p class="lab-paragraph">{pl
+          ? 'Teraz Ty: wybierz jeden proces w swojej aplikacji, nazwij narzędzia odczytu, szkicu, usuwania i mutacji, opisz scope’y w spec.json i uruchom mcp-surface check --strict.'
+          : 'Your turn: choose one workflow in your product, name its read, draft, delete and mutation tools, declare the scopes in spec.json, then run mcp-surface check --strict.'}</p>
+      </div>
+
       <div class="lab-card explanation kit-banner">
         <div>
           <span class="eyebrow signal">
