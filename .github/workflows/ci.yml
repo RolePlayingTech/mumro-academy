@@ -19,13 +19,6 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      - name: Preview regenerated mcp-surface-kit lockfile for Issue 28
-        run: |
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          echo '=== LOCKFILE DIFF START ==='
-          git diff -- package-lock.json
-          echo '=== LOCKFILE DIFF END ==='
-
       - name: Install dependencies
         run: npm ci
 
