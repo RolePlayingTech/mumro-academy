@@ -20,7 +20,7 @@ Most marketing content fails not because teams lack writing tools, but because *
 4. Website CMS publishing and social distribution operate on separate islands.
 5. Analytics dashboards report vanity likes without ever informing the next strategy revision.
 
-**MUMRO Academy (`academy.mumro.io`)** teaches the engineering and editorial patterns that connect this entire loop—whether you implement them manually in your team stack or run them natively inside **[MUMRO](https://mumro.io)**.
+**MUMRO Academy (`academy.mumro.io`)** teaches portable engineering and editorial methods you can apply in your own stack, pairs them with four independent open-source CLI kits for coding-agent and MCP workflows, and shows how **[MUMRO](https://mumro.io)** implements the connected brand, publishing, and governance loop in practice.
 
 ### Curriculum: 4 Learning Tracks & 16 Deep-Dive Lessons
 
@@ -64,7 +64,7 @@ Większość działań content marketingowych przegrywa nie z braku narzędzi do
 4. Strona WWW (CMS) oraz kanały społecznościowe działają w całkowitej izolacji.
 5. Wykresy analityczne nie przekładają się na aktualizację strategii w kolejnym miesiącu.
 
-**Akademia MUMRO (`academy.mumro.io/pl/`)** to kompletny, dwujęzyczny podręcznik pokazujący jak połączyć cały ten proces w jeden żywy system — oraz jak każdy z tych etapów działa natywnie w **[MUMRO](https://mumro.io/pl/)**.
+**Akademia MUMRO (`academy.mumro.io/pl/`)** to otwarty, dwujęzyczny podręcznik pokazujący uniwersalne metody inżynieryjne i redakcyjne, które wdrożysz we własnym stosie narzędzi, cztery niezależne pakiety CLI open source dla warsztatu agentów kodujących i MCP oraz praktyczne przykłady tego, które elementy obiegu treści realizuje **[MUMRO](https://mumro.io/pl/)**.
 
 ### Program: 4 Ścieżki, 16 Lekcji, 8 Playbooków i 4 Otwarte Narzędzia CLI
 

@@ -331,7 +331,7 @@ const pl: typeof en = {
       term: 'Ograniczona autonomia (`draft_only` / `schedule_with_confirmation` / `autonomous_schedule`)',
       category: 'Nadzór i Kontrola',
       definition: 'Trzy poziomy swobody pracy AI połączone z twardymi bezpiecznikami: godzinami ciszy, miesięcznym budżetem kredytów, dozwolonymi kanałami, oceną mediów i przyciskiem Stop.',
-      whyItMatters: 'Pozwala skalować pracę z AI przy zachowaniu 100% kontroli człowieka nad zasadami publikacji.',
+      whyItMatters: 'Pozwala skalować pracę z AI przy zachowaniu decydującej roli człowieka nad regułami i granicami publikacji.',
       relatedLesson: 'autonomy-levels-and-guardrails',
     },
     {

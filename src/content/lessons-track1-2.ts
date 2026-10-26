@@ -89,7 +89,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Evolving from Strategy v1 (Generic Lifestyle) to Strategy v2 (Concrete Utility)',
       context: 'In Strategy v1, Cycling Escapes posted broad scenic gravel photography. Reach was decent, but readers kept asking in comments what actually fits inside a 4-litre handlebar bag.',
       executionSteps: [
@@ -153,7 +153,7 @@ const en: LessonData[] = [
         ],
         callout: {
           label: 'VOICE DESIGN PRINCIPLE',
-          text: 'Negative constraints do 80% of the heavy lifting in AI generation. Explicitly ban the clichés of your industry.',
+          text: 'Negative constraints often filter out generic AI phrasing faster than positive style adjectives alone. Explicitly ban the clichés and unverified claims of your industry.',
         },
         codeBlock: {
           caption: 'Operational Brand Voice Contract (Fieldwork vs. Documentary Brand)',
@@ -200,7 +200,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Świadek Dziejów (Historical Documentary Workspace)',
+      brand: 'Świadek Dziejów (Historical Documentary Demo Workspace)',
       scenarioTitle: 'Maintaining Archival Documentary Gravity Across YouTube, Instagram, and Articles',
       context: 'Świadek Dziejów produces historical narratives based on primary chronicles and grain-shipment records. Sensationalist tabloid phrasing would immediately destroy audience trust.',
       executionSteps: [
@@ -240,7 +240,7 @@ const en: LessonData[] = [
     difficultyLabel: 'Practitioner',
     readingTimeMinutes: 11,
     title: 'Evidence-Led Research Pipelines: RSS, Official Domains, and Source Provenance',
-    subtitle: 'How to eliminate AI hallucinations and generic content by separating raw sources from editorial interpretation (Source → Decision → Draft).',
+    subtitle: 'How to reduce AI hallucinations and generic content by separating raw sources from editorial interpretation (Source → Decision → Draft).',
     metaDescription: 'Build an evidence-led content research pipeline using curated RSS feeds, official domain allowlists, citation quality thresholds, and source-to-draft provenance.',
     keywords: ['evidence-led content research', 'RSS research pipeline', 'source provenance AI', 'prevent LLM hallucinations', 'content citations'],
     keyTakeaways: [
@@ -315,7 +315,7 @@ const en: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes & Świadek Dziejów',
+      brand: 'Cycling Escapes & Świadek Dziejów (Demo Workspaces)',
       scenarioTitle: 'Dual-Workspace Provenance: From Field Notes & Chronicles to Article Drafts',
       context: 'Both workspaces rely on verifiable facts: Cycling Escapes cites physical load-stability measurements, while Świadek Dziejów cites 16th-century river trade registers.',
       executionSteps: [
@@ -360,7 +360,7 @@ const en: LessonData[] = [
     keywords: ['multi-channel content strategy', 'content repurposing framework', 'one story multiple formats', 'social media adaptation', 'MUMRO content studio'],
     keyTakeaways: [
       'Publishing 20 disconnected ideas a month creates noise; publishing 4 deeply researched stories adapted across 5 formats builds authority.',
-      'Every channel requires native framing (hook, length, visual ratio, link placement) while sharing 100% of the underlying factual context.',
+      'Every channel requires native framing (hook, length, visual ratio, link placement) while staying grounded in the same verified source facts and claim boundaries.',
       'Your website article is the canonical anchor; social formats are specialized entry points into that story.',
     ],
     problemStatement: {
@@ -434,7 +434,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'One Story ("Two Days. Four Litres.") Across Article, Carousel, and 4 Channels',
       context: 'Instead of inventing four unrelated posts for the week, Cycling Escapes develops one story about packing for a 48-hour gravel trip into a complete multi-format package.',
       executionSteps: [
@@ -479,7 +479,7 @@ channel_variants:
     keywords: ['5-slide carousel framework', 'Instagram LinkedIn carousel design', 'visual storytelling pacing', 'article to carousel', 'content design'],
     keyTakeaways: [
       'A carousel is a sequential micro-article: every slide must resolve one question while opening the loop for the next swipe.',
-      'The canonical 5-slide arc (Hook → Constraint/Problem → Mechanism → Proof in Use → Action/Summary) prevents mid-carousel drop-off.',
+      'The canonical 5-slide arc (Hook → Constraint/Problem → Mechanism → Proof in Use → Action/Summary) gives readers a clear reason to keep swiping from problem to takeaway.',
       'Visual restraint—clear editorial typography, generous margins, and one focal point per slide—outperforms cluttered graphic templates.',
     ],
     problemStatement: {
@@ -538,7 +538,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Turning Article Key Points into a 5-Slide Visual Story',
       context: 'The team needed a repeatable way to turn technical gear guides into high-save Instagram and LinkedIn carousels without hiring a full-time motion designer for every post.',
       executionSteps: [
@@ -546,7 +546,7 @@ channel_variants:
         'Paired Slides 1–5 with three consistent campaign scenes (Packing, Mounting, Riding) and clear editorial typography.',
         'Synchronized the 5-slide carousel with channel-specific captions ready for scheduling.',
       ],
-      resultNote: 'Saves and profile clicks increased because readers swiped through a coherent 5-part mini-guide.',
+      resultNote: 'The 5-slide carousel and 4-channel captions are derived from one article outline, giving readers a coherent 5-part reference instead of disconnected slides.',
     },
     mumroIntegration: {
       eyebrow: 'HOW MUMRO IMPLEMENTS THIS',
@@ -656,7 +656,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L)',
+      brand: 'Cycling Escapes (FIELDWORK / DRIFT 4L — Demo Workspace)',
       scenarioTitle: 'Coordinating a 4-Channel Launch Week with Per-Channel Schedules',
       context: 'During the DRIFT 4L campaign, the team scheduled coordinated drops across Instagram, Facebook, X, and LinkedIn alongside the website article.',
       executionSteps: [
@@ -778,7 +778,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Przejście ze Strategii v1 (ogólny lifestyle) do Strategii v2 (konkretna użyteczność)',
       context: 'W Strategii v1 marka publikowała ogólne zdjęcia widokowe z tras. Zasięgi były poprawne, ale w komentarzach stale wracało pytanie: co konkretnie mieści się w 4-litrowej torbie na kierownicę?',
       executionSteps: [
@@ -842,7 +842,7 @@ const pl: LessonData[] = [
         ],
         callout: {
           label: 'ZASADA PROJEKTOWANIA GŁOSU MARKI',
-          text: 'Ograniczenia negatywne wykonują 80% pracy przy generowaniu AI. Jawnie zablokuj klisze językowe swojej branży.',
+          text: 'Ograniczenia negatywne często skuteczniej odfiltrowują sztampowe frazy AI niż same przymiotniki stylu. Jawnie zablokuj klisze językowe i nieuzasadnione obietnice swojej branży.',
         },
         codeBlock: {
           caption: 'Operacyjny kontrakt Brand Voice (Przykład technicznej marki outdoorowej)',
@@ -889,7 +889,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Świadek Dziejów (Przestrzeń dokumentalno-historyczna)',
+      brand: 'Świadek Dziejów (Kanał dokumentalno-historyczny — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Utrzymanie powagi archiwalnego dokumentu na YouTube, Instagramie i w artykułach',
       context: 'Świadek Dziejów tworzy opowieści historyczne oparte na kronikach i rejestrach spławu zboża. Tabloidowe nagłówki natychmiast zniszczyłyby zaufanie widzów.',
       executionSteps: [
@@ -929,7 +929,7 @@ const pl: LessonData[] = [
     difficultyLabel: 'Praktyka',
     readingTimeMinutes: 11,
     title: 'Research oparty na dowodach: kanały RSS, oficjalne domeny i pochodzenie źródeł',
-    subtitle: 'Jak wyeliminować halucynacje AI i wtórne teksty przez oddzielenie surowego źródła od interpretacji marki (Źródło → Decyzja → Szkic).',
+    subtitle: 'Jak ograniczyć halucynacje AI i wtórne teksty przez oddzielenie surowego źródła od interpretacji marki (Źródło → Decyzja → Szkic).',
     metaDescription: 'Zbuduj proces researchu treści oparty na wyselekcjonowanych kanałach RSS, oficjalnych domenach, wymogach cytowania i jawnym pochodzeniu briefu.',
     keywords: ['research treści RSS', 'pochodzenie źródeł AI', 'source provenance', 'ochrona przed halucynacjami LLM', 'cytowania w content marketingu'],
     keyTakeaways: [
@@ -1004,7 +1004,7 @@ const pl: LessonData[] = [
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe & Świadek Dziejów',
+      brand: 'Wyprawy Rowerowe & Świadek Dziejów (Przestrzenie demonstracyjne)',
       scenarioTitle: 'Ślad pochodzenia w dwóch przestrzeniach: od testów terenowych i kronik do artykułu',
       context: 'Obie marki opierają autorytet na sprawdzalnych faktach: Wyprawy Rowerowe powołują się na fizykę obciążenia kierownicy, a Świadek Dziejów na szesnastowieczne rejestry spławu wiślanego.',
       executionSteps: [
@@ -1049,7 +1049,7 @@ const pl: LessonData[] = [
     keywords: ['wielokanałowa dystrybucja treści', 'jedna historia wiele formatów', 'repurposing treści', 'adaptacja postów social media', 'studio treści MUMRO'],
     keyTakeaways: [
       'Publikowanie 20 niepowiązanych ze sobą wpisów miesięcznie tworzy szum; przepracowanie 4 głębokich historii w 5 formatach buduje autorytet.',
-      'Każdy kanał wymaga własnego otwarcia, rytmu i sposobu linkowania, ale powinien czerpać ze 100% tego samego kontekstu merytorycznego.',
+      'Każdy kanał wymaga własnego otwarcia, rytmu i sposobu linkowania, ale powinien opierać się na tych samych zweryfikowanych faktach źródłowych i granicach twierdzeń.',
       'Artykuł na własnej stronie WWW jest kotwicą całej historii; formaty społecznościowe prowadzą do niego z różnych perspektyw.',
     ],
     problemStatement: {
@@ -1123,7 +1123,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Jedna historia („Dwa dni. Cztery litry.”) jako artykuł, karuzela i 4 posty kanałowe',
       context: 'Zamiast wymyślać cztery oderwane tematy na dany tydzień, zespół Wypraw Rowerowych rozwija jeden temat dwudniowego pakowania w kompletny pakiet wielokanałowy.',
       executionSteps: [
@@ -1168,7 +1168,7 @@ channel_variants:
     keywords: ['karuzela 5 slajdów', 'projektowanie karuzel Instagram LinkedIn', 'storytelling wizualny', 'artykuł na karuzelę', 'hierarchia typograficzna'],
     keyTakeaways: [
       'Karuzela to sekwencyjny mikro-artykuł: każdy slajd musi dawać konkretną odpowiedź i jednocześnie budzić ciekawość przed kolejnym przesunięciem.',
-      'Kanoniczny rytm 5 slajdów (Napięcie → Zawartość/Problem → Mechanizm → Dowód w terenie → Podsumowanie/Krok) zapobiega porzucaniu lektury w połowie.',
+      'Kanoniczny rytm 5 slajdów (Napięcie → Zawartość/Problem → Mechanizm → Dowód w terenie → Podsumowanie/Krok) daje czytelnikowi powód, by przejść od problemu do wniosku.',
       'Dyscyplina wizualna — wyrazista typografia, szerokie marginesy i jeden punkt ciężkości na slajd — wygrywa z przeładowanymi szablonami.',
     ],
     problemStatement: {
@@ -1227,7 +1227,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Zamiana kluczowych punktów artykułu w 5-slajdową opowieść wizualną',
       context: 'Zespół potrzebował powtarzalnego sposobu na przekładanie technicznych artykułów o sprzęcie na angażujące karuzele na Instagram i LinkedIn.',
       executionSteps: [
@@ -1235,7 +1235,7 @@ channel_variants:
         'Połączono karty 1–5 z trzema spójnymi ujęciami kampanii (Pakowanie, Mocowanie, Jazda) oraz redakcyjną typografią.',
         'Zsynchronizowano karuzelę z podpisami dla 4 kanałów gotowymi do kolejki publikacji.',
       ],
-      resultNote: 'Odbiorcy przeglądają wszystkie 5 slajdów i zapisują post jako praktyczną ściągawkę przed wyjazdem.',
+      resultNote: 'Karuzela 5 slajdów i podpisy dla 4 kanałów wynikają z jednego planu artykułu, tworząc spójną 5-częściową ściągawkę zamiast luźnych kart.',
     },
     mumroIntegration: {
       eyebrow: 'JAK REALIZUJE TO MUMRO',
@@ -1345,7 +1345,7 @@ channel_variants:
       ],
     },
     caseStudy: {
-      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L)',
+      brand: 'Wyprawy Rowerowe (FIELDWORK / DRIFT 4L — Przestrzeń demonstracyjna)',
       scenarioTitle: 'Koordynacja kampanii na 4 kanałach z osobnymi harmonogramami i kontrolą statusów',
       context: 'Podczas kampanii DRIFT 4L zespół zaplanował powiązane publikacje na Instagramie, Facebooku, X i LinkedInie wraz z premierą artykułu na stronie.',
       executionSteps: [

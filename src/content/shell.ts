@@ -128,7 +128,7 @@ const en = {
       },
       {
         q: 'Do I need a MUMRO account to apply these lessons?',
-        a: 'No. Every lesson teaches transferable architectural principles—how to structure a Brand Voice specification, how to pace a 5-slide carousel, how to design two-phase MCP confirmation gates, and how to run 30-day cohort reviews. Alongside each framework, we show how MUMRO automates that exact step.',
+        a: 'No. Every lesson teaches transferable architectural principles—how to structure a Brand Voice specification, pace a 5-slide carousel, design two-phase MCP confirmation gates, or verify coding-agent workflows. Where a pattern maps to the product, we also show how MUMRO implements it as a concrete example.',
       },
       {
         q: 'Why does a marketing academy cover Model Context Protocol (MCP) and idempotency?',
@@ -283,7 +283,7 @@ const pl: typeof en = {
       },
       {
         q: 'Czy potrzebuję konta w MUMRO, żeby wdrożyć wiedzę z lekcji?',
-        a: 'Nie. Każda lekcja uczy uniwersalnych zasad architektonicznych i redakcyjnych — jak napisać specyfikację Brand Voice, jak zbudować rytm 5-slajdowej karuzeli, jak zaprojektować dwufazową bramkę Prepare → Confirm w MCP i jak oceniać kohorty 30-dniowe. Obok każdego schematu pokazujemy, jak ten sam krok automatyzuje MUMRO.',
+        a: 'Nie. Każda lekcja uczy uniwersalnych zasad architektonicznych i redakcyjnych — jak napisać specyfikację Brand Voice, zbudować rytm 5-slajdowej karuzeli, zaprojektować dwufazową bramkę Prepare → Confirm w MCP czy weryfikować pracę agentów kodujących. Tam, gdzie wzorzec odpowiada funkcjom produktu, pokazujemy też, jak wdraża go MUMRO.',
       },
       {
         q: 'Dlaczego akademia marketingowa uczy o Model Context Protocol (MCP) i idempotentności?',
