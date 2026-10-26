@@ -112,8 +112,8 @@ const en = {
   },
   mumroBanner: {
     eyebrow: 'FROM THEORY TO ONE WORKSPACE',
-    title: 'A real-world example of connected content workflows.'
-    body: 'These methods are portable: try the exercises with your own tools. MUMRO is one practical implementation of the connected content loop, from brand context and research to publishing, conversations, measurement and governed agents. The coding-agent engineering lessons apply more broadly.'
+    title: 'A real-world example of connected content workflows.',
+    body: 'These methods are portable: try the exercises with your own tools. MUMRO is one practical implementation of the connected content loop, from brand context and research to publishing, conversations, measurement and governed agents. The coding-agent engineering lessons apply more broadly.',
     primaryLabel: 'Explore MUMRO on mumro.io',
     primaryHref: 'https://mumro.io/',
     secondaryLabel: 'Talk about MUMRO',
@@ -267,8 +267,8 @@ const pl: typeof en = {
   },
   mumroBanner: {
     eyebrow: 'OD WIEDZY DO JEDNEGO SYSTEMU',
-    title: 'Przykład wdrożenia zintegrowanych procesów w praktyce.'
-    body: 'Pokazane metody nie wymagają MUMRO — ćwiczenia wykonasz we własnym zestawie narzędzi. MUMRO to jeden z przykładów połączenia kontekstu marki, researchu, publikacji, rozmów, pomiaru i nadzoru nad agentami. Lekcje o inżynierii agentów kodujących mają szersze zastosowanie.'
+    title: 'Przykład wdrożenia zintegrowanych procesów w praktyce.',
+    body: 'Pokazane metody nie wymagają MUMRO — ćwiczenia wykonasz we własnym zestawie narzędzi. MUMRO to jeden z przykładów połączenia kontekstu marki, researchu, publikacji, rozmów, pomiaru i nadzoru nad agentami. Lekcje o inżynierii agentów kodujących mają szersze zastosowanie.',
     primaryLabel: 'Poznaj MUMRO na mumro.io',
     primaryHref: 'https://mumro.io/pl/',
     secondaryLabel: 'Porozmawiajmy o MUMRO',
