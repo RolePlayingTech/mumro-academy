@@ -3,11 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import ContactDialog from '../components/ContactDialog.astro';
+import { lessonSlugs } from '../lib/contracts';
 ---
 <BaseLayout
   locale="en"
   title="404 — Page not found · Nie znaleziono strony | MUMRO Academy"
-  description="The requested MUMRO Academy page could not be found. Explore all 16 lessons in English or Polish."
+  description={`The requested MUMRO Academy page could not be found. Explore all ${lessonSlugs.length} lessons in English or Polish.`}
   noindex={true}
 >
   <SiteHeader locale="en" routePath="/" />
@@ -15,7 +16,7 @@ import ContactDialog from '../components/ContactDialog.astro';
     <p class="eyebrow signal">404 · PAGE NOT FOUND / NIE ZNALEZIONO STRONY</p>
     <h1>This route is outside the curriculum.</h1>
     <p>
-      The page you requested does not exist. Choose your language edition below to browse all 4 tracks, 16 lessons, and playbooks.
+      The page you requested does not exist. Choose your language edition below to browse all 4 tracks, {lessonSlugs.length} lessons, and playbooks.
     </p>
     <p lang="pl">
       Szukana strona nie istnieje. Wybierz polską lub angielską edycję Akademii MUMRO poniżej.

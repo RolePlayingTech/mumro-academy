@@ -30,13 +30,13 @@ import {
 import { playbooksContent } from '../src/content/playbooks';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
-  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 16-lesson catalog', async ({ page }) => {
+  test('EN homepage renders 5-stage loop explorer, 4 tracks, and filterable 17-lesson catalog', async ({ page }) => {
     await page.goto('/?lang=en');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('h1')).toContainText('living brand systems');
 
     const lessonCards = page.locator('[data-lesson-card]');
-    await expect(lessonCards).toHaveCount(16);
+    await expect(lessonCards).toHaveCount(17);
 
     // Latest Additions (Lessons 13, 14, 15 & 16) and Open-Source CLI Tools
     await expect(page.locator('[data-latest-lesson]')).toHaveCount(4);
@@ -54,11 +54,11 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
 
     // Dynamic lesson counts per track (3 vs 7)
     await expect(page.locator('#tracks')).toContainText('Lessons in this track (3):');
-    await expect(page.locator('#tracks')).toContainText('Lessons in this track (7):');
+    await expect(page.locator('#tracks')).toContainText('Lessons in this track (8):');
 
     // Filter by Track 04 (Agents & MCP)
     await page.locator('[data-track-filter="agents-mcp-governance"]').click();
-    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(7);
+    await expect(page.locator('[data-lesson-card]:not([hidden])')).toHaveCount(8);
 
     // Filter by search keyword
     await page.locator('[data-track-filter="all"]').click();
@@ -74,7 +74,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     await page.goto('/pl/');
     await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
     await expect(page.locator('h1')).toContainText('żywy system marki');
-    await expect(page.locator('[data-lesson-card]')).toHaveCount(16);
+    await expect(page.locator('[data-lesson-card]')).toHaveCount(17);
     await expect(page.locator('[data-latest-lesson]')).toHaveCount(4);
     await expect(page.locator('[data-open-source-tool]')).toHaveCount(4);
     await expect(page.locator('[data-open-source-tool="playwright-harness-kit"]')).toContainText(
@@ -84,7 +84,7 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
       'Eliminuje kruche klikanie'
     );
     await expect(page.locator('#tracks')).toContainText('W tej ścieżce (3 lekcje):');
-    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (7 lekcji):');
+    await expect(page.locator('#tracks')).toContainText('W tej ścieżce (8 lekcji):');
 
     await page.locator('#tracks a[href="/pl/lessons/mcp-for-marketing-and-content-systems/"]').first().click();
     await expect(page).toHaveURL(/\/pl\/lessons\/mcp-for-marketing-and-content-systems\/$/);
@@ -932,7 +932,8 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
         'href', root + 'lessons/evidence-led-research-pipelines/'
       );
       await cards.nth(2).locator('summary').click();
-      await expect(cards.nth(2).locator('ol li')).toHaveCount(7);
+      await expect(cards.nth(2).locator('ol li')).toHaveCount(8);
+      await expect(cards.nth(2).locator(`a[href="${root}lessons/webmcp-agent-operable-web-applications/"]`)).toHaveCount(1);
       await expect(cards.nth(2).locator(`a[href="${root}lessons/playwright-browser-automation-and-verification/"]`)).toHaveCount(1);
       await expect(cards.nth(2).locator(`a[href="${root}lessons/git-and-github-for-ai-coding-agents/"]`)).toHaveCount(1);
       const firstId = await page.locator('#learning-routes').evaluate((el) => el.compareDocumentPosition(document.querySelector('#latest-lessons')!));
@@ -1034,5 +1035,180 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
     const readme = readFileSync(resolve(process.cwd(), 'README.md'), 'utf8');
     expect(readme).not.toContain('każdy z tych etapów działa natywnie w **[MUMRO]');
     expect(readme).not.toContain('run them natively inside **[MUMRO]');
+  });
+
+  test('Lesson 17 (WebMCP) renders all 7 modules, official resources, truthful Mumro case study, and LessonLab in EN and PL without raw Markdown or 390px overflow', async ({
+    page,
+  }) => {
+    for (const locale of ['en', 'pl'] as const) {
+      const prefix = locale === 'pl' ? '/pl' : '';
+      await page.goto(`${prefix}/lessons/webmcp-agent-operable-web-applications/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('h1')).toContainText('WebMCP:');
+
+      const expectedSectionIds = [
+        'why-browser-tools',
+        'webmcp-vs-mcp',
+        'two-webmcp-apis',
+        'hands-on-webmcp',
+        'security-and-limits',
+        'mumro-case-study',
+        'independent-assignment',
+      ];
+      for (const secId of expectedSectionIds) {
+        const sec = page.locator(`#${secId}`);
+        await expect(sec).toBeVisible();
+        const paragraphs = sec.locator('> p');
+        expect(await paragraphs.count()).toBeGreaterThanOrEqual(3);
+        for (const p of await paragraphs.all()) {
+          const plainText = await p.evaluate((node) =>
+            Array.from(node.childNodes)
+              .filter((child) => child.nodeType === Node.TEXT_NODE)
+              .map((child) => child.textContent ?? '')
+              .join('')
+          );
+          expect(plainText).not.toContain('**');
+          expect(plainText).not.toContain('`');
+        }
+      }
+
+      // W3C Community Group draft status and honest Mumro distinction
+      await expect(page.locator('#webmcp-vs-mcp')).toContainText('Draft Community Group Report');
+      await expect(page.locator('#mumro-case-study')).toContainText('app/agent_gateway/server.py');
+      await expect(page.locator('#mumro-case-study')).toContainText('frontend/src/pages/QueuePage.tsx');
+      await expect(page.locator('#independent-assignment')).toContainText('INV-101');
+
+      // Official resource links rendered in DOM
+      await expect(page.locator('a[href="https://webmachinelearning.github.io/webmcp/"]')).toHaveCount(1);
+      await expect(page.locator('a[href="https://developer.chrome.com/docs/ai/webmcp"]')).toHaveCount(1);
+      await expect(page.locator('a[href="https://developer.chrome.com/docs/ai/webmcp/imperative-api"]')).toHaveCount(1);
+      await expect(page.locator('a[href="https://developer.chrome.com/docs/ai/webmcp/declarative-api"]')).toHaveCount(1);
+      await expect(page.locator('a[href="https://developer.chrome.com/docs/ai/webmcp/best-practices"]')).toHaveCount(1);
+      await expect(page.locator('a[href="https://developer.chrome.com/docs/ai/webmcp/secure-tools"]')).toHaveCount(1);
+
+      // Interactive LessonLab 3-way comparison and 4-case verification tabs
+      await expect(page.locator('[data-webmcp-panel="webmcp-tool"]')).toBeVisible();
+      await page.locator('[data-webmcp-mode="human-ui"]').click();
+      await expect(page.locator('[data-webmcp-panel="human-ui"]')).toBeVisible();
+      await page.locator('[data-webmcp-mode="fallback"]').click();
+      await expect(page.locator('[data-webmcp-panel="fallback"]')).toBeVisible();
+
+      await page.locator('[data-webmcp-check-trigger="invalid-platform"]').click();
+      await expect(page.locator('[data-webmcp-check-panel="invalid-platform"]')).toBeVisible();
+      await page.locator('[data-webmcp-check-trigger="slot-preview"]').click();
+      await expect(page.locator('[data-webmcp-check-panel="slot-preview"]')).toBeVisible();
+
+      // Guided practice panel and prerequisites
+      const guidance = page.locator('[data-lesson-practice]');
+      await expect(guidance).toBeVisible();
+      await expect(guidance.locator(`a[href="${prefix}/lessons/mcp-tools-skills-and-product-surfaces/"]`)).toHaveCount(1);
+      await expect(
+        guidance.locator(`a[href="${prefix}/lessons/playwright-browser-automation-and-verification/"]`)
+      ).toHaveCount(1);
+
+      // Mobile 390x844 overflow check
+      await page.setViewportSize({ width: 390, height: 844 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(overflow).toBe(false);
+      await page.setViewportSize({ width: 1280, height: 800 });
+    }
+
+    // Verify llms-full.txt serializes Lesson 17 and its primary sources
+    const llmsResp = await page.request.get('/llms-full.txt');
+    expect(llmsResp.ok()).toBe(true);
+    const llmsText = await llmsResp.text();
+    expect(llmsText).toContain('LESSON 17: WebMCP: When a Website Becomes a Tool for AI Agents');
+    expect(llmsText).toContain('LEKCJA 17: WebMCP: kiedy strona internetowa staje się narzędziem agenta AI');
+    expect(llmsText).toContain('https://webmachinelearning.github.io/webmcp/');
+    expect(llmsText).toContain('https://developer.chrome.com/docs/ai/webmcp/secure-tools');
+  });
+
+  test('Standalone WebMCP Lab (/labs/webmcp-lab-17.html) passes T01–T09 in both default no-WebMCP browser and simulated document.modelContext harness', async ({
+    page,
+  }) => {
+    // Part 1: Default browser without experimental document.modelContext (T01, T04, T09)
+    await page.goto('/labs/webmcp-lab-17.html');
+    await expect(page.locator('#support')).toContainText('Brak eksperymentalnego WebMCP');
+    await expect(page.locator('#results tr')).toHaveCount(5);
+
+    // Filter LinkedIn + scheduled -> DEMO-001 and DEMO-005 only (DEMO-003 draft excluded) (T01)
+    await page.locator('#platform').selectOption('linkedin');
+    await page.locator('#publication-status').selectOption('scheduled');
+    await page.locator('#filter').click();
+    await expect(page.locator('#results tr')).toHaveCount(2);
+    const filteredText = await page.locator('#results').textContent();
+    expect(filteredText).toContain('DEMO-001');
+    expect(filteredText).toContain('DEMO-005');
+    expect(filteredText).not.toContain('DEMO-003');
+
+    // Invalid platform=instagram refusal in fallback contract preview (T03)
+    await page.locator('#run-invalid').click();
+    await expect(page.locator('#output')).toContainText('instagram');
+    await expect(page.locator('#output')).toContainText('Niepoprawny kanał');
+
+    // Mobile 390x844 responsive check on standalone lab (T09)
+    await page.setViewportSize({ width: 390, height: 844 });
+    const labOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(labOverflow).toBe(false);
+
+    // Part 2: Simulated WebIDL document.modelContext harness (T02, T03, T05, T06, T07, T08)
+    // Note: Tests page tool registration & execution logic against a WebIDL-shaped stub; does not claim native Chrome flag verification.
+    await page.addInitScript(() => {
+      const registered: Array<Record<string, unknown>> = [];
+      Object.defineProperty(document, 'modelContext', {
+        configurable: true,
+        value: {
+          async registerTool(tool: Record<string, unknown>) {
+            registered.push(tool);
+          },
+          async getTools() {
+            return [...registered];
+          },
+          async executeTool(tool: { execute: (args: unknown) => Promise<string> }, inputObject: unknown) {
+            return await tool.execute(inputObject);
+          },
+        },
+      });
+    });
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/labs/webmcp-lab-17.html');
+    await expect(page.locator('#support')).toContainText('Dwa demonstracyjne narzędzia WebMCP zarejestrowane');
+
+    // Discover registered tools: only get_publication_queue and preview_available_slot (never publish_now) (T06, T08)
+    await page.locator('#discover').click();
+    const discovered = JSON.parse((await page.locator('#output').textContent()) ?? '[]');
+    expect(discovered.map((t: { name: string }) => t.name)).toEqual([
+      'get_publication_queue',
+      'preview_available_slot',
+    ]);
+
+    // Execute get_publication_queue({ platform: "linkedin", status: "scheduled" }) -> DEMO-001 & DEMO-005 (T02)
+    await page.locator('#run').click();
+    const queueResult = JSON.parse((await page.locator('#output').textContent()) ?? '{}');
+    expect(queueResult.demo).toBe(true);
+    expect(queueResult.platform).toBe('linkedin');
+    expect(queueResult.status).toBe('scheduled');
+    expect(queueResult.items.map((i: { id: string }) => i.id)).toEqual(['DEMO-001', 'DEMO-005']);
+
+    // Execute preview_available_slot({ platform: "linkedin" }) -> reserved: false (T05)
+    await page.locator('#preview').click();
+    const previewResult = JSON.parse((await page.locator('#output').textContent()) ?? '{}');
+    expect(previewResult).toEqual({
+      demo: true,
+      platform: 'linkedin',
+      suggestion: '2026-11-09 09:00',
+      reserved: false,
+    });
+
+    // Execute invalid platform=instagram -> runtime refusal error (T03)
+    await page.locator('#run-invalid').click();
+    await expect(page.locator('#output')).toContainText('Błąd: Error: Niepoprawny kanał (Unsupported platform): instagram');
+
+    // Prompt injection payload stays inert text (T07)
+    await page.locator('#run-injection').click();
+    const injectionResult = JSON.parse((await page.locator('#output').textContent()) ?? '{}');
+    expect(injectionResult.publishToolRegistered).toBe(false);
+    expect(injectionResult.actionTaken).toBe('none');
   });
 });

@@ -31,6 +31,7 @@ export const lessonSlugs = [
   'mcp-tools-skills-and-product-surfaces',
   'playwright-browser-automation-and-verification',
   'git-and-github-for-ai-coding-agents',
+  'webmcp-agent-operable-web-applications',
 ] as const;
 export type LessonSlug = (typeof lessonSlugs)[number];
 

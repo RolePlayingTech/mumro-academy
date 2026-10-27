@@ -203,6 +203,8 @@ export function initShell(): void {
   bindTabGroup('data-browser-layer-trigger', 'data-browser-layer-panel');
   bindTabGroup('data-git-mode', 'data-git-panel');
   bindTabGroup('data-git-recovery-trigger', 'data-git-recovery-panel');
+  bindTabGroup('data-webmcp-mode', 'data-webmcp-panel');
+  bindTabGroup('data-webmcp-check-trigger', 'data-webmcp-check-panel');
 
   // Contact dialog modal handling
   if (!dialog || typeof dialog.showModal !== 'function') return;
