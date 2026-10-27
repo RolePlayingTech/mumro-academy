@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lekcja 17 — WebMCP, laboratorium referencyjne</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:system-ui,Arial,sans-serif;background:#f7f9f7;color:#202a24;max-width:900px;padding:20px;margin:auto}
+h1{font-size:clamp(25px,4vw,38px)}
+p,li{line-height:1.55}
+.panel{background:#fff;border:1px solid #d5ded8;border-radius:12px;padding:19px;margin:16px 0}
+input,select,button{font:inherit;padding:8px 11px}
+button{background:#245d41;color:white;border:0;border-radius:7px;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid #6d9c7a;outline-offset:3px}
+.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+label{display:inline-flex;align-items:center;gap:7px}
+.table-scroller{max-width:100%;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:400px}
+td,th{text-align:left;border-bottom:1px solid #edf0ed;padding:10px;font-size:14px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f7f3;padding:12px;border-radius:8px}
+.hint{background:#edf5ed;padding:8px 10px;border-radius:8px}
+small{color:#5c695d}
+</style>
+</head>
+<body>
+<header>
+<small>AKADEMIA MUMRO / LEKCJA 17 / SYMULACJA EDUKACYJNA</small>
+<h1>WebMCP: jedna kolejka, dwa sposoby obsługi</h1>
+<p>Dane są całkowicie fikcyjne. Przykład nie łączy się z Mumro, nie pobiera danych użytkownika i nie publikuje postów.</p>
+</header>
+<section class="panel" aria-labelledby="human-title">
+<h2 id="human-title">1. Zwykły interfejs</h2>
+<div class="controls">
+<label for="platform">Kanał <select id="platform"><option value="all">Wszystkie</option><option value="linkedin">LinkedIn</option><option value="x">X</option><option value="facebook">Facebook</option></select></label>
+<label for="publication-status">Status <select id="publication-status"><option value="all">Wszystkie</option><option value="scheduled">Zaplanowane</option><option value="draft">Szkice</option></select></label>
+<button id="filter" type="button">Pokaż wyniki</button>
+</div>
+<div class="table-scroller"><table><thead><tr><th>ID</th><th>Kanał</th><th>Status</th><th>Termin</th></tr></thead><tbody id="results"></tbody></table></div>
+</section>
+<section class="panel" aria-labelledby="agent-title">
+<h2 id="agent-title">2. Narzędzia dla agenta przeglądarkowego</h2>
+<p class="hint" id="support" role="status">Sprawdzanie wsparcia WebMCP...</p>
+<p>W tym przykładzie zarejestrowane mogą być narzędzia get_publication_queue oraz preview_available_slot. Poniższe przyciski to <strong>lokalny inspektor narzędzi</strong>, a nie autonomiczny agent AI.</p>
+<div class="controls">
+<button id="discover" type="button">Odkryj narzędzia</button>
+<button id="run" type="button">Wykonaj get_publication_queue</button>
+<button id="preview" type="button">Wykonaj preview_available_slot</button>
+</div>
+<pre id="output" aria-live="polite">Brak wywołań.</pre>
+</section>
+<section class="panel">
+<h2>3. Sprawdź samodzielnie</h2>
+<ol><li>Filtruj zaplanowane LinkedIn: powinny pozostać DEMO-001 i DEMO-005.</li>
+<li>Jeżeli API jest dostępne, porównaj odpowiedź narzędzia z filtrowaniem ręcznym.</li>
+<li>Zmień w kodzie parametr na instagram i zaobserwuj odmowę walidacji.</li>
+<li>Odpowiedz, dlaczego readOnlyHint nie jest zabezpieczeniem backendu.</li></ol>
+<small>Przykład wymaga eksperymentalnej obsługi WebMCP do części narzędziowej. Interfejs człowieka działa także bez tego API.</small>
+</section>
+<script>
+"use strict";
+const records = [
+ {id:"DEMO-001",platform:"linkedin",status:"scheduled",scheduledAt:"2026-11-05 09:00"},
+ {id:"DEMO-002",platform:"x",status:"scheduled",scheduledAt:"2026-11-05 12:30"},
+ {id:"DEMO-003",platform:"linkedin",status:"draft",scheduledAt:null},
+ {id:"DEMO-004",platform:"facebook",status:"scheduled",scheduledAt:"2026-11-06 08:00"},
+ {id:"DEMO-005",platform:"linkedin",status:"scheduled",scheduledAt:"2026-11-06 10:00"}
+];
+const channels=["linkedin","x","facebook"], states=["all","scheduled","draft"];
+const support=document.querySelector("#support");
+const output=document.querySelector("#output");
+function readQueue(platform,status="all"){
+ if(!channels.includes(platform)&&platform!=="all")throw new Error("Niepoprawny kanał");
+ if(!states.includes(status))throw new Error("Niepoprawny status");
+ return records.filter(r=>(platform==="all"||r.platform===platform)&&(status==="all"||r.status===status));
+}
+function render(){
+ const items=readQueue(document.querySelector("#platform").value,document.querySelector("#publication-status").value);
+ const root=document.querySelector("#results");root.replaceChildren();
+ for(const item of items){
+  const tr=document.createElement("tr");
+  for(const val of [item.id,item.platform,item.status,item.scheduledAt||"—"]){
+   const td=document.createElement("td");td.textContent=val;tr.appendChild(td);
+  }
+  root.appendChild(tr);
+ }
+}
+document.querySelector("#filter").addEventListener("click",render);render();
+function validatedPlatform(platform){if(!channels.includes(platform))throw new Error("Niepoprawny kanał");return platform;}
+async function register(){
+ if(!document.modelContext){support.textContent="Brak eksperymentalnego WebMCP. Filtrowanie ręczne pozostaje dostępne.";return;}
+ try{
+  await document.modelContext.registerTool({
+   name:"get_publication_queue",
+   description:"Read synthetic queue entries for a platform, optionally filtered by status. No posting or scheduling.",
+   inputSchema:{type:"object",properties:{platform:{type:"string",enum:channels},status:{type:"string",enum:states}},required:["platform"],additionalProperties:false},
+   annotations:{readOnlyHint:true,consequentialHint:false,untrustedContentHint:false},
+   execute:async ({platform,status="all"})=>JSON.stringify({demo:true,platform:validatedPlatform(platform),status,items:readQueue(platform,status)})
+  });
+  await document.modelContext.registerTool({
+   name:"preview_available_slot",
+   description:"Return a fictional suggested publishing slot without reserving or scheduling it.",
+   inputSchema:{type:"object",properties:{platform:{type:"string",enum:channels}},required:["platform"],additionalProperties:false},
+   annotations:{readOnlyHint:true,consequentialHint:false,untrustedContentHint:false},
+   execute:async ({platform})=>JSON.stringify({demo:true,platform:validatedPlatform(platform),suggestion:"2026-11-09 09:00",reserved:false})
+  });
+  support.textContent="Dwa demonstracyjne narzędzia WebMCP zarejestrowane.";
+ }catch(err){support.textContent="Rejestracja WebMCP nieudana: "+String(err);}
+}
+async function inspect(name,args){
+ if(!document.modelContext){output.textContent="API niedostępne — użyj zwykłego formularza.";return;}
+ try{
+  const tools=await document.modelContext.getTools();
+  if(!name){output.textContent=JSON.stringify(tools.map(t=>({name:t.name,description:t.description})),null,2);return;}
+  const tool=tools.find(t=>t.name===name);
+  if(!tool)throw new Error("Narzędzie niedostępne: "+name);
+  const result=await document.modelContext.executeTool(tool,args);
+  output.textContent=typeof result==="string"?result:JSON.stringify(result,null,2);
+ }catch(err){output.textContent="Błąd: "+String(err);}
+}
+document.querySelector("#discover").addEventListener("click",()=>inspect(null,null));
+document.querySelector("#run").addEventListener("click",()=>inspect("get_publication_queue",{platform:"linkedin",status:"scheduled"}));
+document.querySelector("#preview").addEventListener("click",()=>inspect("preview_available_slot",{platform:"linkedin"}));
+void register();
+</script>
+</body>
+</html>
