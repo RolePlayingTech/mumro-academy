@@ -101,6 +101,8 @@ assert.ok(llmsFull.includes('https://webmachinelearning.github.io/webmcp/'), 'll
 
 const webmcpLabHtml = await readFile(new URL('labs/webmcp-lab-17.html', distRoot), 'utf8');
 assert.ok(webmcpLabHtml.includes('get_publication_queue') && webmcpLabHtml.includes('DEMO-001'), 'labs/webmcp-lab-17.html must be present in dist');
+const webmcpInventoryHtml = await readFile(new URL('labs/webmcp-inventory-reference.html', distRoot), 'utf8');
+assert.ok(webmcpInventoryHtml.includes('get_inventory_items') && webmcpInventoryHtml.includes('INV-101'), 'labs/webmcp-inventory-reference.html must be present in dist');
 
 const rssEn = await readFile(new URL('rss.xml', distRoot), 'utf8');
 const rssPl = await readFile(new URL('pl/rss.xml', distRoot), 'utf8');

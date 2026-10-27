@@ -1074,6 +1074,22 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
 
       // W3C Community Group draft status and honest Mumro distinction
       await expect(page.locator('#webmcp-vs-mcp')).toContainText('Draft Community Group Report');
+      await expect(page.locator('#webmcp-vs-mcp')).toContainText(
+        locale === 'pl' ? '27 października 2026' : '27 October 2026'
+      );
+      const imperativeCode = await page
+        .locator('#lesson-code-webmcp-agent-operable-web-applications-2')
+        .textContent();
+      const declarativeCode = await page
+        .locator('#lesson-code-webmcp-agent-operable-web-applications-2-secondary')
+        .textContent();
+      expect(imperativeCode).toContain('document.modelContext.registerTool');
+      expect(imperativeCode).not.toContain('<form');
+      expect(declarativeCode).toContain('<form');
+      expect(declarativeCode).toContain('toolname="filter_queue_form"');
+      await expect(
+        page.locator(`a[href="/labs/webmcp-inventory-reference.html?lang=${locale}"]`)
+      ).toHaveCount(1);
       await expect(page.locator('#mumro-case-study')).toContainText('app/agent_gateway/server.py');
       await expect(page.locator('#mumro-case-study')).toContainText('frontend/src/pages/QueuePage.tsx');
       await expect(page.locator('#independent-assignment')).toContainText('INV-101');
@@ -1146,6 +1162,17 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
     await expect(page.locator('#output')).toContainText('instagram');
     await expect(page.locator('#output')).toContainText('Niepoprawny kanał');
 
+    // Verify full English localization (?lang=en and language toggle) on standalone lab
+    await page.goto('/labs/webmcp-lab-17.html?lang=en');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('#page-title')).toContainText('WebMCP: One Publishing Queue, Two Ways to Operate It');
+    await expect(page.locator('#support')).toContainText(
+      'No experimental WebMCP support (document.modelContext unavailable). Manual HTML filtering remains available.'
+    );
+    await expect(page.locator('#filter')).toHaveText('Show results');
+    await page.locator('#lang-pl').click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+
     // Mobile 390x844 responsive check on standalone lab (T09)
     await page.setViewportSize({ width: 390, height: 844 });
     const labOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -1159,6 +1186,14 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
         configurable: true,
         value: {
           async registerTool(tool: Record<string, unknown>) {
+            const win = window as unknown as { __webmcpRegisterCalls?: number };
+            win.__webmcpRegisterCalls = (win.__webmcpRegisterCalls ?? 0) + 1;
+            if (!tool || typeof tool.name !== 'string' || typeof tool.execute !== 'function') {
+              throw new TypeError('Invalid WebMCP tool definition');
+            }
+            if (registered.some((existing) => existing.name === tool.name)) {
+              throw new DOMException('Duplicate tool name: ' + tool.name, 'InvalidStateError');
+            }
             registered.push(tool);
           },
           async getTools() {
@@ -1210,5 +1245,125 @@ test.describe('MUMRO Academy — guided learning journeys', () => {
     const injectionResult = JSON.parse((await page.locator('#output').textContent()) ?? '{}');
     expect(injectionResult.publishToolRegistered).toBe(false);
     expect(injectionResult.actionTaken).toBe('none');
+    expect(injectionResult.toolCalled).toBe('get_publication_queue');
+    expect(injectionResult.toolAnnotations).toEqual({
+      readOnlyHint: true,
+      consequentialHint: false,
+      untrustedContentHint: true,
+    });
+    expect(injectionResult.toolResult.items.map((i: { id: string }) => i.id)).toEqual(['DEMO-003']);
+    expect(injectionResult.toolResult.items[0].note).toContain('Ignore prior instructions');
+    expect(injectionResult.domXssBoundary).toContain('textContent');
+    expect(injectionResult.agentPromptInjectionBoundary).toContain('untrustedContentHint: true');
+
+    // Verify registration idempotency (T08): re-invoking registerWebMcpTools() does not re-register or throw
+    const registerCallsAfterRetry = await page.evaluate(async () => {
+      const win = window as unknown as {
+        registerWebMcpTools: () => Promise<void>;
+        __webmcpRegisterCalls: number;
+      };
+      await win.registerWebMcpTools();
+      return win.__webmcpRegisterCalls;
+    });
+    expect(registerCallsAfterRetry).toBe(2);
+
+    // Verify the duplicate-rejecting harness rejects an unguarded duplicate registration attempt
+    const duplicateRejected = await page.evaluate(async () => {
+      try {
+        const mc = (document as unknown as {
+          modelContext: { registerTool: (t: Record<string, unknown>) => Promise<void> };
+        }).modelContext;
+        await mc.registerTool({
+          name: 'get_publication_queue',
+          description: 'duplicate',
+          inputSchema: { type: 'object' },
+          execute: async () => '{}',
+        });
+        return false;
+      } catch (err) {
+        return String(err).includes('Duplicate tool name: get_publication_queue');
+      }
+    });
+    expect(duplicateRejected).toBe(true);
+  });
+
+  test('Worked Reference Solution (/labs/webmcp-inventory-reference.html) passes T-INV-01 through T-INV-05 in EN and PL', async ({
+    page,
+  }) => {
+    // Part 1: Default browser without document.modelContext (T-INV-04 + manual HTML filter)
+    await page.goto('/labs/webmcp-inventory-reference.html?lang=en');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('#inventory-support')).toContainText(
+      'T-INV-04: No experimental WebMCP support (document.modelContext unavailable). Manual HTML filtering remains active.'
+    );
+    await expect(page.locator('#inventory-results tr')).toHaveCount(5);
+
+    // Manual HTML filter for audio + in_stock -> INV-101 & INV-105 (excludes INV-103 low_stock)
+    await page.locator('#category').selectOption('audio');
+    await page.locator('#stock-status').selectOption('in_stock');
+    await page.locator('#filter-inventory').click();
+    await expect(page.locator('#inventory-results tr')).toHaveCount(2);
+    const tableText = await page.locator('#inventory-results').textContent();
+    expect(tableText).toContain('INV-101');
+    expect(tableText).toContain('INV-105');
+    expect(tableText).not.toContain('INV-103');
+
+    // Mobile 390x844 overflow check
+    await page.setViewportSize({ width: 390, height: 844 });
+    const invOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    expect(invOverflow).toBe(false);
+
+    // Part 2: Simulated document.modelContext harness for T-INV-01, T-INV-02, T-INV-03, T-INV-05
+    await page.addInitScript(() => {
+      const registered: Array<Record<string, unknown>> = [];
+      Object.defineProperty(document, 'modelContext', {
+        configurable: true,
+        value: {
+          async registerTool(tool: Record<string, unknown>) {
+            if (registered.some((existing) => existing.name === tool.name)) {
+              throw new DOMException('Duplicate tool name: ' + String(tool.name), 'InvalidStateError');
+            }
+            registered.push(tool);
+          },
+          async getTools() {
+            return [...registered];
+          },
+          async executeTool(tool: { execute: (args: unknown) => Promise<string> }, inputObject: unknown) {
+            return await tool.execute(inputObject);
+          },
+        },
+      });
+    });
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/labs/webmcp-inventory-reference.html?lang=pl');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
+    await expect(page.locator('#inventory-support')).toContainText('Zarejestrowano narzędzie WebMCP get_inventory_items');
+
+    // T-INV-01: { category: "audio", stockStatus: "in_stock" } -> INV-101, INV-105
+    await page.locator('#inv-run-audio').click();
+    const res01 = JSON.parse((await page.locator('#inventory-output').textContent()) ?? '{}');
+    expect(res01.items.map((i: { sku: string }) => i.sku)).toEqual(['INV-101', 'INV-105']);
+
+    // T-INV-02: { category: "camera", stockStatus: "low_stock" } -> INV-104
+    await page.locator('#inv-run-camera').click();
+    const res02 = JSON.parse((await page.locator('#inventory-output').textContent()) ?? '{}');
+    expect(res02.items.map((i: { sku: string }) => i.sku)).toEqual(['INV-104']);
+
+    // T-INV-03: { category: "drones", stockStatus: "in_stock" } -> Runtime error refusal
+    await page.locator('#inv-run-invalid').click();
+    await expect(page.locator('#inventory-output')).toContainText('Error: Invalid category: drones');
+
+    // T-INV-05: { category: "audio", stockStatus: "low_stock" } -> INV-103 with untrusted warehouseNote & annotations.untrustedContentHint: true
+    await page.locator('#inv-run-untrusted').click();
+    const res05 = JSON.parse((await page.locator('#inventory-output').textContent()) ?? '{}');
+    expect(res05.toolCalled).toBe('get_inventory_items');
+    expect(res05.toolAnnotations).toEqual({
+      readOnlyHint: true,
+      consequentialHint: false,
+      untrustedContentHint: true,
+    });
+    expect(res05.toolResult.items.map((i: { sku: string }) => i.sku)).toEqual(['INV-103']);
+    expect(res05.deleteToolRegistered).toBe(false);
   });
 });

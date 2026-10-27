@@ -20,6 +20,11 @@ export interface LessonSection {
     language: string;
     code: string;
   };
+  secondaryCodeBlock?: {
+    caption: string;
+    language: string;
+    code: string;
+  };
 }
 
 export interface LessonData {

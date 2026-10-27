@@ -228,6 +228,23 @@ const articleSchema = [
                     <pre id={codeId} tabindex="0"><code>{sec.codeBlock.code}</code></pre>
                   </div>
                 )}
+                {sec.secondaryCodeBlock && (
+                  <div class="code-container">
+                    <div class="code-header">
+                      <span class="demo-note">{sec.secondaryCodeBlock.caption}</span>
+                      <button
+                        type="button"
+                        class="copy-btn"
+                        data-copy-trigger={`${codeId}-secondary`}
+                        data-copy-label={locale === 'pl' ? 'Kopiuj' : 'Copy'}
+                        data-copied-label={locale === 'pl' ? 'Skopiowano ✓' : 'Copied ✓'}
+                      >
+                        {locale === 'pl' ? 'Kopiuj' : 'Copy'}
+                      </button>
+                    </div>
+                    <pre id={`${codeId}-secondary`} tabindex="0"><code>{sec.secondaryCodeBlock.code}</code></pre>
+                  </div>
+                )}
               </section>
             );
           })}
