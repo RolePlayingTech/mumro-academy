@@ -4,6 +4,7 @@ import { harnessLesson } from './lesson-harness-engineering';
 import { mcpSurfaceLesson } from './lesson-mcp-tools-skills';
 import { playwrightBrowserLesson } from './lesson-playwright-browser-automation';
 import { gitWorkflowLesson } from './lesson-git-agent-workflow';
+import { webmcpLesson } from './lesson-webmcp';
 
 const en: LessonData[] = [
   {
@@ -721,6 +722,7 @@ const en: LessonData[] = [
   mcpSurfaceLesson.en,
   playwrightBrowserLesson.en,
   gitWorkflowLesson.en,
+  webmcpLesson.en,
 ];
 
 const pl: LessonData[] = [
@@ -1439,6 +1441,7 @@ const pl: LessonData[] = [
   mcpSurfaceLesson.pl,
   playwrightBrowserLesson.pl,
   gitWorkflowLesson.pl,
+  webmcpLesson.pl,
 ];
 
 export const lessonsTrack3And4 = assertLocaleParity({ en, pl }, 'lessonsTrack3And4');

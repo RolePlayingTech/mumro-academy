@@ -63,7 +63,8 @@ const enJourneys: LearningJourney[] = [
       "two-phase-commit-for-ai-agents",
       "autonomy-levels-and-guardrails",
       "playwright-browser-automation-and-verification",
-      "git-and-github-for-ai-coding-agents"
+      "git-and-github-for-ai-coding-agents",
+      "webmcp-agent-operable-web-applications"
     ]
   }
 ];
@@ -113,13 +114,23 @@ const plJourneys: LearningJourney[] = [
       "two-phase-commit-for-ai-agents",
       "autonomy-levels-and-guardrails",
       "playwright-browser-automation-and-verification",
-      "git-and-github-for-ai-coding-agents"
+      "git-and-github-for-ai-coding-agents",
+      "webmcp-agent-operable-web-applications"
     ]
   }
 ];
 export const learningJourneys = assertLocaleParity({ en: enJourneys, pl: plJourneys }, 'learningJourneys');
 
 const enPractice: Record<LessonSlug, LessonPractice> = {
+  "webmcp-agent-operable-web-applications": {
+    "objective": "Expose safe, read-only browser tools with WebMCP while keeping an accessible HTML fallback and backend authorization.",
+    "assignment": "Build a self-contained HTML + JavaScript page on five synthetic records with a manual filter UI, one feature-gated read-only Imperative WebMCP tool, runtime input validation, an unsupported-browser fallback and a prompt-injection threat model.",
+    "evidence": "A runnable synthetic HTML/JS demo, a verified tool contract, a five-row test table, two architecture decisions and a 10-point self-review rubric.",
+    "prerequisites": [
+      "mcp-tools-skills-and-product-surfaces",
+      "playwright-browser-automation-and-verification"
+    ]
+  },
   "versioned-brand-strategy": {
     "objective": "Define an executable brand strategy.",
     "assignment": "Write a one-page strategy contract: audience, three pillars, channel roles and a 30-day hypothesis.",
@@ -249,6 +260,15 @@ const enPractice: Record<LessonSlug, LessonPractice> = {
   }
 };
 const plPractice: Record<LessonSlug, LessonPractice> = {
+  "webmcp-agent-operable-web-applications": {
+    "objective": "Udostępnij bezpieczne narzędzia odczytu w przeglądarce przez WebMCP z zachowaniem dostępnego UI w HTML i autoryzacji w backendzie.",
+    "assignment": "Zbuduj samodzielną stronę HTML + JavaScript na pięciu fikcyjnych rekordach z ręcznym filtrem UI, jednym warunkowo rejestrowanym narzędziem odczytu WebMCP, walidacją w runtime, obsługą braku WebMCP i modelem zagrożeń prompt injection.",
+    "evidence": "Działający plik HTML/JS na danych syntetycznych, kontrakt narzędzia, pięciowierszowa tabela testów, dwie decyzje architektoniczne i ocena według rubryki /10.",
+    "prerequisites": [
+      "mcp-tools-skills-and-product-surfaces",
+      "playwright-browser-automation-and-verification"
+    ]
+  },
   "versioned-brand-strategy": {
     "objective": "Zdefiniuj strategię marki, którą da się stosować.",
     "assignment": "Spisz jednostronicowy kontrakt: odbiorcy, trzy filary, role kanałów i hipoteza na 30 dni.",

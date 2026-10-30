@@ -22,7 +22,7 @@ Most marketing content fails not because teams lack writing tools, but because *
 
 **MUMRO Academy (`academy.mumro.io`)** teaches portable engineering and editorial methods you can apply in your own stack, pairs them with four independent open-source CLI kits for coding-agent and MCP workflows, and shows how **[MUMRO](https://mumro.io)** implements the connected brand, publishing, and governance loop in practice.
 
-### Curriculum: 4 Learning Tracks & 16 Deep-Dive Lessons
+### Curriculum: 4 Learning Tracks & 17 Deep-Dive Lessons
 
 | Track | Lesson | Title (EN) | Focus |
 | :--- | :--- | :--- | :--- |
@@ -42,6 +42,7 @@ Most marketing content fails not because teams lack writing tools, but because *
 | **Track 04**<br>Agents, MCP & Control | `14` | **MCP, Tools and Skills: Why Agent-Operable Products Will Win** | Four-tier MCP surfaces, per-operation scopes, untrusted data & [`mcp-surface-kit`](https://github.com/RolePlayingTech/mcp-surface-kit) |
 | **Track 04**<br>Agents, MCP & Control | `15` | **Playwright & Multimodal Browser Verification: Giving AI Coding Agents Eyes, Hands, and Deterministic UI Contracts** | ARIA snapshots vs. VLM screenshots, `ui-contract` isolation, token-rotation session safety & [`playwright-harness-kit`](https://github.com/RolePlayingTech/playwright-harness-kit) |
 | **Track 04**<br>Agents, MCP & Control | `16` | **Git Isn’t a Save Button: Version Control, Worktrees, and Safe Recovery in the Age of AI Coding Agents** | Three Trees, branches, `git worktree` isolation, catching weakened tests, safe recovery & [`git-agent-workflow-kit`](https://github.com/RolePlayingTech/git-agent-workflow-kit) |
+| **Track 04**<br>Agents, MCP & Control | `17` | **WebMCP: When a Website Becomes a Tool for AI Agents** | `document.modelContext`, Imperative vs. Declarative API, progressive enhancement, prompt-injection defense & synthetic lab |
 
 ### Operational Playbooks, Glossary & Open-Source CLI Kits
 
@@ -66,7 +67,7 @@ Większość działań content marketingowych przegrywa nie z braku narzędzi do
 
 **Akademia MUMRO (`academy.mumro.io/pl/`)** to otwarty, dwujęzyczny podręcznik pokazujący uniwersalne metody inżynieryjne i redakcyjne, które wdrożysz we własnym stosie narzędzi, cztery niezależne pakiety CLI open source dla warsztatu agentów kodujących i MCP oraz praktyczne przykłady tego, które elementy obiegu treści realizuje **[MUMRO](https://mumro.io/pl/)**.
 
-### Program: 4 Ścieżki, 16 Lekcji, 8 Playbooków i 4 Otwarte Narzędzia CLI
+### Program: 4 Ścieżki, 17 Lekcji, 8 Playbooków i 4 Otwarte Narzędzia CLI
 
 1. **Ścieżka 01 — Żywe systemy marki i strategia treści**: Wersjonowana strategia (`v1 → v2`), inżynieria Brand Voice i twardych granic marki oraz research oparty na dowodach (`Źródło → Decyzja → Szkic`).
 2. **Ścieżka 02 — Wielokanałowa inżynieria treści i publikacja**: Rozwijanie jednej historii na artykuł WWW, karuzelę 5 slajdów i 4 kanały społecznościowe oraz odporna kolejka publikacji z potwierdzeniami per kanał.
@@ -106,7 +107,7 @@ mumro-academy/
 ├── src/
 │   ├── assets/fonts/                # OFL Latin + Polish woff2 font subsets
 │   ├── components/                  # AcademyHome, TrackPage, LessonPage, LessonLab, PlaybooksPage, GlossaryPage
-│   ├── content/                     # Bilingual EN/PL tracks, 16 lessons, 8 playbooks, glossary, tools & shell copy
+│   ├── content/                     # Bilingual EN/PL tracks, 17 lessons, 8 playbooks, glossary, tools & shell copy
 │   ├── layouts/BaseLayout.astro
 │   ├── lib/contracts.ts             # Locale types, URL helpers & assertLocaleParity
 │   ├── pages/                       # Static EN & PL routes + sitemap.xml, robots.txt, llms.txt, llms-full.txt, rss.xml

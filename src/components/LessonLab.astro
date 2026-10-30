@@ -13,12 +13,15 @@ const isHarnessLesson = slug === 'ai-agent-harness-engineering';
 const isMcpSurfaceLesson = slug === 'mcp-tools-skills-and-product-surfaces';
 const isPlaywrightLesson = slug === 'playwright-browser-automation-and-verification';
 const isGitWorkflowLesson = slug === 'git-and-github-for-ai-coding-agents';
-const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLesson && !isGitWorkflowLesson;
+const isWebmcpLesson = slug === 'webmcp-agent-operable-web-applications';
+const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLesson && !isGitWorkflowLesson && !isWebmcpLesson;
 ---
 <section
   class="preview-frame lesson-lab"
   data-lesson-lab={
-    isGitWorkflowLesson
+    isWebmcpLesson
+      ? 'webmcp-browser-tools'
+      : isGitWorkflowLesson
       ? 'git-agent-workflow'
       : isPlaywrightLesson
         ? 'playwright-browser'
@@ -35,6 +38,10 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
         {pl ? 'INTERAKTYWNE LABORATORIUM SYSTEMU · MUMRO STUDIO' : 'INTERACTIVE SYSTEM LAB · MUMRO STUDIO'}
       </span>
       <h2>
+        {isWebmcpLesson &&
+          (pl
+            ? 'Symulator WebMCP (Dane Syntetyczne): Ręczny Filtr HTML vs. Narzędzie document.modelContext vs. Fallback bez WebMCP'
+            : 'WebMCP Simulator (Synthetic Data): Manual HTML Filter vs. document.modelContext Tool vs. Unsupported-Browser Fallback')}
         {isGitWorkflowLesson &&
           (pl
             ? 'Symulator Wieloagentowego Gita i Pierwszej Pomocy: Wspólny main vs. Ślepe CI vs. Izolowane Worktrees + Audyt Zakresu'
@@ -960,6 +967,130 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/playwright-harness-kit" target="_blank" rel="noopener">
           {pl ? 'Otwórz playwright-harness-kit na GitHubie ↗' : 'Open playwright-harness-kit on GitHub ↗'}
+        </a>
+      </div>
+    </div>
+  )}
+
+  {isWebmcpLesson && (
+    <div class="lab-body harness-lab-body" data-lab-webmcp>
+      <div class="harness-sim-block">
+        <span class="eyebrow">
+          {pl
+            ? '1. PORÓWNANIE TRZECH ŚCIEŻEK — FIKCYJNA KOLEJKA (DEMO-001…DEMO-005)'
+            : '1. THREE-WAY COMPARISON — SYNTHETIC QUEUE FIXTURE (DEMO-001…DEMO-005)'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Tryb obsługi kolejki' : 'Queue interaction mode'}>
+          <button type="button" class="filter-pill" data-webmcp-mode="human-ui" aria-pressed="false">
+            {pl ? 'A. Ręczny filtr w UI (HTML)' : 'A. Manual Filtered UI (HTML)'}
+          </button>
+          <button type="button" class="filter-pill is-active" data-webmcp-mode="webmcp-tool" aria-pressed="true">
+            {pl ? 'B. Narzędzie WebMCP (document.modelContext)' : 'B. Semantic WebMCP Tool (document.modelContext)'}
+          </button>
+          <button type="button" class="filter-pill" data-webmcp-mode="fallback" aria-pressed="false">
+            {pl ? 'C. Przeglądarka bez WebMCP (Fallback)' : 'C. Unsupported-Browser Fallback'}
+          </button>
+        </div>
+
+        <div class="lab-card harness-panel" data-webmcp-panel="human-ui" hidden>
+          <span class="badge">{pl ? 'ŚCIEŻKA A · ZWYKŁY INTERFEJS CZŁOWIEKA (Zawsze aktywny · Dane syntetyczne)' : 'PATH A · ORDINARY HUMAN HTML UI (Always available · Synthetic data)'}</span>
+          <p>
+            {pl
+              ? 'Użytkownik wybiera w formularzu HTML `<select id="platform">linkedin</select>` oraz `<select id="publication-status">scheduled</select>` i klika „Pokaż wyniki”. Tabela DOM wyświetla wiersze `DEMO-001` (2026-11-05 09:00) oraz `DEMO-005` (2026-11-06 10:00), pomijając szkic `DEMO-003` (`draft`). Działa w każdej przeglądarce bez udziału AI.'
+              : 'The user selects `<select id="platform">linkedin</select>` and `<select id="publication-status">scheduled</select>` in standard HTML controls and clicks "Show results". The DOM table renders `DEMO-001` (2026-11-05 09:00) and `DEMO-005` (2026-11-06 10:00), excluding `DEMO-003` (`draft`). Works in every browser without AI.'}
+          </p>
+        </div>
+
+        <div class="lab-card harness-panel" data-webmcp-panel="webmcp-tool">
+          <span class="badge sage">{pl ? 'ŚCIEŻKA B · ZAREJESTROWANE NARZĘDZIE WEBMCP (Eksperymentalny szkic W3C CG · Dane syntetyczne)' : 'PATH B · REGISTERED WEBMCP TOOL (Experimental W3C CG Draft · Synthetic data)'}</span>
+          <p>
+            {pl
+              ? 'Gdy `document.modelContext` jest dostępne, strona rejestruje `get_publication_queue` oraz `preview_available_slot` (`readOnlyHint: true`, `consequentialHint: false`). Wywołanie `get_publication_queue({ platform: "linkedin", status: "scheduled" })` waliduje parametry w runtime i zwraca JSON `{ demo: true, platform: "linkedin", status: "scheduled", items: [DEMO-001, DEMO-005] }` — bez zgadywania selektorów DOM.'
+              : 'When `document.modelContext` exists, the page registers `get_publication_queue` and `preview_available_slot` (`readOnlyHint: true`, `consequentialHint: false`). Calling `get_publication_queue({ platform: "linkedin", status: "scheduled" })` validates arguments at runtime and returns `{ demo: true, platform: "linkedin", status: "scheduled", items: [DEMO-001, DEMO-005] }` — without guessing DOM selectors.'}
+          </p>
+        </div>
+
+        <div class="lab-card harness-panel" data-webmcp-panel="fallback" hidden>
+          <span class="badge signal">{pl ? 'ŚCIEŻKA C · DETEKCJA BRAKU API I PROGRESYWNE ULEPSZENIE' : 'PATH C · FEATURE DETECTION & PROGRESSIVE ENHANCEMENT FALLBACK'}</span>
+          <p>
+            {pl
+              ? 'W przeglądarce bez eksperymentalnego wsparcia (`!document.modelContext`) warunek `if ("modelContext" in document && document.modelContext)` pomija rejestrację bez rzucania wyjątku, wyświetla czytelny komunikat statusu (`role="status"`), a użytkownik (lub Playwright) nadal korzysta z pełnego formularza HTML.'
+              : 'In a browser without experimental support (`!document.modelContext`), the guard `if ("modelContext" in document && document.modelContext)` skips registration without throwing, updates the status banner (`role="status"`), and keeps the standard HTML filter form 100% functional.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="harness-anatomy-block">
+        <span class="eyebrow">
+          {pl
+            ? '2. WERYFIKACJA KONTRAKTU I GRANIC BEZPIECZEŃSTWA (T01–T07 · DANE SYNTETYCZNE)'
+            : '2. CONTRACT & SECURITY BOUNDARY VERIFICATION (T01–T07 · SYNTHETIC DATA)'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Przypadek testowy WebMCP' : 'WebMCP test case'}>
+          <button type="button" class="filter-pill is-active" data-webmcp-check-trigger="valid-query" aria-pressed="true">
+            {pl ? '1. Poprawny odczyt (linkedin)' : '1. Valid Read (linkedin)'}
+          </button>
+          <button type="button" class="filter-pill" data-webmcp-check-trigger="invalid-platform" aria-pressed="false">
+            {pl ? '2. Odmowa (platform=instagram)' : '2. Refusal (platform=instagram)'}
+          </button>
+          <button type="button" class="filter-pill" data-webmcp-check-trigger="slot-preview" aria-pressed="false">
+            {pl ? '3. Podgląd slotu (reserved:false)' : '3. Slot Preview (reserved:false)'}
+          </button>
+          <button type="button" class="filter-pill" data-webmcp-check-trigger="prompt-injection" aria-pressed="false">
+            {pl ? '4. Ochrona przed prompt injection' : '4. Prompt-Injection Guard'}
+          </button>
+        </div>
+
+        <div class="lab-card" data-webmcp-check-panel="valid-query">
+          <span class="badge sage">{pl ? 'T01 / T02 · SPÓJNOŚĆ UI I NARZĘDZIA: DEMO-001 + DEMO-005 (BEZ DEMO-003)' : 'T01 / T02 · UI & TOOL PARITY: DEMO-001 + DEMO-005 (EXCLUDING DEMO-003)'}</span>
+          <p>
+            {pl
+              ? 'Wejście: `{ platform: "linkedin", status: "scheduled" }`. Wynik: `DEMO-001` (2026-11-05 09:00) oraz `DEMO-005` (2026-11-06 10:00). Rekord `DEMO-003` (`linkedin`, `draft`) jest wykluczony zarówno w ręcznej tabeli HTML, jak i w odpowiedzi narzędzia.'
+              : 'Input: `{ platform: "linkedin", status: "scheduled" }`. Output: `DEMO-001` (2026-11-05 09:00) and `DEMO-005` (2026-11-06 10:00). Record `DEMO-003` (`linkedin`, `draft`) is excluded in both the manual HTML table and the tool response.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-webmcp-check-panel="invalid-platform" hidden>
+          <span class="badge signal">{pl ? 'T03 · ODMOWA WALIDACJI W RUNTIME (BRAK CICHEJ KOERCJI)' : 'T03 · RUNTIME VALIDATION REFUSAL (NO SILENT COERCION)'}</span>
+          <p>
+            {pl
+              ? 'Wejście: `{ platform: "instagram", status: "scheduled" }`. Ponieważ dozwolone kanały to wyłącznie `["linkedin", "x", "facebook"]`, walidator w `execute` rzuca jawny błąd (`Niepoprawny kanał: instagram`) i nie zmienia stanu danych.'
+              : 'Input: `{ platform: "instagram", status: "scheduled" }`. Because allowed channels are strictly `["linkedin", "x", "facebook"]`, the runtime guard inside `execute` throws an explicit error (`Unsupported platform: instagram`) with zero state mutation.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-webmcp-check-panel="slot-preview" hidden>
+          <span class="badge">{pl ? 'T05 · PODGLĄD TERMINU BEZ REZERWACJI (RESERVED: FALSE)' : 'T05 · NON-RESERVING SLOT PREVIEW (RESERVED: FALSE)'}</span>
+          <p>
+            {pl
+              ? 'Wejście: `preview_available_slot({ platform: "linkedin" })`. Wynik: `{ demo: true, platform: "linkedin", suggestion: "2026-11-09 09:00", reserved: false }`. Narzędzie zwraca wyłącznie fikcyjną propozycję i nigdy nie rezerwuje terminu ani nie publikuje posta.'
+              : 'Input: `preview_available_slot({ platform: "linkedin" })`. Output: `{ demo: true, platform: "linkedin", suggestion: "2026-11-09 09:00", reserved: false }`. The tool returns a fictional suggestion only and never reserves a slot or publishes a post.'}
+          </p>
+        </div>
+
+        <div class="lab-card" data-webmcp-check-panel="prompt-injection" hidden>
+          <span class="badge">{pl ? 'T06 / T07 · BRAK NARZĘDZIA PUBLISH_NOW + RENDEROWANIE TEXTCONTENT' : 'T06 / T07 · NO PUBLISH_NOW TOOL + TEXTCONTENT RENDERING'}</span>
+          <p>
+            {pl
+              ? 'Niezaufana notatka `DEMO-003.note` zwracana przez `get_publication_queue` jest renderowana w DOM przez `textContent` (co blokuje DOM XSS, ale samo w sobie nie uodparnia modelu LLM). W warstwie agenta narzędzie ustawia `annotations.untrustedContentHint: true` i nie rejestruje `publish_now`.'
+              : 'Untrusted `DEMO-003.note` returned by `get_publication_queue` is rendered in the DOM via `textContent` (preventing DOM XSS, though `textContent` alone does not make an LLM immune). At the agent layer, the tool sets `annotations.untrustedContentHint: true` and registers no `publish_now` tool.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="lab-card explanation kit-banner">
+        <div>
+          <span class="eyebrow signal">
+            {pl ? 'SAMODZIELNE LABORATORIUM HTML · /LABS/WEBMCP-LAB-17.HTML' : 'STANDALONE HTML LAB · /LABS/WEBMCP-LAB-17.HTML'}
+          </span>
+          <p>
+            {pl
+              ? 'Otwórz pełną, samodzielną stronę laboratoryjną z tabelą DEMO-001…DEMO-005, ręcznym filtrem HTML, warunkową rejestracją narzędzi w document.modelContext oraz lokalnym inspektorem narzędzi (niebędącym autonomicznym agentem AI).'
+              : 'Open the standalone laboratory page featuring the DEMO-001…DEMO-005 table, manual HTML filtering, conditional document.modelContext tool registration, and the local tool inspector (explicitly labeled as an in-page inspector, not an autonomous AI agent).'}
+          </p>
+        </div>
+        <a class="button" href={pl ? '/labs/webmcp-lab-17.html?lang=pl' : '/labs/webmcp-lab-17.html?lang=en'}>
+          {pl ? 'Otwórz laboratorium WebMCP (/labs/webmcp-lab-17.html) →' : 'Open WebMCP Lab (/labs/webmcp-lab-17.html) →'}
         </a>
       </div>
     </div>
