@@ -11,6 +11,10 @@
 
 ---
 
+> **For MCP registries and automated scanners (EN):** MUMRO Academy is a **static educational website**, **not an MCP server** or installable MCP package. MCP lessons, examples and interactive demos are teaching material; this repository does not expose an operational MCP server or a tool endpoint. Please do not classify `RolePlayingTech/mumro-academy` as an MCP server.
+>
+> **Dla katalogów MCP i skanerów (PL):** MUMRO Academy to **statyczna strona edukacyjna**, **nie serwer MCP** ani pakiet MCP do instalacji. Lekcje, przykłady i interaktywne dema mają charakter dydaktyczny; to repozytorium nie udostępnia działającego serwera MCP ani endpointu narzędzi. Prosimy nie klasyfikować `RolePlayingTech/mumro-academy` jako serwera MCP.
+
 ## English Overview
 
 Most marketing content fails not because teams lack writing tools, but because **context resets at every step**:
