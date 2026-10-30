@@ -1,5 +1,9 @@
 # MUMRO Academy
 
+## Owner decision: internal development merge gates (2026-10-30)
+
+See [docs/agent/internal-merge-policy.md](docs/agent/internal-merge-policy.md). For internal-only changes, missing full build/E2E is not automatically a merge blocker when documented; retain review of meaningful failures and locale parity. Existing agent-harness generated block below remains unchanged. Deployment/publication always needs a separate owner approval.
+
 <!-- agent-harness:begin -->
 ## Purpose
 Bilingual (EN/PL) open handbook at academy.mumro.io: lessons, interactive labs, playbooks and glossary, built as a static Astro site.
