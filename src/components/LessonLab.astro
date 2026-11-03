@@ -582,7 +582,47 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
         </div>
       </div>
 
-      <!-- PART C: Open-source kit callout -->
+      <!-- PART C: Four-rung extension ladder (Rule vs Skill vs MCP vs Runtime Plugin) -->
+      <div class="harness-anatomy-block" data-harness-extension-ladder>
+        <span class="eyebrow">
+          {pl
+            ? '3. DRABINA ROZSZERZEŃ: KIEDY WYSTARCZY REGUŁA, A KIEDY WTYCZKA RUNTIME?'
+            : '3. EXTENSION LADDER: WHEN IS A RULE ENOUGH, AND WHEN DO YOU NEED A RUNTIME PLUGIN?'}
+        </span>
+        <div class="lab-controls" role="group" aria-label={pl ? 'Warstwa rozszerzenia harnessu' : 'Harness extension layer'}>
+          <button type="button" class="filter-pill is-active" data-extension-trigger="rule" aria-pressed="true">
+            {pl ? '1. Reguła w AGENTS.md' : '1. AGENTS.md rule'}
+          </button>
+          <button type="button" class="filter-pill" data-extension-trigger="skill" aria-pressed="false">
+            {pl ? '2. Procedura w SKILL.md' : '2. SKILL.md workflow'}
+          </button>
+          <button type="button" class="filter-pill" data-extension-trigger="mcp" aria-pressed="false">
+            {pl ? '3. Narzędzie MCP / WebMCP' : '3. MCP / WebMCP tool'}
+          </button>
+          <button type="button" class="filter-pill" data-extension-trigger="plugin" aria-pressed="false">
+            {pl ? '4. Wtyczka runtime (Cordis)' : '4. Runtime plugin (Cordis)'}
+          </button>
+        </div>
+
+        <div class="lab-card" data-extension-panel="rule">
+          <span class="badge sage">{pl ? 'STOPIEŃ 1 · ZASIĘG: REPOZYTORIUM · EGZEKWUJE: MODEL (+ KONTROLA W CI)' : 'RUNG 1 · SCOPE: REPOSITORY · ENFORCED BY: THE MODEL (+ CI CHECK)'}</span>
+          <p>{pl ? 'Jedno zdanie potrzebne w niemal każdym zadaniu — np. „kwoty przechowujemy w groszach jako liczby całkowite” albo komenda szybkiego sprawdzenia npm run check. Zero kodu wykonywanego w hoście; Agent Harness Kit utrzymuje ten blok w jednym źródle prawdy.' : 'One sentence needed in almost every task — for example “store money in integer cents” or the fast check command npm run check. Zero executable host code; Agent Harness Kit keeps this block in a single source of truth.'}</p>
+        </div>
+        <div class="lab-card" data-extension-panel="skill" hidden>
+          <span class="badge">{pl ? 'STOPIEŃ 2 · ZASIĘG: .AGENTS/SKILLS I .CLAUDE/SKILLS · EGZEKWUJE: MODEL' : 'RUNG 2 · SCOPE: .AGENTS/SKILLS & .CLAUDE/SKILLS · ENFORCED BY: THE MODEL'}</span>
+          <p>{pl ? 'Wielokrokowa procedura wczytywana na żądanie (np. przekazanie sesji, migracja bazy, przegląd zmian przy rygorze strict). Przy ustawieniu agents=claude,cursor,other Agent Harness Kit zapisuje skille w obu katalogach, dzięki czemu automatycznie wykrywają je Claude Code, Cursor, Codex i DeepSeek Harness.' : 'A multi-step procedure loaded on demand (for example session handoff, database migration or strict-rigor change verification). With agents=claude,cursor,other, Agent Harness Kit writes skills to both directories so Claude Code, Cursor, Codex and DeepSeek Harness all discover them automatically.'}</p>
+        </div>
+        <div class="lab-card" data-extension-panel="mcp" hidden>
+          <span class="badge signal">{pl ? 'STOPIEŃ 3 · ZASIĘG: WYBRANY WORKSPACE · EGZEKWUJE: SERWER OAUTH + PREPARE → CONFIRM' : 'RUNG 3 · SCOPE: TARGET WORKSPACE · ENFORCED BY: OAUTH SERVER + PREPARE → CONFIRM'}</span>
+          <p>{pl ? 'Typowany dostęp do zewnętrznego systemu (np. odczyt analityki, zapis szkicu lub dwufazowa publikacja w MUMRO). Granicę uprawnień egzekwuje zdalny serwer narzędzia, a nie prompt ani lokalna wtyczka w procesie edytora.' : 'Typed access to an external system (for example reading analytics, saving a draft or two-phase publishing in MUMRO). Permission boundaries are enforced by the remote tool server rather than a prompt or an in-process editor plugin.'}</p>
+        </div>
+        <div class="lab-card" data-extension-panel="plugin" hidden>
+          <span class="badge signal">{pl ? 'STOPIEŃ 4 · ZASIĘG: CAŁY PROFIL DSH · EGZEKWUJE: PROCES HOSTA (TESTOWAĆ W VM)' : 'RUNG 4 · SCOPE: ENTIRE DSH PROFILE · ENFORCED BY: HOST PROCESS (TEST IN A VM)'}</span>
+          <p>{pl ? 'Modyfikacja samego środowiska uruchomieniowego — np. pakiet Cordis zbudowany w DeepSeek Harness Creator Mode (odkrywanie API przez cordis_inspect_*, trwała instalacja w profilu przez plugin_manager). Daje własne panele UI i hooki pętli, ale kod działa wewnątrz procesu hosta i obejmuje kolejne sesje profilu.' : 'Modifying the execution runtime itself — for example a Cordis bundle built in DeepSeek Harness Creator Mode (API discovery via cordis_inspect_*, persistent profile installation via plugin_manager). Unlocks custom UI panels and loop hooks, but code runs in-process on the host and persists across profile sessions.'}</p>
+        </div>
+      </div>
+
+      <!-- PART D: Open-source kit callout -->
       <div class="lab-card explanation kit-banner">
         <div>
           <span class="eyebrow signal">
@@ -590,8 +630,8 @@ const usesTrackLab = !isHarnessLesson && !isMcpSurfaceLesson && !isPlaywrightLes
           </span>
           <p>
             {pl
-              ? 'Agent Harness Kit skanuje Twoje repozytorium, pyta tylko o to, czego nie da się odczytać z plików, zapisuje decyzje w .harness/spec.json, wyjaśnia, co włączył i co pominął, generuje AGENTS.md, CLAUDE.md i skille dla Codexa, Claude Code i Cursora, a potem sprawdza ich spójność: scan → design → explain → build → check.'
-              : 'Agent Harness Kit scans your repository, asks only what the files cannot tell it, records decisions in .harness/spec.json, explains what it included and left out, generates AGENTS.md, CLAUDE.md and skills for Codex, Claude Code and Cursor, and then checks that they stay consistent: scan → design → explain → build → check.'}
+              ? 'Agent Harness Kit skanuje Twoje repozytorium, pyta tylko o to, czego nie da się odczytać z plików, zapisuje decyzje w .harness/spec.json, wyjaśnia powód i koszt każdego modułu, generuje AGENTS.md, CLAUDE.md i skille (.agents/skills, .claude/skills) dla Codexa, Claude Code, Cursora i środowisk takich jak DeepSeek Harness, a potem pilnuje ich spójności w CI: scan → design → explain → build → check.'
+              : 'Agent Harness Kit scans your repository, asks only what the files cannot tell it, records decisions in .harness/spec.json, explains the reason and cost of every module, generates AGENTS.md, CLAUDE.md and skills (.agents/skills, .claude/skills) for Codex, Claude Code, Cursor and AGENTS.md-compatible runtimes such as DeepSeek Harness, and checks consistency in CI: scan → design → explain → build → check.'}
           </p>
         </div>
         <a class="button" href="https://github.com/RolePlayingTech/agent-harness-kit" target="_blank" rel="noopener">

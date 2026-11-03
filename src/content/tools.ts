@@ -115,7 +115,7 @@ const en: EcosystemContent = {
         repoUrl: 'https://github.com/RolePlayingTech/agent-harness-kit',
         focusLabel: 'What it covers',
         focus:
-          'Repository harness specifications (`.harness/spec.json`), synchronized `AGENTS.md` / `CLAUDE.md` / `.cursor/rules` generation, and on-demand skills (`session-handoff`, `harness-maintenance`, `verify-change`).',
+          'Repository harness specifications (`.harness/spec.json`), synchronized `AGENTS.md` and `CLAUDE.md` (`@AGENTS.md`) blocks, and on-demand skills (`.agents/skills`, `.claude/skills`) across Codex, Claude Code, Cursor and `AGENTS.md`-compatible runtimes.',
         problemLabel: 'Problem it solves',
         problemSolved:
           'Stops `AGENTS.md`, `CLAUDE.md`, and Cursor rules from drifting apart, bloating context windows with stale instructions, or treating prompt text as a substitute for branch protection and CI checks.',
@@ -287,7 +287,7 @@ const pl: EcosystemContent = {
         repoUrl: 'https://github.com/RolePlayingTech/agent-harness-kit',
         focusLabel: 'Czego dotyczy',
         focus:
-          'Specyfikacji harnessu repozytorium (`.harness/spec.json`), spójnego generowania `AGENTS.md` / `CLAUDE.md` / `.cursor/rules` oraz procedur na żądanie (`session-handoff`, `harness-maintenance`, `verify-change`).',
+          'Specyfikacji harnessu repozytorium (`.harness/spec.json`), spójnego generowania bloków `AGENTS.md` i `CLAUDE.md` (`@AGENTS.md`) oraz skilli na żądanie (`.agents/skills`, `.claude/skills`) dla Codexa, Claude Code, Cursora i środowisk zgodnych z `AGENTS.md`.',
         problemLabel: 'Jaki problem rozwiązuje',
         problemSolved:
           'Eliminuje rozjazd między `AGENTS.md`, `CLAUDE.md` i regułami Cursora, zapobiega puchnięciu okna kontekstowego od przestarzałych instrukcji i oddziela wskazówki w prompcie od blokad w CI oraz ochronie gałęzi.',

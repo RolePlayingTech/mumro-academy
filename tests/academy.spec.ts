@@ -27,6 +27,7 @@ import {
   LESSON15_LAB_HTML_APP,
   UI_CONTRACT_FIXTURE_CODE,
 } from '../src/content/lesson-playwright-browser-automation';
+import { NEXTJS_CODEX_AGENTS_MD } from '../src/content/lesson-harness-engineering';
 import { playbooksContent } from '../src/content/playbooks';
 
 test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verification', () => {
@@ -623,19 +624,145 @@ test.describe('MUMRO Academy — Bilingual (EN/PL), Interactive & SEO Verificati
     expect(body).toContain('OWASP — MCP Top 10');
   });
 
-  test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, Context Simulator & 5-Layer Anatomy in PL and EN', async ({ page }) => {
-    await page.goto('/pl/lessons/ai-agent-harness-engineering/');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'pl');
-    await expect(page.locator('h1')).toContainText('Czym jest AI Harness');
+  test('Lesson 13 (AI Agent Harness Engineering) renders 3 levels, DeepSeek & Extension Ladder sections, balanced markup & 390px layout in PL and EN', async ({ page }) => {
+    for (const locale of ['pl', 'en'] as const) {
+      const prefix = locale === 'pl' ? '/pl' : '';
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`${prefix}/lessons/ai-agent-harness-engineering/`);
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+      await expect(page.locator('h1')).toContainText(locale === 'pl' ? 'Czym jest AI Harness' : 'What an AI Harness Is');
 
-    // Interactive Context Window Simulator switches modes
-    await expect(page.locator('[data-harness-panel="lean"]')).toBeVisible();
-    await page.locator('[data-harness-mode="chat"]').click();
-    await expect(page.locator('[data-harness-panel="chat"]')).toBeVisible();
+      // Sections 10 & 11 (DeepSeek Harness + Agent Harness Kit interoperability) render with clean inline markup
+      await expect(page.locator('#extensible-harness-deepseek')).toBeVisible();
+      await expect(page.locator('#combining-kit-and-runtime-plugins')).toBeVisible();
+      for (const selector of ['#extensible-harness-deepseek > p', '#combining-kit-and-runtime-plugins > p']) {
+        const paragraphs = page.locator(selector);
+        await expect(paragraphs).toHaveCount(5);
+        for (const p of await paragraphs.all()) {
+          const plainText = await p.evaluate((node) =>
+            Array.from(node.childNodes)
+              .filter((child) => child.nodeType === Node.TEXT_NODE)
+              .map((child) => child.textContent ?? '')
+              .join('')
+          );
+          expect(plainText).not.toContain('**');
+          expect(plainText).not.toContain('`');
+          expect(plainText).not.toContain('*A Programming');
+        }
+      }
 
-    // Interactive 5-Layer Anatomy switches layers
-    await page.locator('[data-anatomy-trigger="memory"]').click();
-    await expect(page.locator('[data-anatomy-panel="memory"]')).toBeVisible();
+      // Interactive Context Window Simulator, 5-Layer Anatomy & 4-Rung Extension Ladder switch modes
+      await expect(page.locator('[data-harness-panel="lean"]')).toBeVisible();
+      await page.locator('[data-harness-mode="chat"]').click();
+      await expect(page.locator('[data-harness-panel="chat"]')).toBeVisible();
+
+      await page.locator('[data-anatomy-trigger="memory"]').click();
+      await expect(page.locator('[data-anatomy-panel="memory"]')).toBeVisible();
+
+      await expect(page.locator('[data-extension-panel="rule"]')).toBeVisible();
+      await page.locator('[data-extension-trigger="plugin"]').click();
+      await expect(page.locator('[data-extension-panel="plugin"]')).toBeVisible();
+      await expect(page.locator('[data-extension-panel="plugin"]')).toContainText('Cordis');
+
+      // Mobile 390px zero horizontal overflow check
+      await page.setViewportSize({ width: 390, height: 844 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(overflow).toBe(false);
+    }
+  });
+
+  test('Lesson 13 contract executes real agent-harness-kit CLI for Next.js walkthrough and multi-runtime (.agents/skills + .claude/skills) setup', () => {
+    const cliBin = resolve(process.cwd(), 'node_modules/agent-harness-kit/bin/agent-harness.mjs');
+    expect(existsSync(cliBin), `Expected pinned agent-harness-kit CLI at ${cliBin}`).toBe(true);
+
+    const runCli = (args: string[], cwd: string) =>
+      spawnSync(process.execPath, [cliBin, ...args], {
+        cwd,
+        encoding: 'utf8',
+      });
+
+    const workDir = mkdtempSync(join(tmpdir(), 'academy-lesson13-kit-'));
+    try {
+      const projDir = join(workDir, 'invoice-hub');
+      mkdirSync(join(projDir, 'src/app'), { recursive: true });
+      mkdirSync(join(projDir, 'prisma/migrations/0001_init'), { recursive: true });
+      writeFileSync(join(projDir, 'src/app/page.tsx'), 'export default function Page() { return null; }\n', 'utf8');
+      writeFileSync(join(projDir, 'prisma/migrations/0001_init/migration.sql'), '-- init\n', 'utf8');
+      writeFileSync(
+        join(projDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'invoice-hub',
+            description: 'Invoicing app for small agencies: clients, invoices, Stripe payments and reminders.',
+            scripts: {
+              typecheck: 'tsc --noEmit',
+              lint: 'eslint .',
+              test: 'vitest run',
+              'test:e2e': 'playwright test',
+              build: 'next build',
+            },
+            dependencies: {
+              next: '15.0.0',
+              react: '19.0.0',
+              '@prisma/client': '6.0.0',
+              stripe: '17.0.0',
+              'next-auth': '5.0.0',
+            },
+            devDependencies: {
+              typescript: '5.7.0',
+              vitest: '2.1.0',
+              '@playwright/test': '1.50.0',
+            },
+          },
+          null,
+          2
+        ) + '\n',
+        'utf8'
+      );
+
+      const answersPath = join(workDir, 'answers.json');
+      writeFileSync(
+        answersPath,
+        JSON.stringify(
+          {
+            agents: ['codex'],
+            rigor: 'standard',
+            memory: 'decisions',
+            rules: [
+              'Money is stored as integer cents; never use floating point for amounts.',
+              'Server Components by default; add "use client" only for interactive leaves.',
+            ],
+          },
+          null,
+          2
+        ) + '\n',
+        'utf8'
+      );
+
+      expect(runCli(['scan', '.'], projDir).status).toBe(0);
+      expect(runCli(['design', '.', '--yes', '--answers', answersPath], projDir).status).toBe(0);
+      const explainRes = runCli(['explain', '.'], projDir);
+      expect(explainRes.status).toBe(0);
+      expect(explainRes.stdout).toContain('Extra care in payments/auth code');
+      expect(runCli(['build', '.'], projDir).status).toBe(0);
+      expect(runCli(['check', '.', '--strict'], projDir).status).toBe(0);
+
+      const generatedAgentsMd = readFileSync(join(projDir, 'AGENTS.md'), 'utf8').replace(/\r\n/g, '\n').trim();
+      expect(generatedAgentsMd).toBe(NEXTJS_CODEX_AGENTS_MD.replace(/\r\n/g, '\n').trim());
+
+      // Section 11 recipe: add claude,cursor,other so skills emit to both .claude/skills and .agents/skills (for DeepSeek Harness / Codex)
+      expect(runCli(['design', '.', '--yes', '--set', 'agents=claude,cursor,other'], projDir).status).toBe(0);
+      expect(runCli(['build', '.'], projDir).status).toBe(0);
+      expect(runCli(['check', '.', '--strict'], projDir).status).toBe(0);
+
+      const claudeMd = readFileSync(join(projDir, 'CLAUDE.md'), 'utf8');
+      expect(claudeMd).toContain('@AGENTS.md');
+      const claudeSkill = readFileSync(join(projDir, '.claude/skills/harness-maintenance/SKILL.md'), 'utf8');
+      const agentsSkill = readFileSync(join(projDir, '.agents/skills/harness-maintenance/SKILL.md'), 'utf8');
+      expect(agentsSkill).toBe(claudeSkill);
+    } finally {
+      rmSync(workDir, { recursive: true, force: true });
+    }
   });
 
   test('Lesson 16 hands-on Lab A & Lab B contract executes real git-agent-workflow-kit CLI (sandbox, doctor, pr-ready, recovery-plan)', () => {

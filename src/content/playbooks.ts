@@ -230,9 +230,16 @@ npx github:RolePlayingTech/agent-harness-kit check           # add --run to exec
 ## Skills                verify-change (strict), session-handoff (handoff), harness-maintenance
 <!-- agent-harness:end -->
 
-# 4. Keep it small
+# 4. Multi-runtime compatibility (Claude Code, Cursor, Codex & DeepSeek Harness)
+# Include "other" (or "codex") so skills land in .agents/skills/ as well as .claude/skills/
+# (@deepseek-ai/dsh-skill-filesystem scans .agents/skills/ by default; dsh-agent-instructions reads AGENTS.md):
+npx github:RolePlayingTech/agent-harness-kit design --yes --set agents=claude,cursor,other
+npx github:RolePlayingTech/agent-harness-kit build
+npx github:RolePlayingTech/agent-harness-kit check . --strict
+
+# 5. Keep it small & climb the extension ladder slowly
 # - Change the harness through .harness/spec.json, never inside the markers.
-# - Add a rule after the same mistake happens twice; remove rules that no longer change behavior.
+# - Solve gaps at the lowest layer first: AGENTS.md rule -> SKILL.md -> scoped MCP -> runtime plugin.
 # - Enforce what matters with branch protection, CODEOWNERS, CI and tool permissions.`,
     },
     {
@@ -692,9 +699,16 @@ npx github:RolePlayingTech/agent-harness-kit check           # dodaj --run, by u
 ## Skills                verify-change (strict), session-handoff (handoff), harness-maintenance
 <!-- agent-harness:end -->
 
-# 4. Pilnuj rozmiaru
+# 4. Zgodność z wieloma środowiskami (Claude Code, Cursor, Codex i DeepSeek Harness)
+# Dopisz "other" (lub "codex"), aby skille trafiły też do .agents/skills/ obok .claude/skills/
+# (@deepseek-ai/dsh-skill-filesystem skanuje domyślnie .agents/skills/; dsh-agent-instructions czyta AGENTS.md):
+npx github:RolePlayingTech/agent-harness-kit design --yes --set agents=claude,cursor,other
+npx github:RolePlayingTech/agent-harness-kit build
+npx github:RolePlayingTech/agent-harness-kit check . --strict
+
+# 5. Pilnuj rozmiaru i wspinaj się po drabinie rozszerzeń powoli
 # - Zmieniaj harness przez .harness/spec.json, nigdy między znacznikami.
-# - Dodawaj regułę, gdy ten sam błąd powtórzy się dwa razy; usuwaj reguły, które niczego nie zmieniają.
+# - Rozwiązuj braki na najniższej warstwie: reguła AGENTS.md -> SKILL.md -> MCP -> wtyczka runtime.
 # - To, co ważne, egzekwuj ochroną gałęzi, CODEOWNERS, CI i uprawnieniami narzędzia.`,
     },
     {

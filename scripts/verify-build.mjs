@@ -98,6 +98,8 @@ assert.ok(llmsFull.includes('# MUMRO Academy — Complete Bilingual Knowledge Ba
 assert.ok(llmsFull.length > 20000, 'llms-full.txt must contain the full bilingual curriculum');
 assert.ok(llmsFull.includes('webmcp-agent-operable-web-applications'), 'llms-full.txt must include Lesson 17 WebMCP');
 assert.ok(llmsFull.includes('https://webmachinelearning.github.io/webmcp/'), 'llms-full.txt must serialize Lesson 17 WebMCP resources');
+assert.ok(llmsFull.includes('https://github.com/deepseek-ai/deepseek-harness'), 'llms-full.txt must serialize Lesson 13 DeepSeek Harness resources');
+assert.ok(llmsFull.includes('https://arxiv.org/abs/2608.25512'), 'llms-full.txt must serialize Lesson 13 Cordis paper reference');
 
 const webmcpLabHtml = await readFile(new URL('labs/webmcp-lab-17.html', distRoot), 'utf8');
 assert.ok(webmcpLabHtml.includes('get_publication_queue') && webmcpLabHtml.includes('DEMO-001'), 'labs/webmcp-lab-17.html must be present in dist');

@@ -1,5 +1,6 @@
 node_modules/
 mumro/
+reklamy_akademia_mumro/
 dist/
 .astro/
 test-results/

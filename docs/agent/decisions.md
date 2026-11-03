@@ -4,6 +4,10 @@ Durable agreements for this project, newest first. Read before changing architec
 
 Entry format: a heading `## YYYY-MM-DD: decision`, then one to three lines on why.
 
+## 2026-11-03: Lesson 13 separates repository harnesses from runtime plugins and runs agent-harness-kit in E2E
+Lesson 13 (`ai-agent-harness-engineering`) separates repository-scoped harnesses (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`, deterministic CI checks via `RolePlayingTech/agent-harness-kit`) from extensible execution runtimes (`@deepseek-ai/dsh` on Cordis, Creator Mode `tool-cordis` + `plugin_manager`) using a four-rung extension ladder (`AGENTS.md` → `SKILL.md` → MCP/WebMCP → runtime plugin).
+`tests/academy.spec.ts` now executes the pinned `agent-harness-kit` CLI against both the `invoice-hub` Next.js walkthrough (`NEXTJS_CODEX_AGENTS_MD`) and the multi-runtime `agents=claude,cursor,other` setup so tutorial outputs and `.agents/skills` / `.claude/skills` parity never drift.
+
 ## 2026-10-23: Lesson 16 companion is git-agent-workflow-kit
 Lesson 16 (Git & GitHub workflows for AI coding agents) pairs with `RolePlayingTech/git-agent-workflow-kit`: a zero-dependency Node CLI (`git-agent doctor`, `pr-ready`, `recovery-plan`, `skills`, `sandbox`) and five portable Agent Skills (`SKILL.md`).
 Like `agent-harness-kit`, `mcp-surface-kit`, and `playwright-harness-kit`, `git-agent-workflow-kit` is pinned to a commit in `devDependencies` (`github:RolePlayingTech/git-agent-workflow-kit#ecfaa9236f42d3f2728c6ef94237836ae13d88fd`) so `tests/academy.spec.ts` unconditionally executes the real `git-agent` CLI and real `git` commands against Lesson 16's Lab A and Lab B sandboxes locally and in CI.

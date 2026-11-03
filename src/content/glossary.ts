@@ -143,6 +143,14 @@ const en = {
       relatedLesson: 'ai-agent-harness-engineering',
     },
     {
+      id: 'repository-vs-execution-harness',
+      term: 'Repository Harness vs. Execution Harness (`agent-harness-kit` vs. Runtime Plugins)',
+      category: 'Harness Engineering',
+      definition: 'The separation between repository-scoped guidance and verification files committed to Git (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/*/SKILL.md`, CI checks — designed with `agent-harness-kit`) and the host agent runtime that executes the model loop, session logs, UI slots and plugins (such as `DeepSeek Harness` built on Cordis with Creator Mode).',
+      whyItMatters: 'Prevents solving simple project conventions with high-privilege in-process runtime plugins that persist across profile sessions, while letting one `.harness/spec.json` feed instructions and skills across multiple runtimes.',
+      relatedLesson: 'ai-agent-harness-engineering',
+    },
+    {
       id: 'mcp-tool-surface',
       term: 'MCP Tool Surface (read / draft / local-draft delete / gated mutation)',
       category: 'Agentic AI',
@@ -356,6 +364,14 @@ const pl: typeof en = {
       category: 'Harness Engineering',
       definition: 'Zlecanie szerokiego przeszukiwania wielu plików subagentowi, który pracuje we własnym kontekście i zwraca krótkie podsumowanie ze ścieżkami, oraz proszenie osobnego agenta lub nowej sesji o przegląd ryzykownego diffu bez znajomości rozumowania autora.',
       whyItMatters: 'Utrzymuje główną sesję w skupieniu i daje niezależne spojrzenie. To kompromis: łączne zużycie tokenów rośnie, a streszczenie może pominąć szczegół, więc przed edycją i tak warto otworzyć wskazane linie.',
+      relatedLesson: 'ai-agent-harness-engineering',
+    },
+    {
+      id: 'repository-vs-execution-harness',
+      term: 'Harness repozytorium a harness wykonawczy (`agent-harness-kit` kontra wtyczki runtime)',
+      category: 'Harness Engineering',
+      definition: 'Rozdzielenie wersjonowanych w Gicie instrukcji, skilli i kontroli konkretnego projektu (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/*/SKILL.md`, bramki CI — projektowanych w `agent-harness-kit`) od programu uruchomieniowego hosta prowadzącego pętlę modelu, dziennik sesji, interfejs i wtyczki (takiego jak `DeepSeek Harness` oparty na Cordis z trybem Creator Mode).',
+      whyItMatters: 'Chroni przed rozwiązywaniem prostych konwencji projektu wtyczkami działającymi w procesie hosta i obejmującymi cały profil użytkownika, a zarazem pozwala zasilać wiele środowisk z jednego `.harness/spec.json`.',
       relatedLesson: 'ai-agent-harness-engineering',
     },
     {

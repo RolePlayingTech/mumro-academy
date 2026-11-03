@@ -197,6 +197,7 @@ export function initShell(): void {
   bindTabGroup('data-mcp-step', 'data-mcp-panel');
   bindTabGroup('data-harness-mode', 'data-harness-panel');
   bindTabGroup('data-anatomy-trigger', 'data-anatomy-panel');
+  bindTabGroup('data-extension-trigger', 'data-extension-panel');
   bindTabGroup('data-surface-mode', 'data-surface-panel');
   bindTabGroup('data-stack-trigger', 'data-stack-panel');
   bindTabGroup('data-browser-mode', 'data-browser-panel');
