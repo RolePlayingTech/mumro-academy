@@ -12,9 +12,17 @@ const c = shellContent[Astro.props.locale].dialog;
   </div>
   <h2 id="contact-dialog-title">{c.title}</h2>
   <p id="contact-dialog-description">{c.intro}</p>
-  <a class="button" href="https://roleplayingtech.com">
-    {c.action}<span aria-hidden="true">↗</span>
-  </a>
+  <div class="dialog-actions">
+    <a class="button" href={c.primaryHref}>
+      {c.primaryAction}<span aria-hidden="true">↗</span>
+    </a>
+    <a class="button secondary" href={c.docsHref}>
+      {c.docsAction}<span aria-hidden="true">↗</span>
+    </a>
+    <a class="button secondary" href={c.contactHref}>
+      {c.action}<span aria-hidden="true">↗</span>
+    </a>
+  </div>
   <p class="dialog-note">{c.note}</p>
 </dialog>
 <script>
@@ -60,8 +68,13 @@ const c = shellContent[Astro.props.locale].dialog;
     color: var(--muted, #62675d);
     line-height: 1.6;
   }
-  .button {
+  .dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     margin-top: 20px;
+  }
+  .button {
     white-space: normal;
   }
   .dialog-note {
